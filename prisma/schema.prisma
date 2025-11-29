@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+  CASH
+  CHECK
+  OTHER
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  phone       String
+  address     String
+  companyName String?
+  taxNumber   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  invoices    Invoice[]
+}
+
+model Product {
+  id          String           @id @default(uuid())
+  name        String
+  description String
+  price       Decimal
+  unit        String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  invoices    InvoiceProduct[]
+}
+
+model Invoice {
+  id          String           @id @default(uuid())
+  number      String
+  customerId  String
+  customer    Customer         @relation(fields: [customerId], references: [id])
+  issuedAt    DateTime
+  dueAt       DateTime
+  status      InvoiceStatus
+  total       Decimal
+  notes       String
+  createdById String
+  createdBy   User             @relation(fields: [createdById], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  products    InvoiceProduct[]
+  payments    Payment[]
+}
+
+model InvoiceProduct {
+  id         String  @id @default(uuid())
+  invoiceId  String
+  invoice    Invoice @relation(fields: [invoiceId], references: [id])
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Decimal
+  unitPrice  Decimal
+  totalPrice Decimal
+}
+
+model Payment {
+  id        String        @id @default(uuid())
+  invoiceId String
+  invoice   Invoice       @relation(fields: [invoiceId], references: [id])
+  amount    Decimal
+  date      DateTime
+  method    PaymentMethod
+  notes     String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      UserRole
+  invoices  Invoice[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
