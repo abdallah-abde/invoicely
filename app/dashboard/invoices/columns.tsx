@@ -10,11 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InvoiceType } from "@/lib/custom-types";
-import { cn } from "@/lib/utils";
+import { caseInsensitiveSort, cn, dateAsStringSort } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Loader, MoreVertical } from "lucide-react";
 import { useInvoices } from "@/hooks/use-invoices";
 import { useRouter } from "next/navigation";
+import InvoiceCU from "./invoice-cu";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<InvoiceType>[] = [
   {
@@ -44,6 +46,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Number" />;
     },
+    enableHiding: false,
     cell: ({ row }) => <div>{row.getValue("number")}</div>,
   },
   {
@@ -51,25 +54,26 @@ export const columns: ColumnDef<InvoiceType>[] = [
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Customer" />;
     },
+    sortingFn: caseInsensitiveSort,
+    enableHiding: false,
     cell: ({ row }) => <div>{row.original.customer.name}</div>,
   },
   {
-    accessorKey: "issuedAt",
+    accessorKey: "issuedDateAsString",
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Issued At" />;
     },
-    cell: ({ row }) => (
-      <div>{row.original.issuedAt.toISOString().split("T")[0]}</div>
-    ),
+    enableHiding: false,
+    sortingFn: dateAsStringSort,
+    cell: ({ row }) => <div>{row.getValue("issuedDateAsString")}</div>,
   },
   {
-    accessorKey: "dueAt",
+    accessorKey: "dueDateAsString",
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Due At" />;
     },
-    cell: ({ row }) => (
-      <div>{row.original.dueAt.toISOString().split("T")[0]}</div>
-    ),
+    sortingFn: dateAsStringSort,
+    cell: ({ row }) => <div>{row.getValue("dueDateAsString")}</div>,
   },
   {
     accessorKey: "status",
@@ -104,6 +108,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Total" />;
     },
+    enableHiding: false,
     cell: ({ row }) => {
       const total = parseFloat(row.getValue("totalAsNumber"));
 
@@ -118,9 +123,8 @@ export const columns: ColumnDef<InvoiceType>[] = [
   },
   {
     accessorKey: "notes",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Notes" />;
-    },
+    header: "Notes",
+    enableSorting: false,
     cell: ({ row }) => <div>{row.getValue("notes")}</div>,
   },
   {
@@ -128,6 +132,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Created By" />;
     },
+    sortingFn: caseInsensitiveSort,
     cell: ({ row }) => <div>{row.original.createdBy.name}</div>,
   },
   {
@@ -139,7 +144,12 @@ export const columns: ColumnDef<InvoiceType>[] = [
       const router = useRouter();
 
       if (isLoading) {
-        return <Loader className="animate-spin" />;
+        return (
+          <p className="flex gap-1 items-center">
+            <Loader className="animate-spin text-destructive" />{" "}
+            <span className="text-destructive text-xs">Deleting...</span>{" "}
+          </p>
+        );
       }
 
       return (
@@ -152,27 +162,34 @@ export const columns: ColumnDef<InvoiceType>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(invoice.id)}
-            >
-              Copy invoice ID
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <InvoiceCU
+                mode="edit"
+                invoice={invoice}
+                trigger={
+                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary">
+                    Edit
+                  </div>
+                }
+              />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => console.log(invoice.id)}>
-              Edit
-            </DropdownMenuItem>
             <DropdownMenuItem
+              className="cursor-pointer text-destructive"
               onClick={() => {
                 deleteInvoice.mutate(invoice.id, {
                   onSuccess: () => {
                     // optional UI refresh
                     router.refresh();
+                    toast.success("Invoice deleted successfully!");
                   },
                 });
               }}
             >
               Delete
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem>View invoice details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

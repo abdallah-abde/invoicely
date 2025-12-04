@@ -37,6 +37,36 @@ export function useInvoices() {
     },
   });
 
+  const updateInvoice = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      setIsLoading(true);
+
+      const res = await fetch(`/api/invoices/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) throw new Error("Update failed");
+
+      return res.json();
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+    },
+
+    onSettled: () => {
+      setIsLoading(false);
+    },
+
+    onError: (error) => {
+      console.error({ message: error });
+    },
+  });
+
   const deleteInvoice = useMutation({
     mutationFn: async (id: string) => {
       setIsLoading(true);
@@ -57,5 +87,11 @@ export function useInvoices() {
     },
   });
 
-  return { invoicesQuery, createInvoice, deleteInvoice, isLoading };
+  return {
+    invoicesQuery,
+    createInvoice,
+    updateInvoice,
+    deleteInvoice,
+    isLoading,
+  };
 }

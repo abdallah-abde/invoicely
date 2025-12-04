@@ -21,7 +21,9 @@ import DataTableBody from "@/components/data-table/data-table-body";
 import { InvoiceType } from "@/lib/custom-types";
 
 export function InvoicesTable({ data }: { data: InvoiceType[] }) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "number", desc: true },
+  ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );

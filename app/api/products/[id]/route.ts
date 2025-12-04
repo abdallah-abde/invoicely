@@ -5,12 +5,19 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const resolvedParams = await params;
-  await prisma.product.delete({
-    where: { id: resolvedParams.id },
-  });
+  try {
+    const resolvedParams = await params;
+    await prisma.product.delete({
+      where: { id: resolvedParams.id },
+    });
 
-  return NextResponse.json({ message: "Product deleted" });
+    return NextResponse.json({ message: "Product deleted" });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Error deleting product" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(
@@ -23,10 +30,8 @@ export async function PUT(
     const product = await prisma.product.update({
       where: { id },
       data: {
-        name: body.name,
+        ...body,
         price: Number(body.price),
-        description: body.description,
-        unit: body.unit,
       },
     });
 

@@ -5,12 +5,19 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const resolvedParams = await params;
-  await prisma.customer.delete({
-    where: { id: resolvedParams.id },
-  });
+  try {
+    const resolvedParams = await params;
+    await prisma.customer.delete({
+      where: { id: resolvedParams.id },
+    });
 
-  return NextResponse.json({ message: "Customer deleted" });
+    return NextResponse.json({ message: "Customer deleted" });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Error deleting customer" },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(

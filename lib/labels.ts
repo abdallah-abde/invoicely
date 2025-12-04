@@ -8,4 +8,5 @@ export const labels = {
   taxNumber: "Tax Number",
   priceAsNumber: "Price",
   createdAt: "Created At",
+  dueDateAsString: "Due At",
 };
