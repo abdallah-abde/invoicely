@@ -2,6 +2,14 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { ThemeProvider } from "@/providers/theme-provider";
+import { QueryProvider } from "@/providers/query-provider";
+
+import { ThemeProvider as NextThemeProvider, useTheme } from "next-themes";
+import ThemeDataProvider from "@/context/theme-data-provider";
+
+import { Toaster } from "@/components/ui/sonner";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,11 +31,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        cz-shortcut-listen="true"
       >
-        {children}
+        <QueryProvider>
+          <NextThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ThemeDataProvider>
+              {/* <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            > */}
+              <main className="w-full">{children}</main>
+              <Toaster />
+              {/* </ThemeProvider> */}
+            </ThemeDataProvider>
+          </NextThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );
