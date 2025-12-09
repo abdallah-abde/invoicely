@@ -8,6 +8,11 @@ export default async function page() {
     include: {
       customer: true,
       createdBy: true,
+      _count: {
+        select: {
+          products: true,
+        },
+      },
     },
   });
 

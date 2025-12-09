@@ -34,14 +34,12 @@ export default function InvoiceCU({
     async function fetchCustomers() {
       const res = await fetch("/api/customers");
       const data = await res.json();
-      console.log(data);
       setCustomers(data);
     }
 
     async function fetchUsers() {
       const res = await fetch("/api/users");
       const data = await res.json();
-      console.log(data);
       setUsers(data);
     }
   }, []);

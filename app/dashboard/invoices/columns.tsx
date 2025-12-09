@@ -17,6 +17,7 @@ import { useInvoices } from "@/hooks/use-invoices";
 import { useRouter } from "next/navigation";
 import InvoiceCU from "./invoice-cu";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<InvoiceType>[] = [
   {
@@ -134,6 +135,19 @@ export const columns: ColumnDef<InvoiceType>[] = [
     },
     sortingFn: caseInsensitiveSort,
     cell: ({ row }) => <div>{row.original.createdBy.name}</div>,
+  },
+  {
+    accessorKey: "_count.products",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="Products Count" />;
+    },
+    cell: ({ row }) => (
+      <div>
+        <Badge variant="secondary" className="select-none">
+          {row.original._count.products}
+        </Badge>
+      </div>
+    ),
   },
   {
     id: "actions",

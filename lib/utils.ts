@@ -1,3 +1,4 @@
+import { InvoiceStatus } from "@/app/generated/prisma/enums";
 import { Row, SortingFn, sortingFns } from "@tanstack/react-table";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -31,3 +32,7 @@ export const dateAsStringSort: SortingFn<any> = (
     return 0;
   }
 };
+
+export function getInvoiceStatusList() {
+  return Object.values(InvoiceStatus);
+}

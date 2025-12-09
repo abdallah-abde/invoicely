@@ -18,9 +18,9 @@ import DataTableSearchInput from "@/components/data-table/data-table-search-inpu
 import DataTableColumnsVisibility from "@/components/data-table/data-table-columns-visibility";
 import DataTableHeader from "@/components/data-table/data-table-header";
 import DataTableBody from "@/components/data-table/data-table-body";
-import { Customer } from "@/app/generated/prisma/client";
+import { CustomerType } from "@/lib/custom-types";
 
-export function CustomersTable({ data }: { data: Customer[] }) {
+export function CustomersTable({ data }: { data: CustomerType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
   ]);

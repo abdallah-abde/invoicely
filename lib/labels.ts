@@ -9,4 +9,6 @@ export const labels = {
   priceAsNumber: "Price",
   createdAt: "Created At",
   dueDateAsString: "Due At",
+  _count_invoices: "Invoices Count",
+  _count_products: "Products Count",
 };

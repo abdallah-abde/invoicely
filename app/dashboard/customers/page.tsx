@@ -4,7 +4,13 @@ import { CustomersTable } from "./customers-table";
 import CustomerCU from "./customer-cu";
 
 export default async function page() {
-  const data = await prisma.customer.findMany();
+  const data = await prisma.customer.findMany({
+    include: {
+      _count: {
+        select: { invoices: true },
+      },
+    },
+  });
 
   return (
     <div>

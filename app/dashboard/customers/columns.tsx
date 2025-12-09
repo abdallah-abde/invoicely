@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Customer } from "@/app/generated/prisma/client";
 import { ColumnDef, Row, SortingFn } from "@tanstack/react-table";
 import { Loader, MoreVertical } from "lucide-react";
 import { useCustomers } from "@/hooks/use-customers";
@@ -19,8 +18,10 @@ import { useRouter } from "next/navigation";
 import CustomerCU from "./customer-cu";
 import { toast } from "sonner";
 import { caseInsensitiveSort } from "@/lib/utils";
+import { CustomerType } from "@/lib/custom-types";
+import { Badge } from "@/components/ui/badge";
 
-export const columns: ColumnDef<Customer>[] = [
+export const columns: ColumnDef<CustomerType>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -87,6 +88,19 @@ export const columns: ColumnDef<Customer>[] = [
     header: "Tax Number",
     enableSorting: false,
     cell: ({ row }) => <div>{row.getValue("taxNumber")}</div>,
+  },
+  {
+    accessorKey: "_count.invoices",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="Invoices Count" />;
+    },
+    cell: ({ row }) => (
+      <div>
+        <Badge variant="secondary" className="select-none">
+          {row.original._count.invoices}
+        </Badge>
+      </div>
+    ),
   },
   {
     id: "actions",

@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "../ui/calendar";
-import { cn } from "@/lib/utils";
+import { cn, getInvoiceStatusList } from "@/lib/utils";
 import { format } from "date-fns";
 import {
   Select,
@@ -54,6 +54,8 @@ export default function InvoiceForm({
 }) {
   const { createInvoice, updateInvoice, isLoading } = useInvoices();
   const router = useRouter();
+
+  const statusList = getInvoiceStatusList();
 
   const form = useForm<z.infer<typeof invoiceSchema>>({
     resolver: zodResolver(invoiceSchema),
@@ -151,7 +153,7 @@ export default function InvoiceForm({
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-60 pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -173,7 +175,7 @@ export default function InvoiceForm({
                         field.value ? new Date(field.value) : new Date()
                       }
                       onSelect={field.onChange}
-                      initialFocus
+                      autoFocus
                     />
                   </PopoverContent>
                 </Popover>
@@ -193,7 +195,7 @@ export default function InvoiceForm({
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-60 pl-3 text-left font-normal",
+                          "w-full pl-3 text-left font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
@@ -213,7 +215,7 @@ export default function InvoiceForm({
                         field.value ? new Date(field.value) : new Date()
                       }
                       onSelect={field.onChange}
-                      initialFocus
+                      autoFocus
                     />
                   </PopoverContent>
                 </Popover>
@@ -239,7 +241,7 @@ export default function InvoiceForm({
               </FormItem>
             )}
           />
-          {customers && (
+          {customers && customers.length > 0 ? (
             <FormField
               control={form.control}
               name="customerId"
@@ -250,7 +252,7 @@ export default function InvoiceForm({
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <FormControl>
+                    <FormControl className="w-full">
                       <SelectTrigger>
                         <SelectValue placeholder="Select customer" />
                       </SelectTrigger>
@@ -267,8 +269,12 @@ export default function InvoiceForm({
                 </FormItem>
               )}
             />
+          ) : (
+            <>
+              <Loader className="animate-spin" />
+            </>
           )}
-          {users && (
+          {users && users.length > 0 ? (
             <FormField
               control={form.control}
               name="createdById"
@@ -279,7 +285,7 @@ export default function InvoiceForm({
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <FormControl>
+                    <FormControl className="w-full">
                       <SelectTrigger>
                         <SelectValue placeholder="Select user" />
                       </SelectTrigger>
@@ -296,6 +302,10 @@ export default function InvoiceForm({
                 </FormItem>
               )}
             />
+          ) : (
+            <>
+              <Loader className="animate-spin" />
+            </>
           )}
           <FormField
             control={form.control}
@@ -307,19 +317,17 @@ export default function InvoiceForm({
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
-                  <FormControl>
+                  <FormControl className="w-full">
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {["DRAFT", "SENT", "PAID", "OVERDUE", "CANCELED"].map(
-                      (item) => (
-                        <SelectItem key={item} value={item}>
-                          {item}
-                        </SelectItem>
-                      )
-                    )}
+                    {statusList.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {item}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -327,15 +335,19 @@ export default function InvoiceForm({
             )}
           />
 
+          <>{customers?.length || "customers"}</>
+          <>{users?.length || "users"}</>
+
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !customers || !users}
             size="lg"
             className="w-fit cursor-pointer"
           >
-            {isLoading ? (
+            {isLoading || !customers || !users ? (
               <>
-                <Loader className="animate-spin" /> Submitting...
+                <Loader className="animate-spin" />{" "}
+                {isLoading || !customers || !users}
               </>
             ) : (
               "Submit"

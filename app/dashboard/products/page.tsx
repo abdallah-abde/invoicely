@@ -4,7 +4,13 @@ import prisma from "@/lib/prisma";
 import ProductCU from "./product-cu";
 
 export default async function page() {
-  const data = await prisma.product.findMany();
+  const data = await prisma.product.findMany({
+    include: {
+      _count: {
+        select: { invoices: true },
+      },
+    },
+  });
 
   const result = data.map((product) => {
     const { price, createdAt, ...productWithout } = product;

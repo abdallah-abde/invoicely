@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import ProductCU from "./product-cu";
 import { toast } from "sonner";
 import { caseInsensitiveSort } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<ProductType>[] = [
   {
@@ -88,6 +89,19 @@ export const columns: ColumnDef<ProductType>[] = [
       return <DataTableHeaderSort column={column} title="Created At" />;
     },
     cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
+  },
+  {
+    accessorKey: "_count.invoices",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="Invoices Count" />;
+    },
+    cell: ({ row }) => (
+      <div>
+        <Badge variant="secondary" className="select-none">
+          {row.original._count.invoices}
+        </Badge>
+      </div>
+    ),
   },
   {
     id: "actions",
