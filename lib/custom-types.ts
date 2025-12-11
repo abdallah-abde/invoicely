@@ -25,4 +25,5 @@ export interface InvoiceType extends Omit<Omit<Invoice, "total">, "createdAt"> {
   _count: {
     products: number;
   };
+  products: Product[];
 }

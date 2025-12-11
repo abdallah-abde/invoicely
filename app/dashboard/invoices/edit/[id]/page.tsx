@@ -1,10 +1,17 @@
 import PageHeader from "@/components/page-header";
-import { InvoicesTable } from "./invoices-table";
 import prisma from "@/lib/prisma";
-import InvoiceCU from "./invoice-cu";
+import InvoiceForm from "@/components/forms/invoice-form";
 
-export default async function page() {
-  const data = await prisma.invoice.findMany({
+export default async function page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const invoice = await prisma.invoice.findFirst({
+    where: {
+      id,
+    },
     include: {
       customer: true,
       createdBy: true,
@@ -21,21 +28,25 @@ export default async function page() {
       },
     },
   });
+  const customers = await prisma.customer.findMany();
+  const users = await prisma.user.findMany();
 
-  const result = data.map((inv) => {
-    const createdDate = inv.createdAt.toLocaleDateString("en-EN", {
+  let invoiceObj;
+
+  if (invoice) {
+    const createdDate = invoice.createdAt.toLocaleDateString("en-EN", {
       dateStyle: "medium",
     });
-    const issuedDate = inv.issuedAt.toLocaleDateString("en-EN", {
+    const issuedDate = invoice.issuedAt.toLocaleDateString("en-EN", {
       dateStyle: "medium",
     });
-    const dueDate = inv.dueAt.toLocaleDateString("en-EN", {
+    const dueDate = invoice.dueAt.toLocaleDateString("en-EN", {
       dateStyle: "medium",
     });
-    const { total, ...invoiceWithoutTotal } = inv;
+    const { total, ...invoiceWithoutTotal } = invoice;
 
     // map invoice-product pivot rows into the expected product shape
-    const products = inv.products.map((ip) => ({
+    const products = invoice.products.map((ip) => ({
       // spread the actual product fields first (name, id, createdAt, updatedAt, description, price, unit, ...)
       ...(ip.product ?? {}),
       // add invoice-specific fields if needed
@@ -46,7 +57,7 @@ export default async function page() {
       id: ip.product ? ip.product.id : ip.id,
     }));
 
-    return {
+    invoiceObj = {
       ...invoiceWithoutTotal,
       createdAt: createdDate,
       issuedDateAsString: issuedDate,
@@ -54,14 +65,20 @@ export default async function page() {
       totalAsNumber: total.toNumber(),
       products,
     };
-  });
+  }
 
   return (
     <div>
-      <PageHeader title="Invoices">
-        <InvoiceCU />
+      <PageHeader title="Edit Invoice">
+        <></>
       </PageHeader>
-      <InvoicesTable data={result} />
+      <InvoiceForm
+        // setIsOpen={setIsOpen}
+        invoice={invoiceObj}
+        mode={"edit"}
+        customers={customers}
+        users={users}
+      />
     </div>
   );
 }

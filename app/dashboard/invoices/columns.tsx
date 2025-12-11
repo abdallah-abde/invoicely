@@ -154,6 +154,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const invoice = row.original;
+      console.log(invoice);
       const { deleteInvoice, isLoading } = useInvoices();
       const router = useRouter();
 
@@ -177,16 +178,21 @@ export const columns: ColumnDef<InvoiceType>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <InvoiceCU
+            <DropdownMenuItem
+              onClick={() => {
+                router.push(`/dashboard/invoices/edit/${invoice.id}`);
+              }}
+            >
+              Edit
+              {/* <InvoiceCU
                 mode="edit"
                 invoice={invoice}
                 trigger={
                   <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary">
                     Edit
                   </div>
-                }
-              />
+                } 
+              />*/}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

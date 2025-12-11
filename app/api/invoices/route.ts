@@ -30,17 +30,42 @@ export async function POST(request: Request) {
       createdById,
     } = body;
 
-    const newInvoice = await prisma.invoice.create({
-      data: {
-        number,
-        customerId,
-        issuedAt: new Date(body.issuedAt),
-        dueAt: new Date(body.dueAt),
-        status,
-        total: Number(total),
-        notes,
-        createdById,
-      },
+    // If products are provided, create InvoiceProducts along with the invoice
+    const products = Array.isArray(body.products) ? body.products : [];
+
+    // Use a transaction to create invoice and related invoice products atomically
+    const newInvoice = await prisma.$transaction(async (tx) => {
+      const inv = await tx.invoice.create({
+        data: {
+          number,
+          customerId,
+          issuedAt: new Date(body.issuedAt),
+          dueAt: new Date(body.dueAt),
+          status,
+          total: Number(total),
+          notes,
+          createdById,
+        },
+      });
+
+      if (products.length > 0) {
+        const createData = products.map((p: any) => ({
+          invoiceId: inv.id,
+          productId: p.productId,
+          quantity: Number(p.quantity),
+          unitPrice: Number(p.unitPrice),
+          totalPrice: Number(p.totalPrice),
+        }));
+
+        await tx.invoiceProduct.createMany({ data: createData });
+      }
+
+      // return invoice with its products
+      const result = await tx.invoice.findUnique({
+        where: { id: inv.id },
+        include: { products: true },
+      });
+      return result;
     });
 
     return NextResponse.json(newInvoice, { status: 201 });

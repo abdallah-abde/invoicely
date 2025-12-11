@@ -20,9 +20,14 @@ export default async function BreadcrumbSlot({
 
   const { all } = await params;
 
+  console.log(all);
+
+  let href = "/dashboard";
+
   for (let i = 0; i < all.length; i++) {
     const route = all[i];
-    const href = `/${all.at(0)}/${route}`;
+    href = `${href}/${route}`;
+    console.log(href);
     if (i === all.length - 1) {
       breadcrumbPage = (
         <BreadcrumbItem>
@@ -40,6 +45,7 @@ export default async function BreadcrumbSlot({
               {route.split("-").join(" ")}
             </BreadcrumbLink>
           </BreadcrumbItem>
+          <BreadcrumbSeparator />
         </React.Fragment>
       );
     }
@@ -51,8 +57,8 @@ export default async function BreadcrumbSlot({
         <BreadcrumbItem>
           <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
         </BreadcrumbItem>
-        {breadcrumbItems}
         <BreadcrumbSeparator />
+        {breadcrumbItems}
         {breadcrumbPage}
       </BreadcrumbList>
     </Breadcrumb>

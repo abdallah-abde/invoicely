@@ -37,9 +37,34 @@ export function useInvoices() {
     },
   });
 
+  // Helper that performs create and waits for invalidation
+  const createInvoiceWithRevalidate = async (data: any) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch("/api/invoices", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Create failed");
+      }
+
+      const json = await res.json();
+      await queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      return json;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const updateInvoice = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       setIsLoading(true);
+
+      console.log("data :", data);
 
       const res = await fetch(`/api/invoices/${id}`, {
         method: "PUT",
@@ -87,11 +112,41 @@ export function useInvoices() {
     },
   });
 
+  const updateInvoiceWithRevalidate = async ({
+    id,
+    data,
+  }: {
+    id: string;
+    data: any;
+  }) => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(`/api/invoices/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || "Update failed");
+      }
+
+      const json = await res.json();
+      await queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      return json;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     invoicesQuery,
     createInvoice,
     updateInvoice,
     deleteInvoice,
+    createInvoiceWithRevalidate,
+    updateInvoiceWithRevalidate,
     isLoading,
   };
 }
