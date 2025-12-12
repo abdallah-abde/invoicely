@@ -52,3 +52,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+// TODO: Rename all page.tsx files and refactor code

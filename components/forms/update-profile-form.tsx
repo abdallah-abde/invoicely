@@ -1,7 +1,5 @@
 "use client";
 
-import Link from "next/link";
-
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -13,13 +11,12 @@ import { Loader } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 
-import { signUpSchema } from "@/schemas/auth";
+import { profileSchema } from "@/schemas/auth";
 
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -32,30 +29,40 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import ProvidersSignIn from "@/components/forms/providers-sign-in";
+import ImageUpload from "@/components/image-upload";
 
-export function SignUpForm() {
-  const form = useForm<z.infer<typeof signUpSchema>>({
-    resolver: zodResolver(signUpSchema),
+interface ProfileFormProps {
+  email: string;
+  name: string;
+  image: string;
+  twoFactorEnabled: boolean;
+}
+
+export function UpdateProfileForm({
+  name,
+  email,
+  image,
+  twoFactorEnabled,
+}: ProfileFormProps) {
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      name,
+      email,
+      image,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof signUpSchema>) {
+  async function onSubmit(data: z.infer<typeof profileSchema>) {
     try {
-      await authClient.signUp.email(
+      await authClient.updateUser(
         {
           name: data.name,
-          email: data.email,
-          password: data.password,
+          image: data.image,
         },
         {
           onSuccess: async () => {
-            toast.success("Sign up successfully done");
+            toast.success("Profile updated successfully");
           },
 
           onError: (ctx) => {
@@ -69,13 +76,12 @@ export function SignUpForm() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md ">
+    <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Sign up</CardTitle>
-        <CardDescription>Create an account to continue</CardDescription>
+        <CardTitle>Update your details</CardTitle>
       </CardHeader>
       <CardContent>
-        <form id="signUpForm" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="updateProfileForm" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="name"
@@ -104,9 +110,10 @@ export function SignUpForm() {
                   <FieldLabel htmlFor="email">Email</FieldLabel>
                   <Input
                     {...field}
-                    type="email"
                     id="email"
+                    type="email"
                     aria-invalid={fieldState.invalid}
+                    disabled
                     placeholder="Enter your email"
                     autoComplete="off"
                   />
@@ -117,40 +124,17 @@ export function SignUpForm() {
               )}
             />
             <Controller
-              name="password"
+              name="image"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input
-                    type="password"
-                    {...field}
-                    id="password"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="******"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="confirmPassword"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmPassword">
-                    Confirm Password
-                  </FieldLabel>
-                  <Input
-                    type="password"
-                    {...field}
-                    id="confirmPassword"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="******"
-                    autoComplete="off"
+                <Field data-invalid={fieldState.invalid} className="gap-1">
+                  <FieldLabel>Image</FieldLabel>
+                  <ImageUpload
+                    endpoint="imageUploader"
+                    defaultUrl={field.value}
+                    onChange={(url) => {
+                      field.onChange(url);
+                    }}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -166,33 +150,30 @@ export function SignUpForm() {
           orientation="horizontal"
           className="flex items-center justify-between w-full"
         >
-          <>
-            <p className="text-sm flex items-center gap-1">
-              Already have an account?{" "}
-              <Link href="/sign-in" className="text-primary">
-                {" "}
-                Sign in
-              </Link>
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset()}
-              className="cursor-pointer"
-            >
-              Reset
-            </Button>
-            <Button type="submit" form="signUpForm" className="cursor-pointer">
-              {form.formState.isSubmitting ? (
-                <Loader className="siz-6 animate-spin" />
-              ) : (
-                "Sign up"
-              )}
-            </Button>
-          </>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => form.reset()}
+            className="cursor-pointer"
+          >
+            Reset
+          </Button>
+          <Button
+            type="submit"
+            form="updateProfileForm"
+            className="cursor-pointer"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <Loader className="siz-6 animate-spin" />
+            ) : (
+              "Update Profile"
+            )}
+          </Button>
         </Field>
-        <ProvidersSignIn />
       </CardFooter>
     </Card>
   );
 }
+
+// TODO: twoFactorEnabled

@@ -1,25 +1,17 @@
 "use client";
 
-import Link from "next/link";
-
-import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Controller, useForm } from "react-hook-form";
-
 import { toast } from "sonner";
-
+import * as z from "zod";
 import { Loader } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
-
-import { signUpSchema } from "@/schemas/auth";
 
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -31,31 +23,28 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { changePasswordSchema } from "@/schemas/auth";
 
-import ProvidersSignIn from "@/components/forms/providers-sign-in";
-
-export function SignUpForm() {
-  const form = useForm<z.infer<typeof signUpSchema>>({
-    resolver: zodResolver(signUpSchema),
+export function ChangePasswordForm() {
+  const form = useForm<z.infer<typeof changePasswordSchema>>({
+    resolver: zodResolver(changePasswordSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      currentPassword: "",
+      newPassword: "",
+      confirmNewPassword: "",
     },
   });
 
-  async function onSubmit(data: z.infer<typeof signUpSchema>) {
+  async function onSubmit(data: z.infer<typeof changePasswordSchema>) {
     try {
-      await authClient.signUp.email(
+      await authClient.changePassword(
         {
-          name: data.name,
-          email: data.email,
-          password: data.password,
+          newPassword: data.newPassword,
+          currentPassword: data.currentPassword,
         },
         {
           onSuccess: async () => {
-            toast.success("Sign up successfully done");
+            toast.success("Password has been changed successfully");
           },
 
           onError: (ctx) => {
@@ -69,63 +58,25 @@ export function SignUpForm() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md ">
+    <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Sign up</CardTitle>
-        <CardDescription>Create an account to continue</CardDescription>
+        <CardTitle>Update your password</CardTitle>
       </CardHeader>
       <CardContent>
-        <form id="signUpForm" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="changePasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
-              name="name"
+              name="currentPassword"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
+                  <FieldLabel htmlFor="currentPassword">
+                    Current Password
+                  </FieldLabel>
                   <Input
                     {...field}
-                    id="name"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter your name"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="email"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
-                  <Input
-                    {...field}
-                    type="email"
-                    id="email"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Enter your email"
-                    autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <Input
                     type="password"
-                    {...field}
-                    id="password"
+                    id="currentPassword"
                     aria-invalid={fieldState.invalid}
                     placeholder="******"
                     autoComplete="off"
@@ -137,17 +88,37 @@ export function SignUpForm() {
               )}
             />
             <Controller
-              name="confirmPassword"
+              name="newPassword"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmPassword">
-                    Confirm Password
+                  <FieldLabel htmlFor="newPassword">New Password</FieldLabel>
+                  <Input
+                    type="password"
+                    {...field}
+                    id="newPassword"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="******"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="confirmNewPassword"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="confirmNewPassword">
+                    Confirm New Password
                   </FieldLabel>
                   <Input
                     type="password"
                     {...field}
-                    id="confirmPassword"
+                    id="confirmNewPassword"
                     aria-invalid={fieldState.invalid}
                     placeholder="******"
                     autoComplete="off"
@@ -166,32 +137,27 @@ export function SignUpForm() {
           orientation="horizontal"
           className="flex items-center justify-between w-full"
         >
-          <>
-            <p className="text-sm flex items-center gap-1">
-              Already have an account?{" "}
-              <Link href="/sign-in" className="text-primary">
-                {" "}
-                Sign in
-              </Link>
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset()}
-              className="cursor-pointer"
-            >
-              Reset
-            </Button>
-            <Button type="submit" form="signUpForm" className="cursor-pointer">
-              {form.formState.isSubmitting ? (
-                <Loader className="siz-6 animate-spin" />
-              ) : (
-                "Sign up"
-              )}
-            </Button>
-          </>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => form.reset()}
+            className="cursor-pointer"
+          >
+            Reset
+          </Button>
+          <Button
+            type="submit"
+            form="changePasswordForm"
+            className="cursor-pointer"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <Loader className="siz-6 animate-spin" />
+            ) : (
+              "Change Password"
+            )}
+          </Button>
         </Field>
-        <ProvidersSignIn />
       </CardFooter>
     </Card>
   );

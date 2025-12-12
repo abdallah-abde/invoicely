@@ -1,10 +1,19 @@
 "use client";
 
-import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
+import Link from "next/link";
+
 import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Controller, useForm } from "react-hook-form";
+
+import { toast } from "sonner";
+
+import { Loader } from "lucide-react";
+
+import { authClient } from "@/lib/auth-client";
+
+import { signInSchema } from "@/schemas/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,53 +26,24 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
-import { Loader } from "lucide-react";
-import Link from "next/link";
-import { authClient } from "@/lib/auth-client";
-import { Separator } from "../ui/separator";
 
-const formSchema = z.object({
-  email: z.email("Email is required."),
-  password: z.string().min(6, "Enter a valid password."),
-});
+import ProvidersSignIn from "@/components/forms/providers-sign-in";
 
 export function SignInForm() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(data: z.infer<typeof formSchema>) {
-    // toast("You submitted the following values:", {
-    //   description: (
-    //     <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-    //       <code>{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    //   position: "bottom-right",
-    //   classNames: {
-    //     content: "flex flex-col gap-2",
-    //   },
-    //   style: {
-    //     "--border-radius": "calc(var(--radius)  + 4px)",
-    //   } as React.CSSProperties,
-    // })
-
+  async function onSubmit(data: z.infer<typeof signInSchema>) {
     try {
       await authClient.signIn.email(
         {
@@ -72,7 +52,7 @@ export function SignInForm() {
         },
         {
           onSuccess: async () => {
-            toast.success("Login successfull");
+            toast.success("Login successfully done");
           },
 
           onError: (ctx) => {
@@ -85,20 +65,6 @@ export function SignInForm() {
     }
   }
 
-  const signInWithGoogle = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: "/",
-    });
-  };
-
-  const signInWithGitHub = async () => {
-    await authClient.signIn.social({
-      provider: "github",
-      callbackURL: "/",
-    });
-  };
-
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
@@ -106,17 +72,18 @@ export function SignInForm() {
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <form id="sign-in-form" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="signInForm" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
               name="email"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="sign-in-form-title">Email</FieldLabel>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
                   <Input
                     {...field}
-                    id="sign-in-form-title"
+                    id="email"
+                    type="email"
                     aria-invalid={fieldState.invalid}
                     placeholder="Enter your email"
                     autoComplete="off"
@@ -132,11 +99,11 @@ export function SignInForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="sign-in-form-title">Password</FieldLabel>
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Input
                     type="password"
                     {...field}
-                    id="sign-in-form-title"
+                    id="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="******"
                     autoComplete="off"
@@ -171,7 +138,7 @@ export function SignInForm() {
             >
               Reset
             </Button>
-            <Button type="submit" form="sign-in-form">
+            <Button type="submit" form="signInForm">
               {form.formState.isSubmitting ? (
                 <Loader className="siz-6 animate-spin" />
               ) : (
@@ -180,27 +147,7 @@ export function SignInForm() {
             </Button>
           </>
         </Field>
-        <div className="flex flex-col w-full my-6 items-center justify-center">
-          <p className="text-sm">Or</p>
-          <Separator className="gap-6 my-1" />
-        </div>
-        <div className="flex flex-col w-full gap-3">
-          <Button
-            type="button"
-            className="text-sm cursor-pointer"
-            onClick={signInWithGoogle}
-          >
-            Continue with Google
-          </Button>
-
-          <Button
-            type="button"
-            className="text-sm cursor-pointer"
-            onClick={signInWithGitHub}
-          >
-            Continue with GitHub
-          </Button>
-        </div>
+        <ProvidersSignIn />
       </CardFooter>
     </Card>
   );
