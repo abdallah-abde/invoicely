@@ -1,5 +1,5 @@
 import { Product } from "@/app/generated/prisma/browser";
-import { Customer, Invoice, User } from "@/app/generated/prisma/client";
+import type { Customer, Invoice, User } from "@/app/generated/prisma/client";
 
 export interface ProductType extends Omit<Omit<Product, "price">, "createdAt"> {
   _count: {

@@ -37,7 +37,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Customer, InvoiceStatus, User } from "@/app/generated/prisma/client";
+import type {
+  Customer,
+  InvoiceStatus,
+  User,
+} from "@/app/generated/prisma/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import InvoiceProductForm, { SelectedItem } from "./invoice-product-form";
 import { useEffect } from "react";

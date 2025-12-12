@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
 import { Loader, Trash2 } from "lucide-react";
-import { Product } from "@/app/generated/prisma/client";
+import type { Product } from "@/app/generated/prisma/client";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 

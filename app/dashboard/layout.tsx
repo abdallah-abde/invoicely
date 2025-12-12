@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ModeToggle } from "@/components/mode-toggle";
 import { ThemeColorToggle } from "@/components/theme-color-toggle";
+import AuthenticationToggle from "@/components/authentication-toggle";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -28,6 +29,7 @@ export default function RootLayout({
           <div className="ml-auto flex items-center gap-4">
             <ThemeColorToggle />
             <ModeToggle />
+            <AuthenticationToggle />
           </div>
         </div>
         {children}

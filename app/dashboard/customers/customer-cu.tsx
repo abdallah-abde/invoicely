@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import CustomerForm from "@/components/forms/customer-form";
 import { useState } from "react";
-import { Customer } from "@/app/generated/prisma/client";
+import type { Customer } from "@/app/generated/prisma/client";
 
 export default function CustomerCU({
   customer = undefined,

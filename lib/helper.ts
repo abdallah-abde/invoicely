@@ -1,4 +1,4 @@
-import { Product } from "@/app/generated/prisma/client";
+import type { Product } from "@/app/generated/prisma/client";
 import { Option } from "@/components/ui/multiple-selector";
 
 export function castProductsToOptions(products: Product[]) {

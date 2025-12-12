@@ -121,7 +121,7 @@ export async function main() {
       {
         email: "abdallah@gmail.com",
         name: "Abdallah",
-        password: "password123",
+        // password: "password123",
         role: UserRole.ADMIN,
       },
     ],

@@ -1,4 +1,4 @@
-import { Product } from "@/app/generated/prisma/client";
+import type { Product } from "@/app/generated/prisma/client";
 import { castProductsToOptions } from "@/lib/helper";
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";

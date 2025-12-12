@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { ThemeProvider } from "@/providers/theme-provider";
 import { QueryProvider } from "@/providers/query-provider";
 
 import { ThemeProvider as NextThemeProvider, useTheme } from "next-themes";
@@ -44,15 +43,8 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ThemeDataProvider>
-              {/* <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            > */}
-              <main className="w-full">{children}</main>
+              <div className="w-full">{children}</div>
               <Toaster />
-              {/* </ThemeProvider> */}
             </ThemeDataProvider>
           </NextThemeProvider>
         </QueryProvider>
