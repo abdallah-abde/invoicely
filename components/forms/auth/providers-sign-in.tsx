@@ -7,14 +7,14 @@ export default function ProvidersSignIn() {
   const signInWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "/",
+      callbackURL: "/dashboard",
     });
   };
 
   const signInWithGitHub = async () => {
     await authClient.signIn.social({
       provider: "github",
-      callbackURL: "/",
+      callbackURL: "/dashboard",
     });
   };
   return (

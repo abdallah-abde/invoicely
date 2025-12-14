@@ -1,9 +1,10 @@
 "use server";
 
 import { authSession } from "@/lib/auth-utils";
+
 import prisma from "@/lib/prisma";
 
-export async function updateProfile() {
+export async function getUserProfile() {
   const session = await authSession();
 
   if (!session) {
@@ -18,11 +19,9 @@ export async function updateProfile() {
       email: true,
       name: true,
       image: true,
-      // twoFactorEnabled: true
+      twoFactorEnabled: true,
     },
   });
 
   return user;
 }
-
-// TODO: twoFactorEnabled

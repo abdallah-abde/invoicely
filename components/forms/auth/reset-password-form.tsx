@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
+
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -11,16 +13,10 @@ import { Loader } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 
-import { profileSchema } from "@/schemas/auth";
+import { resetPasswordSchema } from "@/schemas/auth-schemas";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Field,
   FieldError,
@@ -29,43 +25,32 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import ImageUpload from "@/components/image-upload";
+export function ResetPasswordForm() {
+  const router = useRouter();
 
-interface ProfileFormProps {
-  email: string;
-  name: string;
-  image: string;
-  twoFactorEnabled: boolean;
-}
+  const params = useSearchParams();
+  const token = params.get("token");
 
-export function UpdateProfileForm({
-  name,
-  email,
-  image,
-  twoFactorEnabled,
-}: ProfileFormProps) {
-  const form = useForm<z.infer<typeof profileSchema>>({
-    resolver: zodResolver(profileSchema),
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      name,
-      email,
-      image,
+      newPassword: "",
+      confirmNewPassword: "",
     },
   });
 
-  async function onSubmit(data: z.infer<typeof profileSchema>) {
+  async function onSubmit(data: z.infer<typeof resetPasswordSchema>) {
     try {
-      await authClient.updateUser(
+      await authClient.resetPassword(
         {
-          name: data.name,
-          image: data.image,
+          newPassword: data.newPassword,
+          token: token as string,
         },
         {
           onSuccess: async () => {
-            toast.success("Profile updated successfully");
+            router.push("/dashboard");
           },
-
-          onError: (ctx) => {
+          onError: async (ctx) => {
             toast.error(ctx.error.message);
           },
         }
@@ -76,24 +61,27 @@ export function UpdateProfileForm({
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Update your details</CardTitle>
+        <CardTitle>Change your password</CardTitle>
       </CardHeader>
       <CardContent>
-        <form id="updateProfileForm" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="resetPasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
-              name="name"
+              name="newPassword"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="name">Name</FieldLabel>
+                  <FieldLabel htmlFor="resetPasswordForm-newPassword">
+                    New Password
+                  </FieldLabel>
                   <Input
                     {...field}
-                    id="name"
+                    id="resetPasswordForm-newPassword"
+                    type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Enter your name"
+                    placeholder="******"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -103,38 +91,20 @@ export function UpdateProfileForm({
               )}
             />
             <Controller
-              name="email"
+              name="confirmNewPassword"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <FieldLabel htmlFor="resetPasswordForm-confirmNewPassword">
+                    Confirm New Password
+                  </FieldLabel>
                   <Input
                     {...field}
-                    id="email"
-                    type="email"
+                    id="resetPasswordForm-confirmNewPassword"
+                    type="password"
                     aria-invalid={fieldState.invalid}
-                    disabled
-                    placeholder="Enter your email"
+                    placeholder="******"
                     autoComplete="off"
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-            <Controller
-              name="image"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="gap-1">
-                  <FieldLabel>Image</FieldLabel>
-                  <ImageUpload
-                    endpoint="imageUploader"
-                    defaultUrl={field.value}
-                    onChange={(url) => {
-                      field.onChange(url);
-                    }}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -144,11 +114,10 @@ export function UpdateProfileForm({
             />
           </FieldGroup>
         </form>
-      </CardContent>
-      <CardFooter className="w-full flex-col">
+
         <Field
           orientation="horizontal"
-          className="flex items-center justify-between w-full"
+          className="flex items-center justify-between w-full mt-4"
         >
           <Button
             type="button"
@@ -160,20 +129,18 @@ export function UpdateProfileForm({
           </Button>
           <Button
             type="submit"
-            form="updateProfileForm"
+            form="resetPasswordForm"
             className="cursor-pointer"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
               <Loader className="siz-6 animate-spin" />
             ) : (
-              "Update Profile"
+              "Reset password"
             )}
           </Button>
         </Field>
-      </CardFooter>
+      </CardContent>
     </Card>
   );
 }
-
-// TODO: twoFactorEnabled

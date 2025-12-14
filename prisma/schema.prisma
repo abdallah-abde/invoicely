@@ -100,18 +100,19 @@ model Payment {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  name          String?
-  email         String    @unique
-  emailVerified Boolean?  @default(false)
-  image         String?
-  invoices      Invoice[]
-  role          UserRole  @default(USER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  sessions Session[]
-  accounts Account[]
+  id               String      @id @default(uuid())
+  name             String?
+  email            String      @unique
+  emailVerified    Boolean?    @default(false)
+  image            String?
+  invoices         Invoice[]
+  role             UserRole    @default(USER)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  twoFactorEnabled Boolean     @default(false)
+  twoFactor        TwoFactor[]
+  sessions         Session[]
+  accounts         Account[]
 
   @@map("user")
 }
@@ -162,4 +163,14 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model TwoFactor {
+  id          String @id
+  userId      String
+  secret      String
+  backupCodes String
+  user        User   @relation(references: [id], fields: [userId], onDelete: Cascade)
+
+  @@map("twoFactor")
 }

@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Receipt,
   User,
+  UserPen,
   Users,
 } from "lucide-react";
 
@@ -49,6 +50,11 @@ const items = [
     url: "/dashboard/users",
     icon: Users,
   },
+  {
+    title: "Update Profile",
+    url: "/dashboard/update-profile",
+    icon: UserPen,
+  },
 ];
 
 export function AppSidebar() {
@@ -56,7 +62,9 @@ export function AppSidebar() {
     <Sidebar side="left" variant="floating" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Invoicely Dashboard</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {process.env.NEXT_PUBLIC_APP_NAME} Dashboard
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

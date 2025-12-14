@@ -17,7 +17,7 @@ export const sendVerificationEmail = async ({
     await resend.emails.send({
       from: process.env.EMAIL_FROM!,
       to,
-      subject: `Welcome to ${process.env.APP_NAME}`,
+      subject: `Welcome to ${process.env.NEXT_PUBLIC_APP_NAME}`,
       react: (
         <VerificationEmail
           verificationUrl={verificationUrl}

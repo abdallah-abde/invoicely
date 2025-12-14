@@ -1,5 +1,5 @@
+import z from "zod";
 import { InvoiceStatus } from "@/app/generated/prisma/enums";
-import { z } from "zod";
 
 export const invoiceSchema = z.object({
   number: z.string().trim().min(1, {

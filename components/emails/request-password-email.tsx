@@ -3,6 +3,7 @@ import {
   Button,
   Container,
   Head,
+  Heading,
   Html,
   Preview,
   Section,
@@ -10,39 +11,45 @@ import {
   Text,
 } from "@react-email/components";
 
-interface VerificationEmailProps {
-  username: string;
-  verificationUrl: string;
+interface RequestPasswordEmailProps {
+  url: string;
+  to: string;
   appName?: string;
 }
 
-export const VerificationEmail = ({
-  username,
-  verificationUrl,
+export const RequestPasswordEmail = ({
+  url,
+  to,
   appName = process.env.NEXT_PUBLIC_APP_NAME!,
-}: VerificationEmailProps) => (
+}: RequestPasswordEmailProps) => (
   <Html>
     <Head />
     <Tailwind>
       <Body className="bg-white">
-        <Preview>Verify your email for {appName}</Preview>
+        <Preview>Reset your password for {appName}</Preview>
         <Container className="mx-auto py-5 pb-12">
-          <Text className="text-[16px] leading-[26px]">Hi {username},</Text>
+          <Heading
+            as="h1"
+            className="mb-3 text-center text-[20px] font-semibold text-black"
+          >
+            Hello
+          </Heading>
           <Text className="text-[16px] leading-[26px]">
-            Welcome to {appName}. Thank you for signing up for {appName}. Please
-            confirm your email address by clicking on the button below.
+            We received a request to reset the password for {appName} account
+            associated with {to}
           </Text>
           <Section className="text-center">
             <Button
               className="bg-primary rounded-[3px] text-primary-foreground text-[16px] no-underline text-center block p-3"
-              href={verificationUrl}
+              href={url}
             >
-              Verify your email
+              Reset your password
             </Button>
           </Section>
 
           <Text className="text-secondary text-[12px]">
-            If you did not create an account, you can safely ignore this email.
+            If you did not request for password reset, you can safely ignore
+            this email.
           </Text>
         </Container>
       </Body>
@@ -50,4 +57,4 @@ export const VerificationEmail = ({
   </Html>
 );
 
-export default VerificationEmail;
+export default RequestPasswordEmail;

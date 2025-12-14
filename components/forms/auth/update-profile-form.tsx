@@ -1,12 +1,17 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+import { Controller, useForm } from "react-hook-form";
+
+import { toast } from "sonner";
+
 import { Loader } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
+
+import { profileSchema } from "@/schemas/auth-schemas";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,28 +28,35 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { changePasswordSchema } from "@/schemas/auth";
 
-export function ChangePasswordForm() {
-  const form = useForm<z.infer<typeof changePasswordSchema>>({
-    resolver: zodResolver(changePasswordSchema),
+import ImageUpload from "@/components/forms/auth/image-upload";
+
+interface ProfileFormProps {
+  email: string;
+  name: string;
+  image: string;
+}
+
+export function UpdateProfileForm({ name, email, image }: ProfileFormProps) {
+  const form = useForm<z.infer<typeof profileSchema>>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmNewPassword: "",
+      name,
+      email,
+      image,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof changePasswordSchema>) {
+  async function onSubmit(data: z.infer<typeof profileSchema>) {
     try {
-      await authClient.changePassword(
+      await authClient.updateUser(
         {
-          newPassword: data.newPassword,
-          currentPassword: data.currentPassword,
+          name: data.name,
+          image: data.image,
         },
         {
           onSuccess: async () => {
-            toast.success("Password has been changed successfully");
+            toast.success("Profile updated successfully");
           },
 
           onError: (ctx) => {
@@ -60,25 +72,22 @@ export function ChangePasswordForm() {
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Update your password</CardTitle>
+        <CardTitle>Update your details</CardTitle>
       </CardHeader>
       <CardContent>
-        <form id="changePasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="updateProfileForm" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
-              name="currentPassword"
+              name="name"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="currentPassword">
-                    Current Password
-                  </FieldLabel>
+                  <FieldLabel htmlFor="updateProfileForm-name">Name</FieldLabel>
                   <Input
                     {...field}
-                    type="password"
-                    id="currentPassword"
+                    id="updateProfileForm-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder="Enter your name"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -88,17 +97,20 @@ export function ChangePasswordForm() {
               )}
             />
             <Controller
-              name="newPassword"
+              name="email"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="newPassword">New Password</FieldLabel>
+                  <FieldLabel htmlFor="updateProfileForm-email">
+                    Email
+                  </FieldLabel>
                   <Input
-                    type="password"
                     {...field}
-                    id="newPassword"
+                    id="updateProfileForm-email"
+                    type="email"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    disabled
+                    placeholder="Enter your email"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -108,20 +120,17 @@ export function ChangePasswordForm() {
               )}
             />
             <Controller
-              name="confirmNewPassword"
+              name="image"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmNewPassword">
-                    Confirm New Password
-                  </FieldLabel>
-                  <Input
-                    type="password"
-                    {...field}
-                    id="confirmNewPassword"
-                    aria-invalid={fieldState.invalid}
-                    placeholder="******"
-                    autoComplete="off"
+                <Field data-invalid={fieldState.invalid} className="gap-1">
+                  <FieldLabel>Image</FieldLabel>
+                  <ImageUpload
+                    endpoint="imageUploader"
+                    defaultUrl={field.value}
+                    onChange={(url) => {
+                      field.onChange(url);
+                    }}
                   />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
@@ -132,7 +141,7 @@ export function ChangePasswordForm() {
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter className="w-full flex-col">
+      <CardFooter className="w-full flex flex-col">
         <Field
           orientation="horizontal"
           className="flex items-center justify-between w-full"
@@ -147,14 +156,14 @@ export function ChangePasswordForm() {
           </Button>
           <Button
             type="submit"
-            form="changePasswordForm"
+            form="updateProfileForm"
             className="cursor-pointer"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
               <Loader className="siz-6 animate-spin" />
             ) : (
-              "Change Password"
+              "Update Profile"
             )}
           </Button>
         </Field>

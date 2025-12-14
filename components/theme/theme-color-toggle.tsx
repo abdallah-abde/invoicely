@@ -1,15 +1,18 @@
 "use client";
 
+import { useTheme } from "next-themes";
+
+import { cn } from "@/lib/utils";
+
+import { useThemeContext } from "@/context/theme-data-provider";
+
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { useThemeContext } from "@/context/theme-data-provider";
-import { useTheme } from "next-themes";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/select";
 
 const availableThemeColors = [
   { name: "Neutral", light: "bg-neutral-900", dark: "bg-neutral-700" },

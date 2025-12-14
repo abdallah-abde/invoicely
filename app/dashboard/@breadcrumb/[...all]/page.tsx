@@ -1,3 +1,6 @@
+import React from "react";
+import type { ReactElement } from "react";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,8 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import React from "react";
-import type { ReactElement } from "react";
 
 export default async function BreadcrumbSlot({
   params,
@@ -20,14 +21,12 @@ export default async function BreadcrumbSlot({
 
   const { all } = await params;
 
-  console.log(all);
-
   let href = "/dashboard";
 
   for (let i = 0; i < all.length; i++) {
     const route = all[i];
     href = `${href}/${route}`;
-    console.log(href);
+
     if (i === all.length - 1) {
       breadcrumbPage = (
         <BreadcrumbItem>

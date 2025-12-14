@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +14,7 @@ import { Loader } from "lucide-react";
 
 import { authClient } from "@/lib/auth-client";
 
-import { signInSchema } from "@/schemas/auth";
+import { signInSchema } from "@/schemas/auth-schemas";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,9 +33,11 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import ProvidersSignIn from "@/components/forms/providers-sign-in";
+import ProvidersSignIn from "@/components/forms/auth/providers-sign-in";
 
 export function SignInForm() {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -49,10 +52,18 @@ export function SignInForm() {
         {
           email: data.email,
           password: data.password,
+          callbackURL: "/dashboard",
         },
         {
           onSuccess: async () => {
-            toast.success("Login successfully done");
+            // TODO: when sign in, if email not verified, you must not let the user in, also, if only when the two factor enabled send the otp.
+            const { error } = await authClient.twoFactor.sendOtp({});
+
+            if (error) {
+              toast.error(error.message);
+            }
+
+            router.push("/two-factor");
           },
 
           onError: (ctx) => {
@@ -79,10 +90,10 @@ export function SignInForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <FieldLabel htmlFor="signInForm-email">Email</FieldLabel>
                   <Input
                     {...field}
-                    id="email"
+                    id="signInForm-email"
                     type="email"
                     aria-invalid={fieldState.invalid}
                     placeholder="Enter your email"
@@ -99,11 +110,22 @@ export function SignInForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldLabel
+                    htmlFor="signInForm-password"
+                    className="flex items-center justify-between"
+                  >
+                    <span>Password</span>
+                    <Link
+                      href="/request-password"
+                      className="text-primary hover:text-primary/50 transition duration-300"
+                    >
+                      Forgot password
+                    </Link>
+                  </FieldLabel>
                   <Input
-                    type="password"
                     {...field}
-                    id="password"
+                    id="signInForm-password"
+                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="******"
                     autoComplete="off"
@@ -117,35 +139,28 @@ export function SignInForm() {
           </FieldGroup>
         </form>
       </CardContent>
-      <CardFooter className="w-full flex-col">
+      <CardFooter className="w-full flex flex-col">
         <Field
           orientation="horizontal"
           className="flex items-center justify-between w-full"
         >
-          <>
-            <p className="text-sm flex items-center gap-1">
-              Do not have an account?{" "}
-              <Link href="/sign-up" className="text-primary">
-                {" "}
-                Sign up
-              </Link>
-            </p>
-
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => form.reset()}
+          <p className="text-sm flex items-center gap-2">
+            Do not have an account?{" "}
+            <Link
+              href="/sign-up"
+              className="text-primary hover:text-primary/50 transition duration-300"
             >
-              Reset
-            </Button>
-            <Button type="submit" form="signInForm">
-              {form.formState.isSubmitting ? (
-                <Loader className="siz-6 animate-spin" />
-              ) : (
-                "Sign in"
-              )}
-            </Button>
-          </>
+              {" "}
+              Sign up
+            </Link>
+          </p>
+          <Button type="submit" form="signInForm" className="cursor-pointer">
+            {form.formState.isSubmitting ? (
+              <Loader className="siz-6 animate-spin" />
+            ) : (
+              "Sign in"
+            )}
+          </Button>
         </Field>
         <ProvidersSignIn />
       </CardFooter>

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
+
 import Image from "next/image";
+
 import { Trash } from "lucide-react";
 
 import { OurFileRouter } from "@/app/api/uploadthing/core";
 
 import { UploadDropzone } from "@/lib/uploadthing";
-
-import { Button } from "@/components/ui/button";
 
 interface ImageUploadProps {
   defaultUrl?: string;
