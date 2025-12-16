@@ -2,6 +2,7 @@ import {
   Banknote,
   Barcode,
   LayoutDashboard,
+  LucideProps,
   Receipt,
   User,
   UserPen,
@@ -18,46 +19,70 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { authSession } from "@/lib/auth-utils";
+import { ForwardRefExoticComponent, RefAttributes } from "react";
+import ActiveLink from "./active-link";
+import Link from "next/link";
 
-const items = [
+export interface ItemProps {
+  title: string;
+  url: string;
+  Icon: ForwardRefExoticComponent<
+    Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+  >;
+  deniedRoles: string[];
+}
+
+const items: ItemProps[] = [
   {
     title: "Dashboard",
     url: "/dashboard",
-    icon: LayoutDashboard,
+    Icon: LayoutDashboard,
+    deniedRoles: [],
   },
   {
     title: "Products",
     url: "/dashboard/products",
-    icon: Barcode,
+    Icon: Barcode,
+    deniedRoles: ["user"],
   },
   {
     title: "Customers",
     url: "/dashboard/customers",
-    icon: User,
+    Icon: User,
+    deniedRoles: ["user"],
   },
   {
     title: "Invoices",
     url: "/dashboard/invoices",
-    icon: Receipt,
+    Icon: Receipt,
+    deniedRoles: ["user"],
   },
   {
     title: "Payments",
     url: "/dashboard/payments",
-    icon: Banknote,
+    Icon: Banknote,
+    deniedRoles: ["user"],
   },
   {
     title: "Users",
     url: "/dashboard/users",
-    icon: Users,
+    Icon: Users,
+    deniedRoles: ["user"],
   },
   {
     title: "Update Profile",
     url: "/dashboard/update-profile",
-    icon: UserPen,
+    Icon: UserPen,
+    deniedRoles: [],
   },
 ];
 
-export function AppSidebar() {
+export async function AppSidebar() {
+  const session = await authSession();
+
+  const role = session?.user.role;
+
   return (
     <Sidebar side="left" variant="floating" collapsible="icon">
       <SidebarContent>
@@ -67,16 +92,24 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title} title={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title}>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                if (item.deniedRoles.findIndex((a) => a === role) === -1) {
+                  return (
+                    <ActiveLink
+                      key={item.title}
+                      title={item.title}
+                      url={item.url}
+                    >
+                      <Link href={item.url}>
+                        <item.Icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </ActiveLink>
+                  );
+                } else {
+                  return null;
+                }
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

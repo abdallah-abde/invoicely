@@ -72,6 +72,7 @@ export function RequestPasswordForm() {
               A password reset link has been sent to your email.
             </div>
             <Button
+              className="cursor-pointer"
               onClick={() => {
                 router.push("/sign-in");
               }}

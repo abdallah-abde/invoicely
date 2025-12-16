@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { authIsRequired } from "@/lib/auth-utils";
+import { authIsRequired, authSession } from "@/lib/auth-utils";
 
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { ModeToggle } from "@/components/theme/mode-toggle";

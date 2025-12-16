@@ -59,7 +59,12 @@ export function SignUpForm() {
         },
         {
           onSuccess: async () => {
-            toast.success("Sign up successfully done");
+            toast.success(() => (
+              <>
+                <p>Sign up successfully done</p>
+                <p>A verification email sent</p>
+              </>
+            ));
             router.push("/sign-in");
           },
 

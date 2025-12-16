@@ -34,7 +34,7 @@ export const VerificationEmail = ({
           </Text>
           <Section className="text-center">
             <Button
-              className="bg-primary rounded-[3px] text-primary-foreground text-[16px] no-underline text-center block p-3"
+              className="bg-black rounded-[3px] text-white text-[16px] no-underline text-center block p-3"
               href={verificationUrl}
             >
               Verify your email

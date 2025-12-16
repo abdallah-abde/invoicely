@@ -67,7 +67,16 @@ export function SignInForm() {
           },
 
           onError: (ctx) => {
-            toast.error(ctx.error.message);
+            let error = "";
+            if (ctx.error.code === "EMAIL_NOT_VERIFIED") {
+              error = "A new verification code is sent";
+            }
+            toast.error(() => (
+              <>
+                <p>{ctx.error.message}</p>
+                {error && <p>{error}</p>}
+              </>
+            ));
           },
         }
       );

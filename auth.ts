@@ -1,9 +1,10 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { twoFactor } from "better-auth/plugins";
+import { admin, twoFactor } from "better-auth/plugins";
 
 import prisma from "@/lib/prisma";
+import { ac, roles } from "@/lib/permissions";
 
 import { sendVerificationEmail } from "@/lib/send-verification-email";
 import { sendOtpEmail } from "@/lib/send-otp-email";
@@ -19,8 +20,7 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       void sendResetPasswordEmail({
-        to: process.env.EMAIL_TO!,
-        subject: "Reset your password",
+        to: process.env.EMAIL_TO!, //user.email
         url,
       });
     },
@@ -34,7 +34,9 @@ export const auth = betterAuth({
 
   emailVerification: {
     sendOnSignUp: true,
+    sendOnSignIn: true,
     autoSignInAfterVerification: true,
+    expiresIn: 900, // 15 minutes
     sendVerificationEmail: async ({ user, url }) => {
       await sendVerificationEmail({
         to: process.env.EMAIL_TO!,
@@ -58,6 +60,12 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    admin({
+      ac,
+      roles,
+      defaultRole: "user",
+      adminRoles: ["admin", "superadmin"],
+    }),
     nextCookies(),
     twoFactor({
       skipVerificationOnEnable: true,

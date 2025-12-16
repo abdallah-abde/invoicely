@@ -84,6 +84,7 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
       throw new Error("Something went wrong");
     } finally {
       setIsOpen(false);
+      form.reset();
     }
   }
 
