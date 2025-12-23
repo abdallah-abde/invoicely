@@ -174,7 +174,7 @@ export default function CustomerForm({
             type="submit"
             disabled={isLoading}
             size="lg"
-            className="w-fit cursor-pointer"
+            className="w-fit cursor-pointer ml-auto col-span-2"
           >
             {isLoading ? (
               <>

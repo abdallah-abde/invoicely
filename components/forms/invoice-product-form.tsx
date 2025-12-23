@@ -190,6 +190,7 @@ export default function InvoiceProductForm({
                   type="number"
                   className="input"
                   value={it.price}
+                  step={10}
                   onChange={(e) =>
                     updateItem(idx, { price: Number(e.target.value) })
                   }
@@ -206,7 +207,12 @@ export default function InvoiceProductForm({
                   }
                 />
               </div>
-              <Button type="button" onClick={() => removeItem(idx)} size="icon">
+              <Button
+                type="button"
+                onClick={() => removeItem(idx)}
+                size="icon"
+                className="cursor-pointer"
+              >
                 <Trash2 />
               </Button>
             </div>

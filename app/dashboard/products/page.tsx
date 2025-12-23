@@ -5,6 +5,12 @@ import ProductCU from "./product-cu";
 import { APIError } from "better-auth";
 import { authSession } from "@/lib/auth-utils";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Products",
+};
+
 export default async function page() {
   const session = await authSession();
 
@@ -22,13 +28,13 @@ export default async function page() {
 
   const result = data.map((product) => {
     const { price, createdAt, ...productWithout } = product;
-    const createdDate = createdAt.toLocaleDateString("en-EN", {
-      dateStyle: "medium",
-    });
+    // const createdDate = createdAt.toLocaleDateString("en-EN", {
+    //   dateStyle: "medium",
+    // });
 
     return {
       ...productWithout,
-      createdAt: createdDate,
+      // createdAt: createdDate,
       priceAsNumber: price.toNumber(),
     };
   });

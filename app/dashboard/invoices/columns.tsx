@@ -84,7 +84,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
     cell: ({ row }) => (
       <div
         className={cn(
-          ` text-[10px] border rounded-md p-1.5 w-fit tracking-widest`,
+          ` text-[10px] border rounded-md p-1.5 w-fit tracking-widest select-none`,
           `${
             row.original.status === "PAID"
               ? "text-purple-400"
@@ -179,20 +179,21 @@ export const columns: ColumnDef<InvoiceType>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => {
-                router.push(`/dashboard/invoices/edit/${invoice.id}`);
-              }}
+              asChild
+              // onClick={() => {
+              //   router.push(`/dashboard/invoices/edit/${invoice.id}`);
+              // }}
             >
-              Edit
-              {/* <InvoiceCU
+              {/* Edit */}
+              <InvoiceCU
                 mode="edit"
                 invoice={invoice}
                 trigger={
                   <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary">
                     Edit
                   </div>
-                } 
-              />*/}
+                }
+              />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

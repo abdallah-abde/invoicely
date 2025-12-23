@@ -3,7 +3,14 @@ import { authIsRequired, authSession } from "@/lib/auth-utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import UserManagementForm, { Role } from "./user-client";
+import { Role } from "@/schemas/user";
+import UserCU from "./user-cu";
+
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Users",
+};
 
 export default async function UsersPage() {
   await authIsRequired();
@@ -28,6 +35,7 @@ export default async function UsersPage() {
       return {
         id: user.id,
         name: user.name,
+        image: user.image || "",
         role: user.role || "",
         email: user.email,
         emailVerified: user.emailVerified,
@@ -38,9 +46,5 @@ export default async function UsersPage() {
 
   if (!users) redirect("/sign-in");
 
-  return (
-    <div className="flex gap-6 py-4 items-start">
-      <UserManagementForm users={formattedUsers} />
-    </div>
-  );
+  return <UserCU users={formattedUsers} />;
 }

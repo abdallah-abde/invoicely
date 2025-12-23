@@ -22,7 +22,7 @@ import DataTableBody from "@/components/data-table/data-table-body";
 
 export function ProductsTable({ data }: { data: ProductType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "createdAt", desc: true },
+    { id: "name", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

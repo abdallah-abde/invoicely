@@ -68,7 +68,7 @@ export const columns: ColumnDef<ProductType>[] = [
   {
     accessorKey: "priceAsNumber",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Price" />;
+      return <DataTableHeaderSort column={column} title="Price ($)" />;
     },
     enableHiding: false,
     cell: ({ row }) => {
@@ -83,13 +83,13 @@ export const columns: ColumnDef<ProductType>[] = [
       return <div className="font-medium text-primary">{formatted}</div>;
     },
   },
-  {
-    accessorKey: "createdAt",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Created At" />;
-    },
-    cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
-  },
+  // {
+  //   accessorKey: "createdAt",
+  //   header: ({ column }) => {
+  //     return <DataTableHeaderSort column={column} title="Created At" />;
+  //   },
+  //   cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
+  // },
   {
     accessorKey: "_count.invoices",
     header: ({ column }) => {

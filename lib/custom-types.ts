@@ -1,12 +1,17 @@
 import { Product } from "@/app/generated/prisma/browser";
-import type { Customer, Invoice, User } from "@/app/generated/prisma/client";
+import type {
+  Customer,
+  Invoice,
+  Payment,
+  User,
+} from "@/app/generated/prisma/client";
 
 export interface ProductType extends Omit<Omit<Product, "price">, "createdAt"> {
   _count: {
     invoices: number;
   };
   priceAsNumber: number;
-  createdAt: string;
+  // createdAt: string;
 }
 
 export interface CustomerType extends Customer {
@@ -16,7 +21,7 @@ export interface CustomerType extends Customer {
 }
 
 export interface InvoiceType extends Omit<Omit<Invoice, "total">, "createdAt"> {
-  createdAt: string;
+  // createdAt: string;
   issuedDateAsString: string;
   dueDateAsString: string;
   customer: Customer;
@@ -26,4 +31,17 @@ export interface InvoiceType extends Omit<Omit<Invoice, "total">, "createdAt"> {
     products: number;
   };
   products: Product[];
+}
+
+export interface PaymentType
+  extends Omit<Omit<Payment, "amount">, "createdAt"> {
+  amountAsNumber: number;
+  // createdAt: string;
+  dateAsString: string;
+  invoice: {
+    number: string;
+    customer: {
+      name: string;
+    };
+  };
 }

@@ -25,11 +25,11 @@ export default function InvoiceCU({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [customers, setCustomers] = useState([]);
-  const [users, setUsers] = useState([]);
+  // const [users, setUsers] = useState([]);
 
   useEffect(() => {
     fetchCustomers();
-    fetchUsers();
+    // fetchUsers();
 
     async function fetchCustomers() {
       const res = await fetch("/api/customers");
@@ -37,11 +37,11 @@ export default function InvoiceCU({
       setCustomers(data);
     }
 
-    async function fetchUsers() {
-      const res = await fetch("/api/users");
-      const data = await res.json();
-      setUsers(data);
-    }
+    // async function fetchUsers() {
+    //   const res = await fetch("/api/users");
+    //   const data = await res.json();
+    //   setUsers(data);
+    // }
   }, []);
 
   return (
@@ -53,7 +53,7 @@ export default function InvoiceCU({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[925px]">
         <DialogHeader>
           <DialogTitle>
             {" "}
@@ -70,7 +70,7 @@ export default function InvoiceCU({
           invoice={invoice}
           mode={mode}
           customers={customers}
-          users={users}
+          // users={users}
         />
       </DialogContent>
     </Dialog>

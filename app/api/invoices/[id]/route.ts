@@ -74,3 +74,23 @@ export async function PUT(
     );
   }
 }
+
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = await params;
+    const invoice = await prisma.invoice.findUnique({ where: { id } });
+    if (!invoice) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+    return NextResponse.json(invoice, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Error fetching invoice" },
+      { status: 500 }
+    );
+  }
+}

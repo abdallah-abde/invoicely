@@ -11,4 +11,5 @@ export const labels = {
   dueDateAsString: "Due At",
   _count_invoices: "Invoices Count",
   _count_products: "Products Count",
+  emailVerified: "Email Verified",
 };

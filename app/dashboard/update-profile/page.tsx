@@ -8,6 +8,12 @@ import { ChangePasswordForm } from "@/components/forms/auth/change-password-form
 import { ToggleOTPForm } from "@/components/forms/auth/toggle-otp-form";
 import { UpdateProfileForm } from "@/components/forms/auth/update-profile-form";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Update Profile",
+};
+
 export default async function page() {
   await authIsRequired();
 

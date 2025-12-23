@@ -3,6 +3,7 @@ import { create } from "zustand";
 export interface UserProps {
   id: string;
   name: string;
+  image: string;
   role: string;
   email: string;
   emailVerified: boolean;
@@ -22,6 +23,7 @@ export const useUsers = create<UserModalProps>((set) => ({
   user: {
     id: "",
     name: "",
+    image: "",
     role: "",
     email: "",
     emailVerified: false,

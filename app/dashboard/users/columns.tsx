@@ -2,8 +2,17 @@ import { Button } from "@/components/ui/button";
 import { UserProps } from "@/hooks/use-users";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, CircleCheck, CircleX } from "lucide-react";
 import { CellActions } from "./cell-actions";
+import DataTableHeaderSort from "@/components/data-table/data-table-header-sort";
+import { caseInsensitiveSort } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const columns: ColumnDef<UserProps>[] = [
   {
@@ -30,35 +39,65 @@ export const columns: ColumnDef<UserProps>[] = [
   },
   {
     accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="Name" />;
+    },
+    sortingFn: caseInsensitiveSort,
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div className="capitalize flex items-center gap-4">
+        <Avatar className="rounded-md">
+          <AvatarImage src={row.original.image} alt={row.original.name} />
+          <AvatarFallback className="rounded-md">
+            {row.original.name.substring(0, 2).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        {row.getValue("name")}
+      </div>
+    ),
   },
   {
     accessorKey: "email",
     header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <ArrowUpDown />
-        </Button>
-      );
+      return <DataTableHeaderSort column={column} title="Email" />;
     },
     cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
   },
   {
     accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("role")}</div>,
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="Role" />;
+    },
+    sortingFn: caseInsensitiveSort,
+    enableHiding: false,
+    cell: ({ row }) => <div>{row.original.role.toUpperCase()}</div>,
   },
   {
     accessorKey: "emailVerified",
-    header: "Email verified",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="Email Verified" />;
+    },
     cell: ({ row }) => (
       <div className="capitalize">
-        {row.getValue("emailVerified")?.toString()}
+        {row.original.emailVerified ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CircleCheck className="text-green-500" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-semibold">Verified</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <CircleX className="text-destructive" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-semibold">Not Verified</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
       </div>
     ),
   },
@@ -70,6 +109,7 @@ export const columns: ColumnDef<UserProps>[] = [
         <CellActions
           id={row.original.id}
           name={row.original.name}
+          image={row.original.image}
           role={row.original.role}
           email={row.original.email}
           emailVerified={row.original.emailVerified}

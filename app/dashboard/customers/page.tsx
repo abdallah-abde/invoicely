@@ -5,6 +5,12 @@ import CustomerCU from "./customer-cu";
 import { authSession } from "@/lib/auth-utils";
 import { APIError } from "better-auth";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Customers",
+};
+
 export default async function page() {
   const session = await authSession();
 

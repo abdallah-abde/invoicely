@@ -18,6 +18,7 @@ import { toast } from "sonner";
 export const CellActions = ({
   id,
   name,
+  image,
   role,
   email,
   emailVerified,
@@ -56,6 +57,7 @@ export const CellActions = ({
             setUser({
               id,
               name,
+              image,
               role,
               email,
               emailVerified,

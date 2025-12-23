@@ -7,8 +7,10 @@ export default function PublicLayout({
 }>) {
   return (
     <>
-      <Navbar />
-      <main className="p-2 px-6">{children}</main>
+      <header className="w-full">
+        <Navbar />
+      </header>
+      <main>{children}</main>
     </>
   );
 }

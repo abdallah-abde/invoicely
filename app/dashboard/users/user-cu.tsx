@@ -1,6 +1,6 @@
 "use client";
 
-import { UsersDataTable } from "@/components/users-data-table";
+import { UsersTable } from "@/app/dashboard/users/users-table";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,23 +31,14 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { columns } from "./columns";
-import { Loader } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
+import { Role, ROLE_OPTIONS, userSchema } from "@/schemas/user";
 
-const ROLE_OPTIONS = ["user", "admin", "superadmin"] as const;
-export type Role = (typeof ROLE_OPTIONS)[number];
-
-const formSchema = z.object({
-  name: z.string().min(3, "Name is required"),
-  email: z.email("Email is required"),
-  role: z.enum(ROLE_OPTIONS, "Role is required"),
-  password: z.string().min(6, "Password is required").optional(),
-});
-
-export default function UserManagementForm({ users }: { users: UserProps[] }) {
+export default function UserCU({ users }: { users: UserProps[] }) {
   const router = useRouter();
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(userSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -72,7 +63,7 @@ export default function UserManagementForm({ users }: { users: UserProps[] }) {
     }
   }, [user, form]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof userSchema>) => {
     try {
       if (!user.id) {
         await authClient.admin.createUser({
@@ -104,6 +95,7 @@ export default function UserManagementForm({ users }: { users: UserProps[] }) {
       setUser({
         id: "",
         name: "",
+        image: "",
         role: "",
         email: "",
         emailVerified: false,
@@ -127,6 +119,7 @@ export default function UserManagementForm({ users }: { users: UserProps[] }) {
             setUser({
               id: "",
               name: "",
+              image: "",
               role: "",
               email: "",
               emailVerified: false,
@@ -249,16 +242,16 @@ export default function UserManagementForm({ users }: { users: UserProps[] }) {
         </DialogContent>
       </Dialog>
 
-      <div className="flex flex-col p-8 w-full">
+      <div className="flex flex-col w-full py-4">
         <div className="flex w-full justify-between">
-          <h1 className="text-lg">User management</h1>
+          <h1 className="text-2xl font-semibold">Users</h1>
           <Button className="cursor-pointer" onClick={() => setIsOpen(true)}>
-            Create new user
+            <Plus /> Add User
           </Button>
         </div>
 
-        <div className="flex flex-col p-8">
-          <UsersDataTable data={users} columns={columns} />
+        <div className="flex flex-col">
+          <UsersTable data={users} />
         </div>
       </div>
     </>

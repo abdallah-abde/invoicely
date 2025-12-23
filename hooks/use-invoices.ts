@@ -26,6 +26,7 @@ export function useInvoices() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
 
     onSettled: () => {
@@ -54,6 +55,8 @@ export function useInvoices() {
 
       const json = await res.json();
       await queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+
       return json;
     } finally {
       setIsLoading(false);
@@ -81,6 +84,7 @@ export function useInvoices() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
 
     onSettled: () => {
@@ -101,6 +105,7 @@ export function useInvoices() {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
 
     onSettled: () => {

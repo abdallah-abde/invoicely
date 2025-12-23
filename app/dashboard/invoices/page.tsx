@@ -5,6 +5,12 @@ import InvoiceCU from "./invoice-cu";
 import { APIError } from "better-auth";
 import { authSession } from "@/lib/auth-utils";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Invoices",
+};
+
 export default async function page() {
   const session = await authSession();
 

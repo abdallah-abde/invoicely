@@ -46,19 +46,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import InvoiceProductForm, { SelectedItem } from "./invoice-product-form";
 import { useEffect } from "react";
 import { Label } from "../ui/label";
+import { authClient } from "@/lib/auth-client";
 
 export default function InvoiceForm({
-  // setIsOpen,
+  setIsOpen,
   invoice,
   mode,
   customers,
-  users,
-}: {
-  // setIsOpen: Dispatch<SetStateAction<boolean>>;
+}: // users,
+{
+  setIsOpen: Dispatch<SetStateAction<boolean>>;
   invoice?: InvoiceType | undefined;
   mode: "create" | "edit";
   customers: Customer[];
-  users: User[];
+  // users: User[];
 }) {
   const {
     createInvoice,
@@ -69,6 +70,7 @@ export default function InvoiceForm({
   } = useInvoices();
   const router = useRouter();
 
+  const { data: session } = authClient.useSession();
   const statusList = getInvoiceStatusList();
 
   const form = useForm<z.infer<typeof invoiceSchema>>({
@@ -77,7 +79,7 @@ export default function InvoiceForm({
       number: invoice?.number || "",
       notes: invoice?.notes || "",
       customerId: invoice?.customerId || "",
-      createdById: invoice?.createdById || "",
+      createdById: invoice?.createdById || session?.user.id,
       issuedAt: invoice?.issuedAt || new Date(),
       dueAt: invoice?.dueAt || new Date(),
       total: invoice?.totalAsNumber.toString() || "",
@@ -109,7 +111,7 @@ export default function InvoiceForm({
         await promise;
         form.reset();
         router.refresh();
-        // setIsOpen(false);
+        setIsOpen(false);
       } catch (err) {
         // error already shown via toast
       }
@@ -129,7 +131,7 @@ export default function InvoiceForm({
           await promise;
           form.reset();
           router.refresh();
-          // setIsOpen(false);
+          setIsOpen(false);
         } catch (err) {}
       }
     }
@@ -349,7 +351,7 @@ export default function InvoiceForm({
                 <Loader className="animate-spin" />
               </>
             )}
-            {users && users.length > 0 ? (
+            {/* {users && users.length > 0 ? (
               <FormField
                 control={form.control}
                 name="createdById"
@@ -381,7 +383,7 @@ export default function InvoiceForm({
               <>
                 <Loader className="animate-spin" />
               </>
-            )}
+            )} */}
             <FormField
               control={form.control}
               name="status"
@@ -410,7 +412,7 @@ export default function InvoiceForm({
               )}
             />
           </div>
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div className="col-span-2 space-y-2">
               <Label>Products</Label>
               <InvoiceProductForm initialItems={items} onChange={setItems} />
@@ -442,14 +444,13 @@ export default function InvoiceForm({
           </Tabs> */}
           <Button
             type="submit"
-            disabled={isLoading || !customers || !users}
+            disabled={isLoading || !customers}
             size="lg"
-            className="w-fit cursor-pointer my-4"
+            className="w-fit cursor-pointer my-4 ml-auto col-span-2"
           >
-            {isLoading || !customers || !users ? (
+            {isLoading || !customers ? (
               <>
-                <Loader className="animate-spin" />{" "}
-                {isLoading || !customers || !users}
+                <Loader className="animate-spin" /> Submitting...
               </>
             ) : (
               "Submit"

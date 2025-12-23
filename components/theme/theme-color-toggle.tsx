@@ -21,6 +21,8 @@ const availableThemeColors = [
   { name: "Blue", light: "bg-blue-900", dark: "bg-blue-700" },
   { name: "Green", light: "bg-green-900", dark: "bg-green-700" },
   { name: "Violet", light: "bg-violet-900", dark: "bg-violet-700" },
+  { name: "Red", light: "bg-red-900", dark: "bg-red-700" },
+  { name: "Yellow", light: "bg-yellow-900", dark: "bg-yellow-700" },
 ];
 
 export function ThemeColorToggle() {
@@ -39,7 +41,7 @@ export function ThemeColorToggle() {
               theme === "light" ? light : dark
             )}
           ></div>
-          <div className="text-sm">{name}</div>
+          <div className="text-sm text-foreground">{name}</div>
         </div>
       </SelectItem>
     ));
