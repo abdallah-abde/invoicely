@@ -1,7 +1,7 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 
-import { authSession } from "@/lib/auth-utils";
+import { authSession } from "@/lib/auth/auth-utils";
 
 const f = createUploadthing();
 

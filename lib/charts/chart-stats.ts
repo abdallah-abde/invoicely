@@ -1,4 +1,4 @@
-import prisma from "./prisma";
+import prisma from "../db/prisma";
 
 export async function getRevenueByMonth() {
   const invoices = await prisma.invoice.findMany({

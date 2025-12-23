@@ -18,7 +18,7 @@ import DataTableSearchInput from "@/components/data-table/data-table-search-inpu
 import DataTableColumnsVisibility from "@/components/data-table/data-table-columns-visibility";
 import DataTableHeader from "@/components/data-table/data-table-header";
 import DataTableBody from "@/components/data-table/data-table-body";
-import { InvoiceType } from "@/lib/custom-types";
+import { InvoiceType } from "@/lib/types/custom-types";
 
 export function InvoicesTable({ data }: { data: InvoiceType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([

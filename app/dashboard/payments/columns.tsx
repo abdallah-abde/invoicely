@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PaymentType } from "@/lib/custom-types";
+import { PaymentType } from "@/lib/types/custom-types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Loader, MoreVertical } from "lucide-react";
 import { usePayments } from "@/hooks/use-payments";

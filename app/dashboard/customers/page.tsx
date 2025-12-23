@@ -1,8 +1,8 @@
 import PageHeader from "@/components/page-header";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { CustomersTable } from "./customers-table";
 import CustomerCU from "./customer-cu";
-import { authSession } from "@/lib/auth-utils";
+import { authSession } from "@/lib/auth/auth-utils";
 import { APIError } from "better-auth";
 
 import type { Metadata } from "next";

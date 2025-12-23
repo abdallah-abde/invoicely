@@ -17,9 +17,9 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { InvoiceByStatusProps } from "@/lib/chart-types";
+import { InvoiceByStatusProps } from "@/lib/types/chart-types";
 import { useSearchParams } from "next/navigation";
-import { getRangeLabel } from "@/lib/helper";
+import { getRangeLabel } from "@/lib/utils";
 import { InvoiceStatus } from "@/app/generated/prisma/enums";
 
 const chartConfig = {

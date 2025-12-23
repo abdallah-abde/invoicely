@@ -16,11 +16,10 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { TopProductProps } from "@/lib/chart-types";
+import { TopProductProps } from "@/lib/types/chart-types";
 import { useSearchParams } from "next/navigation";
-import { capitalize, getRangeLabel, usDollar } from "@/lib/helper";
 import { GripVertical } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, usDollar, getRangeLabel, capitalize } from "@/lib/utils";
 
 const chartConfig = {
   total: {

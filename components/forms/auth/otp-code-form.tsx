@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { Loader } from "lucide-react";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 import { oTPCodeSchema } from "@/schemas/auth-schemas";
 

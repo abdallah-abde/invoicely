@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProductType } from "@/lib/custom-types";
+import { ProductType } from "@/lib/types/custom-types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Loader, MoreVertical } from "lucide-react";
 import { useProducts } from "@/hooks/use-products";

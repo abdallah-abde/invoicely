@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { authIsRequired, authSession } from "@/lib/auth-utils";
+import { authIsRequired, authSession } from "@/lib/auth/auth-utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

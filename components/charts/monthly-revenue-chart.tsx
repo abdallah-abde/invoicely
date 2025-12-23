@@ -17,10 +17,9 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { MonthlyRevenueProps } from "@/lib/chart-types";
+import { MonthlyRevenueProps } from "@/lib/types/chart-types";
 import { useSearchParams } from "next/navigation";
-import { capitalize, getMonth, getRangeLabel, usDollar } from "@/lib/helper";
-import { cn } from "@/lib/utils";
+import { usDollar, getRangeLabel, getMonth, capitalize } from "@/lib/utils";
 
 export const description = "A bar chart with negative values";
 

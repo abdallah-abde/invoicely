@@ -14,7 +14,7 @@ import {
 import { Table } from "@/components/ui/table";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { columns } from "./columns";
-import { ProductType } from "@/lib/custom-types";
+import { ProductType } from "@/lib/types/custom-types";
 import DataTableSearchInput from "@/components/data-table/data-table-search-input";
 import DataTableColumnsVisibility from "@/components/data-table/data-table-columns-visibility";
 import DataTableHeader from "@/components/data-table/data-table-header";

@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
-import { ProductType } from "@/lib/custom-types";
+import { ProductType } from "@/lib/types/custom-types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function ProductForm({

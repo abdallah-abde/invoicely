@@ -3,12 +3,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, twoFactor } from "better-auth/plugins";
 
-import prisma from "@/lib/prisma";
-import { ac, roles } from "@/lib/permissions";
+import prisma from "@/lib/db/prisma";
+import { ac, roles } from "@/lib/auth/permissions";
 
-import { sendVerificationEmail } from "@/lib/send-verification-email";
-import { sendOtpEmail } from "@/lib/send-otp-email";
-import { sendResetPasswordEmail } from "@/lib/send-reset-password-email";
+import { sendVerificationEmail } from "@/lib/emails/send-verification-email";
+import { sendOtpEmail } from "@/lib/emails/send-otp-email";
+import { sendResetPasswordEmail } from "@/lib/emails/send-reset-password-email";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {

@@ -1,15 +1,7 @@
 "use client";
 
-import { RevenueByDayProps } from "@/lib/chart-types";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import { RevenueByDayProps } from "@/lib/types/chart-types";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -23,10 +15,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "@/components/ui/card";
 import { useSearchParams } from "next/navigation";
-import { capitalize, getRangeLabel, usDollar } from "@/lib/helper";
 import { Square } from "lucide-react";
+import { usDollar, getRangeLabel, capitalize } from "@/lib/utils";
 
 const chartConfig = {
   revenue: {

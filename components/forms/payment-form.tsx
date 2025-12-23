@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { CalendarIcon, Loader } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { PaymentType } from "@/lib/custom-types";
+import { PaymentType } from "@/lib/types/custom-types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import MultipleSelector, { Option } from "../ui/multiple-selector";
 import { Invoice, Payment } from "@/app/generated/prisma/client";

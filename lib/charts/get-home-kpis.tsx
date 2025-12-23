@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { startOfMonth, subMonths } from "date-fns";
 
 export async function getHomeKPIs() {

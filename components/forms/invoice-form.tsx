@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { CalendarIcon, Loader } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
-import { InvoiceType } from "@/lib/custom-types";
+import { InvoiceType } from "@/lib/types/custom-types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Popover,
@@ -46,7 +46,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import InvoiceProductForm, { SelectedItem } from "./invoice-product-form";
 import { useEffect } from "react";
 import { Label } from "../ui/label";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 export default function InvoiceForm({
   setIsOpen,

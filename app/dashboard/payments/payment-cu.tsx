@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import PaymentForm from "@/components/forms/payment-form";
 import { useState } from "react";
-import { PaymentType } from "@/lib/custom-types";
+import { PaymentType } from "@/lib/types/custom-types";
 
 export default function PaymentCU({
   payment = undefined,

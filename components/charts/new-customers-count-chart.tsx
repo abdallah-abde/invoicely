@@ -17,8 +17,8 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useSearchParams } from "next/navigation";
-import { getRangeLabel } from "@/lib/helper";
-import { NewCustomerCountProps } from "@/lib/chart-types";
+import { getRangeLabel } from "@/lib/utils";
+import { NewCustomerCountProps } from "@/lib/types/chart-types";
 
 const chartConfig = {
   count: {

@@ -1,9 +1,9 @@
 import PageHeader from "@/components/page-header";
 import { PaymentsTable } from "@/app/dashboard/payments/payments-table";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import PaymentCU from "./payment-cu";
 import { APIError } from "better-auth";
-import { authSession } from "@/lib/auth-utils";
+import { authSession } from "@/lib/auth/auth-utils";
 
 import type { Metadata } from "next";
 

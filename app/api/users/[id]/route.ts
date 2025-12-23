@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -11,7 +11,8 @@ export async function GET(
       where: { id },
       select: { id: true, name: true, email: true, image: true, role: true },
     });
-    if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!user)
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(user);
   } catch (err) {
     console.error(err);
@@ -38,7 +39,10 @@ export async function PUT(
     return NextResponse.json(user);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update user" },
+      { status: 500 }
+    );
   }
 }
 
@@ -52,6 +56,9 @@ export async function DELETE(
     return new Response(null, { status: 204 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete user" },
+      { status: 500 }
+    );
   }
 }

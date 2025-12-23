@@ -19,7 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { authSession } from "@/lib/auth-utils";
+import { authSession } from "@/lib/auth/auth-utils";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import ActiveLink from "./active-link";
 import Link from "next/link";

@@ -15,7 +15,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between w-full px-6">
           <Link href="/" className="text-2xl uppercase flex items-center gap-4">
             <Image
-              src="/logo-2.png"
+              src="/logo.png"
               width={138}
               height={136}
               alt={`${process.env.NEXT_PUBLIC_APP_NAME} logo`}

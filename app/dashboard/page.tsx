@@ -1,7 +1,7 @@
 import { RevenueChart } from "@/components/charts/revenue-chart";
 import DashboardFilters from "@/components/charts/dashboard-filters";
 import KpiCards from "@/components/charts/kpi-cards";
-import { DashboardChartsData } from "@/lib/chart-types";
+import { DashboardChartsData } from "@/lib/types/chart-types";
 import { InvoiceStatusChart } from "@/components/charts/invoice-status-chart";
 import { TopCustomersChart } from "@/components/charts/top-customers-chart";
 import { TopProductsChart } from "@/components/charts/top-products-chart";

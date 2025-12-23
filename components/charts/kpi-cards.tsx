@@ -7,8 +7,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { DashboardChartsData } from "@/lib/chart-types";
-import { usDollar } from "@/lib/helper";
+import { DashboardChartsData } from "@/lib/types/chart-types";
+import { usDollar } from "@/lib/utils";
 
 export default function KpiCards({
   totalRevenue,

@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { UserProps, useUsers } from "@/hooks/use-users";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 import { Edit, Loader, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

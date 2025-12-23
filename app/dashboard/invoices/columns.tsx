@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { InvoiceType } from "@/lib/custom-types";
+import { InvoiceType } from "@/lib/types/custom-types";
 import { caseInsensitiveSort, cn, dateAsStringSort } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { Loader, MoreVertical } from "lucide-react";

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import InvoiceForm from "@/components/forms/invoice-form";
 import { useEffect, useState } from "react";
-import { InvoiceType } from "@/lib/custom-types";
+import { InvoiceType } from "@/lib/types/custom-types";
 
 export default function InvoiceCU({
   invoice = undefined,

@@ -1,8 +1,8 @@
 "use server";
 
-import { authSession } from "@/lib/auth-utils";
+import { authSession } from "@/lib/auth/auth-utils";
 
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 
 export async function getUserProfile() {
   const session = await authSession();

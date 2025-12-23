@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { LayoutDashboard, LogIn, LogOut, UserPen } from "lucide-react";
 
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/auth-client";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

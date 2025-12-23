@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import CustomerCU from "./customer-cu";
 import { toast } from "sonner";
 import { caseInsensitiveSort } from "@/lib/utils";
-import { CustomerType } from "@/lib/custom-types";
+import { CustomerType } from "@/lib/types/custom-types";
 import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<CustomerType>[] = [

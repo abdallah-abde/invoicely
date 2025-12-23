@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getUserProfile } from "@/actions/user";
 
-import { authIsRequired } from "@/lib/auth-utils";
+import { authIsRequired } from "@/lib/auth/auth-utils";
 
 import { ChangePasswordForm } from "@/components/forms/auth/change-password-form";
 import { ToggleOTPForm } from "@/components/forms/auth/toggle-otp-form";

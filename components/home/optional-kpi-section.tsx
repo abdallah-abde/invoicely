@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { ArrowRight } from "lucide-react";
 
-import { getHomeKPIs } from "@/lib/get-home-kpis";
+import { getHomeKPIs } from "@/lib/charts/get-home-kpis";
 import { cn } from "@/lib/utils";
 
 import OptionalKPISkeleton from "@/components/home/optional-kpi-skeleton";

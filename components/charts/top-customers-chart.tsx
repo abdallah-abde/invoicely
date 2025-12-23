@@ -17,9 +17,9 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { TopCustomerProps } from "@/lib/chart-types";
+import { TopCustomerProps } from "@/lib/types/chart-types";
 import { useSearchParams } from "next/navigation";
-import { capitalize, getRangeLabel, usDollar } from "@/lib/helper";
+import { usDollar, getRangeLabel, capitalize } from "@/lib/utils";
 
 export const description = "A horizontal bar chart";
 

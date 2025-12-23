@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import ProductForm from "@/components/forms/product-form";
 import { useState } from "react";
-import { ProductType } from "@/lib/custom-types";
+import { ProductType } from "@/lib/types/custom-types";
 
 export default function ProductCU({
   product = undefined,

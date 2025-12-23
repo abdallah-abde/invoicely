@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { usDollar } from "@/lib/helper";
+import { usDollar } from "@/lib/utils";
 import { useRef } from "react";
 
 interface OptionalKPIProps {

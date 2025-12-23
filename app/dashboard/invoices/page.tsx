@@ -1,9 +1,9 @@
 import PageHeader from "@/components/page-header";
 import { InvoicesTable } from "./invoices-table";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import InvoiceCU from "./invoice-cu";
 import { APIError } from "better-auth";
-import { authSession } from "@/lib/auth-utils";
+import { authSession } from "@/lib/auth/auth-utils";
 
 import type { Metadata } from "next";
 
