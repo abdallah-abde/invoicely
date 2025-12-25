@@ -1,5 +1,5 @@
 import type { Product } from "@/app/generated/prisma/client";
-import prisma from "@/lib/db/prisma";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(

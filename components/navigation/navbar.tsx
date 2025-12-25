@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ThemeColorToggle } from "@/components/theme/theme-color-toggle";
 
 import { ModeToggle } from "@/components/theme/mode-toggle";
-import AuthenticationToggle from "@/components/authentication-toggle";
+import AuthenticationToggle from "@/features/auth/components/authentication-toggle";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -15,7 +15,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between w-full px-6">
           <Link href="/" className="text-2xl uppercase flex items-center gap-4">
             <Image
-              src="/logo.png"
+              src="/logos/logo.png"
               width={138}
               height={136}
               alt={`${process.env.NEXT_PUBLIC_APP_NAME} logo`}

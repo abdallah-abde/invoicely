@@ -1,5 +1,5 @@
 import { InvoiceStatus, PaymentMethod } from "@/app/generated/prisma/enums";
-import { Row, SortingFn, sortingFns } from "@tanstack/react-table";
+import { Row, SortingFn } from "@tanstack/react-table";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -51,10 +51,10 @@ export function getRangeLabel(range: string | null) {
     ? range === "7d"
       ? "Last 7 days"
       : range === "1m"
-      ? "Last month"
-      : range === "3m"
-      ? "Last 3 months"
-      : "Last 7 days"
+        ? "Last month"
+        : range === "3m"
+          ? "Last 3 months"
+          : "Last 7 days"
     : "Last 7 days";
 }
 

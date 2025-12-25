@@ -1,12 +1,12 @@
-import { RevenueChart } from "@/components/charts/revenue-chart";
-import DashboardFilters from "@/components/charts/dashboard-filters";
-import KpiCards from "@/components/charts/kpi-cards";
-import { DashboardChartsData } from "@/lib/types/chart-types";
-import { InvoiceStatusChart } from "@/components/charts/invoice-status-chart";
-import { TopCustomersChart } from "@/components/charts/top-customers-chart";
-import { TopProductsChart } from "@/components/charts/top-products-chart";
-import { NewCustomersCountChart } from "@/components/charts/new-customers-count-chart";
-import { MonthlyRevenueChart } from "@/components/charts/monthly-revenue-chart";
+import { RevenueChart } from "@/features/charts/components/revenue-chart";
+import DashboardFilters from "@/features/charts/components/dashboard-filters";
+import KpiCards from "@/features/charts/components/kpi-cards";
+import { DashboardChartsData } from "@/features/charts/charts.types";
+import { InvoiceStatusChart } from "@/features/charts/components/invoice-status-chart";
+import { TopCustomersChart } from "@/features/charts/components/top-customers-chart";
+import { TopProductsChart } from "@/features/charts/components/top-products-chart";
+import { NewCustomersCountChart } from "@/features/charts/components/new-customers-count-chart";
+import { MonthlyRevenueChart } from "@/features/charts/components/monthly-revenue-chart";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {

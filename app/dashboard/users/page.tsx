@@ -1,10 +1,10 @@
-import { auth } from "@/auth";
-import { authIsRequired, authSession } from "@/lib/auth/auth-utils";
+import { auth } from "@/lib/auth";
+import { authIsRequired, authSession } from "@/features/auth/lib/auth-utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { Role } from "@/schemas/user";
-import UserCU from "./user-cu";
+import { Role } from "@/features/users/schemas/user.schema";
+import UserCU from "@/features/users/components/user-cu";
 
 import type { Metadata } from "next";
 

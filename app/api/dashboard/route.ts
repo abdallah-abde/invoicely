@@ -1,5 +1,5 @@
 import { Invoice } from "@/app/generated/prisma/client";
-import prisma from "@/lib/db/prisma";
+import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 interface RouteProps extends Pick<Invoice, "issuedAt" | "total" | "status"> {}

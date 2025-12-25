@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 
-import { getUserProfile } from "@/actions/user";
+import { getUserProfile } from "@/features/users/actions/user.actions";
 
-import { authIsRequired } from "@/lib/auth/auth-utils";
+import { authIsRequired } from "@/features/auth/lib/auth-utils";
 
-import { ChangePasswordForm } from "@/components/forms/auth/change-password-form";
-import { ToggleOTPForm } from "@/components/forms/auth/toggle-otp-form";
-import { UpdateProfileForm } from "@/components/forms/auth/update-profile-form";
+import { ChangePasswordForm } from "@/features/auth/components/change-password-form";
+import { ToggleOTPForm } from "@/features/auth/components/toggle-otp-form";
+import { UpdateProfileForm } from "@/features/auth/components/update-profile-form";
 
 import type { Metadata } from "next";
 

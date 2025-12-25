@@ -1,4 +1,4 @@
-import { authIsNotRequired } from "@/lib/auth/auth-utils";
+import { authIsNotRequired } from "@/features/auth/lib/auth-utils";
 
 export default async function AuthLayout({
   children,

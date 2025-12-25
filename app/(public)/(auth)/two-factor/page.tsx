@@ -1,4 +1,4 @@
-import { OTPCodeForm } from "@/components/forms/auth/otp-code-form";
+import { OTPCodeForm } from "@/features/auth/components/otp-code-form";
 
 export default async function TwoFactorCodePage() {
   return <OTPCodeForm />;

@@ -1,9 +1,9 @@
-import HeroSection from "@/components/home/hero-section";
-import FeaturesGridSection from "@/components/home/features-grid-section";
-import OptionalKPISection from "@/components/home/optional-kpi-section";
-import BlobsBackground from "@/components/home/blobs-backgrounds";
-import SectionDivider from "@/components/home/section-divider";
-import Footer from "@/components/home/footer";
+import HeroSection from "@/features/home/components/hero-section";
+import FeaturesGridSection from "@/features/home/components/features-grid-section";
+import OptionalKPISection from "@/features/home/components/optional-kpi-section";
+import BlobsBackground from "@/features/home/components/blobs-backgrounds";
+import SectionDivider from "@/features/home/components/section-divider";
+import Footer from "@/features/home/components/footer";
 
 export default function Home() {
   return (

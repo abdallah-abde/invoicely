@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     siteName: `${process.env.NEXT_PUBLIC_APP_NAME}`,
     images: [
       {
-        url: "/og-image.png", // Image 1200 x 630
+        url: "/images/og-image.png", // Image 1200 x 630
         width: 1200,
         height: 630,
         alt: `${process.env.NEXT_PUBLIC_APP_NAME} Dashboard Preview`,
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     title: `${process.env.NEXT_PUBLIC_APP_NAME} | Smart Invoicing Dashboard`,
     description:
       "A modern invoicing and customer management dashboard with analytics, reports, and revenue tracking.",
-    images: ["/og-image.png"],
+    images: ["/images/og-image.png"],
     creator: "@invoicely", // Optional
   },
 

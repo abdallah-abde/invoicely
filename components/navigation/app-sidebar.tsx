@@ -16,10 +16,8 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { authSession } from "@/lib/auth/auth-utils";
+import { authSession } from "@/features/auth/lib/auth-utils";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import ActiveLink from "./active-link";
 import Link from "next/link";

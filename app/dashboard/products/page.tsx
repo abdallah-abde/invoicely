@@ -1,9 +1,9 @@
-import PageHeader from "@/components/page-header";
-import { ProductsTable } from "@/app/dashboard/products/products-table";
-import prisma from "@/lib/db/prisma";
-import ProductCU from "./product-cu";
+import PageHeader from "@/components/common/page-header";
+import { ProductsTable } from "@/features/products/components/products-table";
+import prisma from "@/lib/prisma";
+import ProductCU from "@/features/products/components/product-cu";
 import { APIError } from "better-auth";
-import { authSession } from "@/lib/auth/auth-utils";
+import { authSession } from "@/features/auth/lib/auth-utils";
 
 import type { Metadata } from "next";
 

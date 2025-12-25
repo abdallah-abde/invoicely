@@ -2,8 +2,8 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 
-import prisma from "@/lib/db/prisma";
-import { generateInvoicePDF } from "@/lib/pdf/generate-invoice-pdf";
+import prisma from "@/lib/prisma";
+import { generateInvoicePDF } from "@/features/invoices/services/pdf.services";
 
 export async function GET(
   _: Request,
