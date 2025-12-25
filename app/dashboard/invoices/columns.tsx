@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import InvoiceCU from "./invoice-cu";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 
 export const columns: ColumnDef<InvoiceType>[] = [
   {
@@ -211,6 +212,15 @@ export const columns: ColumnDef<InvoiceType>[] = [
               Delete
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link
+                href={`/api/invoices/${invoice.id}/pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download Invoice
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>View invoice details</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -218,30 +228,3 @@ export const columns: ColumnDef<InvoiceType>[] = [
     },
   },
 ];
-
-// function renderStatus(status: InvoiceStatus) {
-//   let result = "";
-
-//   switch (status) {
-//     case InvoiceStatus.CANCELED:
-//       result = "text-purple-300";
-//       break;
-//     case InvoiceStatus.DRAFT:
-//       result = "text-gray-300";
-//       break;
-//     case InvoiceStatus.SENT:
-//       result = "text-sky-300";
-//       break;
-//     case InvoiceStatus.PAID:
-//       result = "text-green-300";
-//       break;
-//     case InvoiceStatus.OVERDUE:
-//       result = "text-red-300";
-//       break;
-//     default:
-//       result = "";
-//       break;
-//   }
-
-//   return result;
-// }

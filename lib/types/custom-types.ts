@@ -30,11 +30,13 @@ export interface InvoiceType extends Omit<Omit<Invoice, "total">, "createdAt"> {
   _count: {
     products: number;
   };
-  products: Product[];
+  products: Omit<Product, "price">[];
 }
 
-export interface PaymentType
-  extends Omit<Omit<Payment, "amount">, "createdAt"> {
+export interface PaymentType extends Omit<
+  Omit<Payment, "amount">,
+  "createdAt"
+> {
   amountAsNumber: number;
   // createdAt: string;
   dateAsString: string;
@@ -44,4 +46,22 @@ export interface PaymentType
       name: string;
     };
   };
+}
+
+export interface InvoicePDFData {
+  invoiceNumber: string;
+  issueAt: string;
+  dueAt: string;
+  customer: {
+    name: string;
+    email?: string;
+    address?: string;
+  };
+  products: {
+    name: string;
+    quantity: number;
+    unitPrice: number;
+  }[];
+  total: number;
+  currency: string;
 }

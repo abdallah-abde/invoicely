@@ -53,9 +53,10 @@ export default async function page() {
       // spread the actual product fields first (name, id, createdAt, updatedAt, description, price, unit, ...)
       ...(ip.product ?? {}),
       // add invoice-specific fields if needed
-      quantity: ip.quantity,
-      unitPrice: ip.unitPrice,
-      totalPrice: ip.totalPrice,
+      quantity: ip.quantity.toNumber(),
+      unitPrice: ip.unitPrice.toNumber(),
+      totalPrice: ip.totalPrice.toNumber(),
+      price: ip.product.price.toNumber(),
       // keep pivot ids if you need them later
       id: ip.product ? ip.product.id : ip.id,
     }));
@@ -66,6 +67,7 @@ export default async function page() {
       issuedDateAsString: issuedDate,
       dueDateAsString: dueDate,
       totalAsNumber: total.toNumber(),
+      total: total.toNumber(),
       products,
     };
   });
