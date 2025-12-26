@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { SignUpForm } from "@/features/auth/components/sign-up-form";
 
 export default async function SignUpPage() {
