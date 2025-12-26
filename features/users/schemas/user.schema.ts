@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const ROLE_OPTIONS = ["user", "admin", "superadmin"] as const;
+export const ROLE_OPTIONS = ["user", "admin"] as const;
 export type Role = (typeof ROLE_OPTIONS)[number];
 
 export const userSchema = z.object({
