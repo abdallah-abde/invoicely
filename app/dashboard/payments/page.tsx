@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import PageHeader from "@/components/layout/page-header";
 import { PaymentsTable } from "@/features/payments/components/payments-table";
 import prisma from "@/lib/db/prisma";
