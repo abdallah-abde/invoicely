@@ -76,13 +76,13 @@ export const metadata: Metadata = {
     creator: "@invoicely", // Optional
   },
 
-  icons: {
-    icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
-    apple: [{ url: "/apple-touch-icon.png" }],
-    shortcut: ["/favicon.ico"],
-  },
+  // icons: {
+  //   icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
+  //   apple: [{ url: "/apple-touch-icon.png" }],
+  //   shortcut: ["/favicon.ico"],
+  // },
 
-  manifest: "/site.webmanifest",
+  // manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
