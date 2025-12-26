@@ -1,6 +1,6 @@
-import PageHeader from "@/components/common/page-header";
+import PageHeader from "@/components/layout/page-header";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import InvoiceCU from "@/features/invoices/components/invoice-cu";
 import { APIError } from "better-auth";
 import { authSession } from "@/features/auth/lib/auth-utils";

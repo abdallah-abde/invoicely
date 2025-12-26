@@ -10,23 +10,26 @@ import { MonthlyRevenueChart } from "@/features/charts/components/monthly-revenu
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
-  searchParams: { range?: string };
+  searchParams: Promise<{ range?: string }>;
 };
 
 export default async function DashboardPage({ searchParams }: Props) {
-  const range = (await searchParams.range) || "7d";
+  const params = await searchParams;
+  const range = params?.range || "7d"; // default to last 30 days
 
   const res = await fetch(
     `${process.env.BETTER_AUTH_URL}/api/dashboard?range=${range}`,
     {
-      cache: "force-cache",
-      next: { revalidate: 300 }, // 5 minutes
+      // cache: "force-cache",
+      // next: { revalidate: 300 }, // 5 minutes
     }
   );
 
   if (!res.ok) throw new Error("Dashboard failed");
 
   const data: DashboardChartsData = await res.json();
+
+  console.log(data);
 
   return (
     <ScrollArea className="h-[calc(100vh-75px)] pr-8">

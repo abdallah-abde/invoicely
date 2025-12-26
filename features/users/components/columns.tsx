@@ -3,7 +3,7 @@ import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleCheck, CircleX } from "lucide-react";
 import { CellActions } from "@/features/users/components/cell-actions";
-import DataTableHeaderSort from "@/components/data-table/data-table-header-sort";
+import DataTableHeaderSort from "@/features/shared/table/data-table-header-sort";
 import { caseInsensitiveSort } from "@/lib/utils";
 import {
   Tooltip,

@@ -29,7 +29,7 @@ export default function Footer() {
               Home
             </Link>
             <a
-              href="https://github.com/your-repo"
+              href="https://github.com/abdallah-abde/invoicely"
               target="_blank"
               className="text-muted-foreground hover:text-foreground"
             >

@@ -51,7 +51,7 @@ const chartConfig = {
 export function InvoiceStatusChart({ data }: { data: InvoiceByStatusProps[] }) {
   const totalInvoices = React.useMemo(() => {
     return data.reduce((acc, curr) => acc + curr.count, 0);
-  }, []);
+  }, [data]);
 
   const dataAfter = data.map((d) => ({
     ...d,

@@ -12,12 +12,12 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
-import { DataTablePagination } from "@/components/data-table/data-table-pagination";
+import { DataTablePagination } from "@/features/shared/table/data-table-pagination";
 import { columns } from "./columns";
-import DataTableSearchInput from "@/components/data-table/data-table-search-input";
-import DataTableColumnsVisibility from "@/components/data-table/data-table-columns-visibility";
-import DataTableHeader from "@/components/data-table/data-table-header";
-import DataTableBody from "@/components/data-table/data-table-body";
+import DataTableSearchInput from "@/features/shared/table/data-table-search-input";
+import DataTableColumnsVisibility from "@/features/shared/table/data-table-columns-visibility";
+import DataTableHeader from "@/features/shared/table/data-table-header";
+import DataTableBody from "@/features/shared/table/data-table-body";
 import { InvoiceType } from "@/features/invoices/invoice.types";
 
 export function InvoicesTable({ data }: { data: InvoiceType[] }) {

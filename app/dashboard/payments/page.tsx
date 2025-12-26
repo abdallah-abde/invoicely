@@ -1,6 +1,6 @@
-import PageHeader from "@/components/common/page-header";
+import PageHeader from "@/components/layout/page-header";
 import { PaymentsTable } from "@/features/payments/components/payments-table";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import PaymentCU from "@/features/payments/components/payment-cu";
 import { APIError } from "better-auth";
 import { authSession } from "@/features/auth/lib/auth-utils";

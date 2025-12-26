@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchInvoices } from "../api/invoice.api";
 
 export function useInvoices() {
   const queryClient = useQueryClient();
@@ -7,10 +8,8 @@ export function useInvoices() {
 
   const invoicesQuery = useQuery({
     queryKey: ["invoices"],
-    queryFn: async () => {
-      const res = await fetch("/api/invoices");
-      return res.json();
-    },
+    queryFn: fetchInvoices,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const createInvoice = useMutation({

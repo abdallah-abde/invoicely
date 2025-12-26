@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchCustomers } from "../api/customer.api";
 
 export function useCustomers() {
   const queryClient = useQueryClient();
@@ -7,10 +8,8 @@ export function useCustomers() {
 
   const customersQuery = useQuery({
     queryKey: ["customers"],
-    queryFn: async () => {
-      const res = await fetch("/api/customers");
-      return res.json();
-    },
+    queryFn: fetchCustomers,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const createCustomer = useMutation({

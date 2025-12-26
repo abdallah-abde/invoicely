@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { authIsRequired } from "@/features/auth/lib/auth-utils";
 
-import { AppSidebar } from "@/components/navigation/app-sidebar";
+import { AppSidebar } from "@/components/layout/navigation/app-sidebar";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 import { ThemeColorToggle } from "@/components/theme/theme-color-toggle";
 import AuthenticationToggle from "@/features/auth/components/authentication-toggle";

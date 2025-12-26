@@ -1,6 +1,6 @@
 "use client";
 
-import DataTableHeaderSort from "@/components/data-table/data-table-header-sort";
+import DataTableHeaderSort from "@/features/shared/table/data-table-header-sort";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import CustomerCU from "./customer-cu";
 import { toast } from "sonner";
 import { caseInsensitiveSort } from "@/lib/utils";
-import { CustomerType } from "@/features/customers/customer.types";
+import { CustomerType } from "../customer.types";
 import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<CustomerType>[] = [

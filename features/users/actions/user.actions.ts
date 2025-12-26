@@ -2,7 +2,7 @@
 
 import { authSession } from "@/features/auth/lib/auth-utils";
 
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 
 export async function getUserProfile() {
   const session = await authSession();

@@ -58,6 +58,13 @@ export function getRangeLabel(range: string | null) {
     : "Last 7 days";
 }
 
+export function capitalize(value: string) {
+  const firstLetter = value[0].toUpperCase();
+  const rest = value.substring(1);
+
+  return `${firstLetter}${rest}`;
+}
+
 export function getMonth(value: string) {
   let result = "";
 
@@ -103,11 +110,4 @@ export function getMonth(value: string) {
   }
 
   return result;
-}
-
-export function capitalize(value: string) {
-  const firstLetter = value[0].toUpperCase();
-  const rest = value.substring(1);
-
-  return `${firstLetter}${rest}`;
 }

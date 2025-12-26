@@ -3,7 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin, twoFactor } from "better-auth/plugins";
 
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { ac, roles } from "@/features/auth/lib/permissions";
 
 import { sendVerificationEmail } from "@/features/auth/services/emails/send-verification-email";

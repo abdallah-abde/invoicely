@@ -1,6 +1,6 @@
-import PageHeader from "@/components/common/page-header";
+import PageHeader from "@/components/layout/page-header";
 import { ProductsTable } from "@/features/products/components/products-table";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import ProductCU from "@/features/products/components/product-cu";
 import { APIError } from "better-auth";
 import { authSession } from "@/features/auth/lib/auth-utils";
