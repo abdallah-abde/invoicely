@@ -14,9 +14,9 @@ const ThemeContext = createContext<ThemeColorStateParams>(
 export default function ThemeDataProvider({ children }: ThemeProviderProps) {
   const getSavedThemeColor = () => {
     try {
-      return (localStorage.getItem("themeColor") as ThemeColors) || "Zinc";
+      return (localStorage.getItem("themeColor") as ThemeColors) || "Neutral";
     } catch (error) {
-      "Zinc" as ThemeColors;
+      "Neutral" as ThemeColors;
     }
   };
 
@@ -29,7 +29,12 @@ export default function ThemeDataProvider({ children }: ThemeProviderProps) {
 
   useEffect(() => {
     localStorage.setItem("themeColor", themeColor);
+    // try {
     setGlobalColorTheme(theme as "light" | "dark", themeColor);
+    // } catch (error) {
+    // console.error("Error setting global color theme:", error);
+    // setGlobalColorTheme("light", "Neutral");
+    // }
 
     if (!isMounted) {
       setIsMounted(true);
