@@ -30,9 +30,9 @@ export default async function OptionalKPISection() {
           confidence.
         </p>
       </div>
-      <Suspense fallback={<OptionalKPISkeleton />}>
-        <OptionalKPIContent data={data} />
-      </Suspense>
+      {/* <Suspense fallback={<OptionalKPISkeleton />}> */}
+      <OptionalKPIContent data={data} />
+      {/* </Suspense> */}
       <div className="mt-10 flex justify-center">
         <Link
           href="/dashboard"
