@@ -22,35 +22,35 @@ import {
 } from "lucide-react";
 
 export const heroIcons = [
-  { Icon: FileText, label: "Invoices", pos: "top-30 left-28 float" },
+  { Icon: FileText, label: "Invoices", pos: "top-30 left-18 float" },
   { Icon: CreditCard, label: "Payments", pos: "top-20 right-16 float-2" },
-  { Icon: DollarSign, label: "Revenue", pos: "top-36 left-52 float-3" },
+  { Icon: DollarSign, label: "Revenue", pos: "top-29 left-62 float-3" },
   { Icon: BarChart3, label: "Analytics", pos: "top-12 right-36 float" },
-  { Icon: PieChart, label: "Reports", pos: "top-40 right-30 float-2" },
-  { Icon: Wallet, label: "Wallet", pos: "top-77 right-34 float-4" },
+  { Icon: PieChart, label: "Reports", pos: "top-37 right-28 float-2" },
+  { Icon: Wallet, label: "Wallet", pos: "top-73 right-38 float-4" },
   { Icon: Receipt, label: "Receipts", pos: "top-44 right-6 float-2" },
   { Icon: Users, label: "Customers", pos: "bottom-24 left-24 float-3" },
-  { Icon: TrendingUp, label: "Growth", pos: "bottom-8 right-40 float-2" },
+  { Icon: TrendingUp, label: "Growth", pos: "bottom-15 right-30 float-2" },
   { Icon: Landmark, label: "Banking", pos: "bottom-32 right-4 float-4" },
 
   { Icon: Calendar, label: "Billing cycles", pos: "top-13 left-56 float" },
-  { Icon: Clock, label: "Due dates", pos: "top-28 right-52 float" },
-  { Icon: Percent, label: "Taxes & discounts", pos: "top-64 right-22 float-2" },
+  { Icon: Clock, label: "Due dates", pos: "top-12 right-72 float" },
+  { Icon: Percent, label: "Taxes & discounts", pos: "top-60 right-22 float-2" },
   {
     Icon: ShieldCheck,
     label: "Secure payments",
-    pos: "top-82 left-48 float-4",
+    pos: "top-32 left-42 float-4",
   },
   { Icon: Banknote, label: "Cash flow", pos: "bottom-52 right-44 float" },
   {
     Icon: Calculator,
     label: "Invoice totals",
-    pos: "bottom-54 left-31 float-4",
+    pos: "bottom-60 left-17 float-4",
   },
   {
     Icon: FileCheck,
     label: "Approved invoices",
-    pos: "bottom-44 left-52 float-3",
+    pos: "bottom-42 left-28 float-3",
   },
   {
     Icon: RefreshCcw,
@@ -60,7 +60,7 @@ export const heroIcons = [
   {
     Icon: LineChart,
     label: "Financial trends",
-    pos: "bottom-16 right-64 float",
+    pos: "bottom-16 right-58 float",
   },
   {
     Icon: Settings,

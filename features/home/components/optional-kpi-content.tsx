@@ -130,7 +130,7 @@ function KPI({
         <p className="text-sm text-muted-foreground">{label}</p>
 
         {/* Value */}
-        <p className="mt-2 text-3xl font-bold tracking-tight">
+        <p className="mt-2 text-2xl md:text-3xl font-bold tracking-tight">
           {isInView ? (
             <CountUp
               end={value}

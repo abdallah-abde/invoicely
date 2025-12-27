@@ -86,7 +86,7 @@ export function SignInForm() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full sm:max-w-md mt-20">
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
         <CardDescription>Sign in to your account</CardDescription>
@@ -151,7 +151,7 @@ export function SignInForm() {
       <CardFooter className="w-full flex flex-col">
         <Field
           orientation="horizontal"
-          className="flex items-center justify-between w-full"
+          className="flex flex-col md:flex-row gap-4 items-center justify-between w-full"
         >
           <p className="text-sm flex items-center gap-2">
             Do not have an account?{" "}

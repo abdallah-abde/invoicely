@@ -14,7 +14,7 @@ export default function DataTableSearchInput({
       placeholder="Search all fields..."
       value={globalFilter ?? ""}
       onChange={(e) => setGlobalFilter(e.target.value)}
-      className="max-w-sm"
+      className="max-w-xs sm:max-w-sm text-sm sm:text-[16px]"
     />
   );
 }

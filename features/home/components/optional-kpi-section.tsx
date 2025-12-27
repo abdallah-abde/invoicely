@@ -18,27 +18,29 @@ export default async function OptionalKPISection() {
   return (
     <section className="mx-auto pt-24 select-none max-w-5xl px-6" id="kpi">
       <div className="mb-12 text-center">
-        <h2 className="text-3xl font-bold">At-a-glance business insights</h2>
-        <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
+        <h2 className="text-xl md:text-2xl lg:text-3xl  font-bold">
+          At-a-glance business insights
+        </h2>
+        <p className="mt-4 max-w-md md:max-w-lg lg:max-w-2xl mx-auto text-muted-foreground text-sm md:text-[16px] lg:text-lg">
           Get a quick overview of your business performance with key metrics
           that matter most. These numbers update automatically and reflect your
           current momentum.
-        </p>
-        <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
-          Dive deeper into detailed analytics and reports inside the dashboard
-          to explore trends, compare periods, and make informed decisions with
-          confidence.
         </p>
       </div>
       {/* <Suspense fallback={<OptionalKPISkeleton />}> */}
       <OptionalKPIContent data={data} />
       {/* </Suspense> */}
-      <div className="mt-10 flex justify-center">
+      <p className="max-w-md md:max-w-lg lg:max-w-2xl mx-auto text-muted-foreground text-sm md:text-[16px] lg:text-lg text-center mt-12">
+        Dive deeper into detailed analytics and reports inside the dashboard to
+        explore trends, compare periods, and make informed decisions with
+        confidence.
+      </p>
+      <div className="mt-6 flex justify-center">
         <Link
           href="/dashboard"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "text-[16px]",
+            "text-sm lg:text-[17px]",
             "group transition duration-300"
           )}
         >

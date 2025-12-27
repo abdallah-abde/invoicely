@@ -48,7 +48,7 @@ export default function InvoiceCU({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="cursor-pointer">
+          <Button className="cursor-pointer text-xs sm:text-sm">
             <Plus /> Add Invoice
           </Button>
         )}

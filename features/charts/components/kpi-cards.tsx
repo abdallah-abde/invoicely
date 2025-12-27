@@ -43,7 +43,7 @@ export default function KpiCards({
   ];
 
   return (
-    <div className="w-full grid grid-cols-4 items-center justify-between gap-6">
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 items-center justify-center sm:justify-between gap-6">
       {items.map((a) => (
         <CardTemplate
           key={a.title}
@@ -67,7 +67,7 @@ function CardTemplate({
 }) {
   return (
     <Card>
-      <CardHeader className="flex items-center justify-between text-muted-foreground">
+      <CardHeader className="flex items-center justify-between text-muted-foreground w-auto">
         <CardTitle className="text-sm">{title}</CardTitle>
         <CardDescription>{Icon}</CardDescription>
       </CardHeader>

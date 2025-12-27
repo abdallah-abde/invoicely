@@ -54,7 +54,7 @@ export function UsersTable({ data }: { data: UserProps[] }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <div className="flex flex-col sm:flex-row items-start gap-2 py-4">
         <DataTableSearchInput
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}

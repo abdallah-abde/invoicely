@@ -33,18 +33,18 @@ export default async function DashboardLayout({
       <AppSidebar />
 
       <div className="w-full mx-6">
-        <div className="flex items-center gap-4 py-2 border-b">
-          <SidebarTrigger className="cursor-pointer" />
-          {breadcrumb}
-          <div className="ml-auto flex items-center gap-4">
+        <div className="flex items-center justify-start sm:justify-between gap-4 py-2 border-b w-full">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="cursor-pointer" />
+            {breadcrumb}
+          </div>
+          <div className="flex items-center max-sm:mx-auto gap-4">
             <ThemeColorToggle />
             <ModeToggle />
             <AuthenticationToggle />
           </div>
         </div>
-        <ScrollArea className="h-[calc(100vh-75px)] pr-8">
-          {children}
-        </ScrollArea>
+        <ScrollArea className="h-[calc(100vh-75px)]">{children}</ScrollArea>
       </div>
     </SidebarProvider>
   );

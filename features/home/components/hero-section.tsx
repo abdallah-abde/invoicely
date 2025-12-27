@@ -22,7 +22,7 @@ export default function HeroSection() {
       className="flex items-start justify-between mx-auto pt-12 mt-24 select-none max-w-5xl px-6"
       id="hero"
     >
-      <div className="flex flex-col gap-12 justify-start items-start mt-10 select-none">
+      <div className="flex flex-col gap-12 justify-center lg:justify-start items-center lg:items-start mt-10 select-none w-full">
         <HeroText />
         <HeroCTA />
       </div>
@@ -33,7 +33,7 @@ export default function HeroSection() {
 
 function HeroVisual() {
   return (
-    <div className="relative h-[480px] w-full max-w-xl">
+    <div className="relative h-[480px] w-full max-w-xl hidden lg:block">
       {/* Background glow */}
       <div className="absolute inset-0 rounded-3xl bg-linear-to-br from-chart-1/10 via-chart-3/10 to-transparent blur-3xl" />
 
@@ -78,7 +78,7 @@ function HeroText() {
       <motion.h1
         variants={item}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="text-5xl font-bold tracking-wider text-shadow-md"
+        className="text-4xl md:text-5xl font-bold tracking-wider text-shadow-md text-center lg:text-left"
       >
         {process.env.NEXT_PUBLIC_APP_NAME}
       </motion.h1>
@@ -87,7 +87,7 @@ function HeroText() {
         variants={item}
         transition={{ duration: 0.5, ease: "easeOut", delay: 0.25 }}
         className={cn(
-          "mt-10 text-2xl text-muted-foreground font-semibold"
+          "mt-10 text-lg md:text-2xl text-muted-foreground font-semibold text-center lg:text-left"
           // FOR WRITTER EFFECT
           // "border-r-3 border-muted-foreground writter w-full overflow-hidden whitespace-nowrap leading-10"
         )}
@@ -167,7 +167,7 @@ function HeroCTA() {
         delay: reduceMotion ? 0 : 1,
         ease: "easeOut",
       }}
-      className="flex items-center gap-4"
+      className="flex flex-col sm:flex-row items-center gap-4"
     >
       <motion.div
         // whileHover={reduceMotion ? {} : { scale: 1.01 }}
@@ -178,13 +178,13 @@ function HeroCTA() {
           href="/dashboard"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "text-[17px]"
+            "text-sm lg:text-[17px]"
           )}
         >
           Go to your dashboard
         </Link>
       </motion.div>
-      <span>or</span>
+      <span className="text-sm lg:text-[17px]">or</span>
       <motion.div
         // whileHover={reduceMotion ? {} : { scale: 1.01 }}
         whileTap={reduceMotion ? {} : { scale: 0.98 }}
@@ -194,7 +194,7 @@ function HeroCTA() {
           href="/sign-up"
           className={cn(
             buttonVariants({ variant: "secondary", size: "lg" }),
-            "text-[17px]"
+            "text-sm lg:text-[17px]"
           )}
         >
           Sign up

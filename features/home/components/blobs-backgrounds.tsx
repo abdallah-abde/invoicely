@@ -2,7 +2,7 @@ import { Blob } from "./blob";
 
 export default function BlobsBackground() {
   return (
-    <div className="pointer-events-none inset-0 overflow-hidden">
+    <div className="pointer-events-none inset-0 overflow-hidden hidden xl:block">
       <Blob
         size={360}
         color="bg-chart-2/90 dark:bg-chart-5/50"

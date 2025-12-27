@@ -17,7 +17,10 @@ export default function DataTableColumnsVisibility<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="ml-auto">
+        <Button
+          variant="outline"
+          className="sm:ml-auto text-sm! sm:text-[16px]!"
+        >
           Columns <ChevronDown />
         </Button>
       </DropdownMenuTrigger>
@@ -35,7 +38,7 @@ export default function DataTableColumnsVisibility<TData>({
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                className="capitalize"
+                className="capitalize text-sm sm:text-[16px]"
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >

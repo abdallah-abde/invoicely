@@ -51,7 +51,7 @@ export default async function BreadcrumbSlot({
   }
 
   return (
-    <Breadcrumb>
+    <Breadcrumb className="hidden xl:block">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>

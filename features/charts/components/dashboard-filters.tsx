@@ -16,7 +16,7 @@ export default function DashboardFilters() {
   const active = params.get("range") || "7d";
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-col sm:flex-row gap-2">
       {ranges.map((r) => (
         <Button
           key={r.value}

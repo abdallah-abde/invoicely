@@ -29,10 +29,8 @@ export default async function DashboardPage({ searchParams }: Props) {
 
   const data: DashboardChartsData = await res.json();
 
-  console.log(data);
-
   return (
-    <ScrollArea className="h-[calc(100vh-75px)] pr-8">
+    <ScrollArea className="h-[calc(100vh-75px)] pr-6">
       <div className="space-y-6 py-6">
         <KpiCards
           totalRevenue={data.totalRevenue}

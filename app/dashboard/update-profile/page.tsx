@@ -24,7 +24,7 @@ export default async function page() {
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="flex gap-6 py-4 items-start">
+    <div className="flex flex-col lg:flex-row gap-6 py-4 items-start pr-6">
       <UpdateProfileForm
         email={user?.email ?? ""}
         name={user?.name ?? ""}

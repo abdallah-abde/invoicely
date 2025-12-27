@@ -176,7 +176,7 @@ export function SignUpForm() {
       <CardFooter className="w-full flex flex-col">
         <Field
           orientation="horizontal"
-          className="flex items-center justify-between w-full"
+          className="flex flex-col md:flex-row gap-4 items-center justify-between w-full"
         >
           <p className="text-sm flex items-center gap-2">
             Already have an account?{" "}

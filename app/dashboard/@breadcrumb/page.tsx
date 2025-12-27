@@ -10,7 +10,7 @@ import {
 
 export default function BreadcrumbSlot() {
   return (
-    <Breadcrumb>
+    <Breadcrumb className="hidden xl:block">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbPage>Dashboard</BreadcrumbPage>

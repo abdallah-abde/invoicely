@@ -62,7 +62,7 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Update your password</CardTitle>
       </CardHeader>

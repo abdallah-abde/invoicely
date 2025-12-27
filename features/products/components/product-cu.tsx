@@ -29,7 +29,7 @@ export default function ProductCU({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button className="cursor-pointer">
+          <Button className="cursor-pointer text-xs sm:text-sm">
             <Plus /> Add Product
           </Button>
         )}

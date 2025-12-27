@@ -89,7 +89,7 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
   }
 
   return (
-    <Card className="w-full max-w-smsm:max-w-md">
+    <Card className="w-full ">
       <CardHeader>
         <CardTitle>Two Factor Authentication</CardTitle>
       </CardHeader>

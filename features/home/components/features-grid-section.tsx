@@ -40,10 +40,10 @@ export default function FeaturesGridSection() {
   return (
     <section className="mx-auto pt-24 select-none max-w-5xl px-6" id="features">
       <div className="mb-12 text-center">
-        <h2 className="text-3xl font-bold">
+        <h2 className="text-xl md:text-2xl lg:text-3xl font-bold">
           Everything you need to run your invoicing workflow
         </h2>
-        <p className="mt-4 max-w-2xl mx-auto text-muted-foreground">
+        <p className="mt-4 max-w-md md:max-w-lg lg:max-w-2xl mx-auto text-muted-foreground text-sm md:text-[16px] lg:text-lg">
           Manage invoices, customers, products, and payments from a single,
           intuitive dashboard designed for clarity and growth.
         </p>

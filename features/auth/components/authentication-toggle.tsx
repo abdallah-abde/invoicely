@@ -34,7 +34,7 @@ export default function AuthenticationToggle() {
                   src={session.user.image || ""}
                   alt={session.user.name}
                 />
-                <AvatarFallback>
+                <AvatarFallback className="text-xs">
                   {session.user.name.substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
