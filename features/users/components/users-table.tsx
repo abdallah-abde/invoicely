@@ -19,6 +19,7 @@ import DataTableColumnsVisibility from "@/features/shared/table/data-table-colum
 import DataTableHeader from "@/features/shared/table/data-table-header";
 import DataTableBody from "@/features/shared/table/data-table-body";
 import { UserProps } from "@/features/users/hooks/use-users";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export function UsersTable({ data }: { data: UserProps[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -54,18 +55,21 @@ export function UsersTable({ data }: { data: UserProps[] }) {
 
   return (
     <div className="w-full">
-      <div className="flex flex-col sm:flex-row items-start gap-2 py-4">
+      <div className="flex flex-row items-start justify-between gap-2 py-4">
         <DataTableSearchInput
           globalFilter={globalFilter}
           setGlobalFilter={setGlobalFilter}
         />
         <DataTableColumnsVisibility table={table} />
       </div>
-      <div className="overflow-hidden rounded-md border">
-        <Table>
-          <DataTableHeader table={table} />
-          <DataTableBody table={table} columnsLength={columns.length} />
-        </Table>
+      <div className="rounded-md border">
+        <ScrollArea>
+          <Table>
+            <DataTableHeader table={table} />
+            <DataTableBody table={table} columnsLength={columns.length} />
+          </Table>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
       <DataTablePagination table={table} />
     </div>

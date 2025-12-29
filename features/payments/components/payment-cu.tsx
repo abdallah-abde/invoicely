@@ -30,7 +30,7 @@ export default function PaymentCU({
       <DialogTrigger asChild>
         {trigger || (
           <Button className="cursor-pointer text-xs sm:text-sm">
-            <Plus /> Add Payment
+            <Plus /> <span className="hidden sm:block">Add Payment</span>
           </Button>
         )}
       </DialogTrigger>

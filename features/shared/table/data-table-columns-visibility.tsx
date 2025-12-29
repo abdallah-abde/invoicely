@@ -21,7 +21,7 @@ export default function DataTableColumnsVisibility<TData>({
           variant="outline"
           className="sm:ml-auto text-sm! sm:text-[16px]!"
         >
-          Columns <ChevronDown />
+          <span className="hidden sm:block">Columns</span> <ChevronDown />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

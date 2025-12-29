@@ -30,7 +30,7 @@ export default function CustomerCU({
       <DialogTrigger asChild>
         {trigger || (
           <Button className="cursor-pointer text-xs sm:text-sm">
-            <Plus /> Add Customer
+            <Plus /> <span className="hidden sm:block">Add Customer</span>
           </Button>
         )}
       </DialogTrigger>

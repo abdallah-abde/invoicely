@@ -11,8 +11,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import InvoiceForm from "@/features/invoices/components/invoice-form";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { InvoiceType } from "@/features/invoices/invoice.types";
+import { useCustomers } from "@/features/customers/hooks/use-customers";
 
 export default function InvoiceCU({
   invoice = undefined,
@@ -21,39 +22,21 @@ export default function InvoiceCU({
 }: {
   invoice?: InvoiceType | undefined;
   mode?: "create" | "edit";
-  trigger?: React.ReactNode; // custom trigger (Edit button)
+  trigger?: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [customers, setCustomers] = useState([]);
-  // const [users, setUsers] = useState([]);
-
-  useEffect(() => {
-    fetchCustomers();
-    // fetchUsers();
-
-    async function fetchCustomers() {
-      const res = await fetch("/api/customers");
-      const data = await res.json();
-      setCustomers(data);
-    }
-
-    // async function fetchUsers() {
-    //   const res = await fetch("/api/users");
-    //   const data = await res.json();
-    //   setUsers(data);
-    // }
-  }, []);
+  const { customersQuery } = useCustomers();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button className="cursor-pointer text-xs sm:text-sm">
-            <Plus /> Add Invoice
+            <Plus /> <span className="hidden sm:block">Add Invoice</span>
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[925px]">
+      <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
           <DialogTitle>
             {" "}
@@ -69,8 +52,8 @@ export default function InvoiceCU({
           setIsOpen={setIsOpen}
           invoice={invoice}
           mode={mode}
-          customers={customers}
-          // users={users}
+          customers={customersQuery.data || []}
+          customersIsLoading={customersQuery.isLoading}
         />
       </DialogContent>
     </Dialog>

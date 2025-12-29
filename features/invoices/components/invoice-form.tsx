@@ -50,17 +50,15 @@ export default function InvoiceForm({
   invoice,
   mode,
   customers,
-}: // users,
-{
+  customersIsLoading,
+}: {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   invoice?: InvoiceType | undefined;
   mode: "create" | "edit";
   customers: Customer[];
-  // users: User[];
+  customersIsLoading: boolean;
 }) {
   const {
-    createInvoice,
-    updateInvoice,
     createInvoiceWithRevalidate,
     updateInvoiceWithRevalidate,
     isLoading,
@@ -186,53 +184,38 @@ export default function InvoiceForm({
   return (
     <ScrollArea className="pt-4 h-[75vh] pr-8">
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="grid grid-cols-2 gap-8"
-        >
-          {/* <Tabs defaultValue="invoiceData" className="w-full">
-            <TabsList className="mb-4 w-full">
-              <TabsTrigger value="invoiceData">Invoice Data</TabsTrigger>
-              <TabsTrigger value="invoiceProducts">
-                Invoice Products
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="invoiceData" className="grid grid-cols-2 gap-8"> */}
-          <div className="grid grid-cols-2 gap-4 gap-y-8">
-            <div className="col-span-2">
-              <FormField
-                control={form.control}
-                name="number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Invoice Number</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Invoice number..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="col-span-2">
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Notes</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="resize-none h-20"
-                        placeholder="notes..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Invoice Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Invoice number..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      className="resize-none h-20"
+                      placeholder="notes..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="issuedAt"
@@ -315,7 +298,7 @@ export default function InvoiceForm({
                 </FormItem>
               )}
             />
-            {customers && customers.length > 0 ? (
+            {!customersIsLoading ? (
               <FormField
                 control={form.control}
                 name="customerId"
@@ -348,39 +331,6 @@ export default function InvoiceForm({
                 <Loader className="animate-spin" />
               </>
             )}
-            {/* {users && users.length > 0 ? (
-              <FormField
-                control={form.control}
-                name="createdById"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Created By</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select user" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {users.map((item) => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              <>
-                <Loader className="animate-spin" />
-              </>
-            )} */}
             <FormField
               control={form.control}
               name="status"
@@ -408,13 +358,11 @@ export default function InvoiceForm({
                 </FormItem>
               )}
             />
-          </div>
-          <div className="space-y-6">
-            <div className="col-span-2 space-y-2">
+            <div className="space-y-2">
               <Label>Products</Label>
               <InvoiceProductForm initialItems={items} onChange={setItems} />
             </div>
-            <div className="col-span-2 w-1/2 ml-auto">
+            <div className="w-1/2">
               <FormField
                 control={form.control}
                 name="total"
@@ -436,9 +384,8 @@ export default function InvoiceForm({
               />
             </div>
           </div>
-          {/* </TabsContent>
-            <TabsContent value="invoiceProducts"></TabsContent>
-          </Tabs> */}
+          <div className="space-y-6"></div>
+
           <Button
             type="submit"
             disabled={isLoading || !customers}

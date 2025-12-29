@@ -49,7 +49,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
       return <DataTableHeaderSort column={column} title="Number" />;
     },
     enableHiding: false,
-    cell: ({ row }) => <div>{row.getValue("number")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("number")}</div>
+    ),
   },
   {
     accessorKey: "customer.name",
@@ -58,7 +60,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
-    cell: ({ row }) => <div>{row.original.customer.name}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.original.customer.name}</div>
+    ),
   },
   {
     accessorKey: "issuedDateAsString",
@@ -67,7 +71,11 @@ export const columns: ColumnDef<InvoiceType>[] = [
     },
     enableHiding: false,
     sortingFn: dateAsStringSort,
-    cell: ({ row }) => <div>{row.getValue("issuedDateAsString")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">
+        {row.getValue("issuedDateAsString")}
+      </div>
+    ),
   },
   {
     accessorKey: "dueDateAsString",
@@ -75,7 +83,11 @@ export const columns: ColumnDef<InvoiceType>[] = [
       return <DataTableHeaderSort column={column} title="Due At" />;
     },
     sortingFn: dateAsStringSort,
-    cell: ({ row }) => <div>{row.getValue("dueDateAsString")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">
+        {row.getValue("dueDateAsString")}
+      </div>
+    ),
   },
   {
     accessorKey: "status",
@@ -85,7 +97,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
     cell: ({ row }) => (
       <div
         className={cn(
-          ` text-[10px] border rounded-md p-1.5 w-fit tracking-widest select-none`,
+          `text-[8px] xs:text-[10px] border rounded-md p-1.5 w-fit tracking-widest select-none`,
           `${
             row.original.status === "PAID"
               ? "text-purple-400"
@@ -114,20 +126,25 @@ export const columns: ColumnDef<InvoiceType>[] = [
     cell: ({ row }) => {
       const total = parseFloat(row.getValue("totalAsNumber"));
 
-      // Format the total as a dollar price
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
       }).format(total);
 
-      return <div className="font-medium  text-primary">{formatted}</div>;
+      return (
+        <div className="font-medium text-primary text-xs xs:text-sm">
+          {formatted}
+        </div>
+      );
     },
   },
   {
     accessorKey: "notes",
     header: "Notes",
     enableSorting: false,
-    cell: ({ row }) => <div>{row.getValue("notes")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("notes")}</div>
+    ),
   },
   {
     accessorKey: "createdBy.name",
@@ -135,7 +152,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
       return <DataTableHeaderSort column={column} title="Created By" />;
     },
     sortingFn: caseInsensitiveSort,
-    cell: ({ row }) => <div>{row.original.createdBy.name}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.original.createdBy.name}</div>
+    ),
   },
   {
     accessorKey: "_count.products",
@@ -144,7 +163,10 @@ export const columns: ColumnDef<InvoiceType>[] = [
     },
     cell: ({ row }) => (
       <div>
-        <Badge variant="secondary" className="select-none">
+        <Badge
+          variant="secondary"
+          className="select-none text-xs xs:text-sm size-5 xs:size-6"
+        >
           {row.original._count.products}
         </Badge>
       </div>
@@ -155,15 +177,16 @@ export const columns: ColumnDef<InvoiceType>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       const invoice = row.original;
-      console.log(invoice);
       const { deleteInvoice, isLoading } = useInvoices();
       const router = useRouter();
 
       if (isLoading) {
         return (
           <p className="flex gap-1 items-center">
-            <Loader className="animate-spin text-destructive" />{" "}
-            <span className="text-destructive text-xs">Deleting...</span>{" "}
+            <Loader className="animate-spin text-destructive size-4 xs:size-5" />{" "}
+            <span className="text-destructive text-xs xs:text-sm">
+              Deleting...
+            </span>{" "}
           </p>
         );
       }
@@ -171,26 +194,22 @@ export const columns: ColumnDef<InvoiceType>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-6 xs:h-8 w-6 xs:w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs xs:text-sm">
+              Actions
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              asChild
-              // onClick={() => {
-              //   router.push(`/dashboard/invoices/edit/${invoice.id}`);
-              // }}
-            >
-              {/* Edit */}
+            <DropdownMenuItem asChild>
               <InvoiceCU
                 mode="edit"
                 invoice={invoice}
                 trigger={
-                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary">
+                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary text-xs xs:text-sm">
                     Edit
                   </div>
                 }
@@ -198,11 +217,10 @@ export const columns: ColumnDef<InvoiceType>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-destructive"
+              className="cursor-pointer text-destructive text-xs xs:text-sm"
               onClick={() => {
                 deleteInvoice.mutate(invoice.id, {
                   onSuccess: () => {
-                    // optional UI refresh
                     router.refresh();
                     toast.success("Invoice deleted successfully!");
                   },
@@ -217,11 +235,12 @@ export const columns: ColumnDef<InvoiceType>[] = [
                 href={`/api/invoices/${invoice.id}/pdf`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-xs xs:text-sm"
               >
                 Download Invoice
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>View invoice details</DropdownMenuItem>
+            {/* <DropdownMenuItem className="text-xs xs:text-sm">View invoice details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

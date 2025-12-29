@@ -16,11 +16,13 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { authSession } from "@/features/auth/lib/auth-utils";
 import { ForwardRefExoticComponent, RefAttributes } from "react";
 import ActiveLink from "./active-link";
 import Link from "next/link";
+import Image from "next/image";
 
 export interface ItemProps {
   title: string;
@@ -39,15 +41,15 @@ const items: ItemProps[] = [
     deniedRoles: [],
   },
   {
-    title: "Products",
-    url: "/dashboard/products",
-    Icon: Barcode,
-    deniedRoles: ["user"],
-  },
-  {
     title: "Customers",
     url: "/dashboard/customers",
     Icon: User,
+    deniedRoles: ["user"],
+  },
+  {
+    title: "Products",
+    url: "/dashboard/products",
+    Icon: Barcode,
     deniedRoles: ["user"],
   },
   {
@@ -85,9 +87,16 @@ export async function AppSidebar() {
     <Sidebar side="left" variant="floating" collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[16px] pb-2 flex items-center gap-2">
+            <Image
+              src="/logos/logo.png"
+              alt={`${process.env.NEXT_PUBLIC_APP_NAME} Logo`}
+              width="25"
+              height="25"
+            />{" "}
             {process.env.NEXT_PUBLIC_APP_NAME} Dashboard
           </SidebarGroupLabel>
+          <SidebarSeparator className="mb-2" />
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {

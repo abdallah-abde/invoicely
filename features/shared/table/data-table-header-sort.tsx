@@ -14,7 +14,7 @@ export default function DataTableHeaderSort<TData>({
       variant="ghost"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
-      {title}
+      <span className="text-xs xs:text-sm">{title}</span>
       {column.getIsSorted() ? (
         column.getIsSorted() === "asc" ? (
           <ChevronDown className="ml-2 inline-block" />

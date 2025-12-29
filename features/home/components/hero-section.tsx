@@ -98,7 +98,7 @@ function HeroText() {
       <motion.ul
         variants={item}
         transition={{ duration: 0.5, ease: "easeOut", delay: 0.5 }}
-        className="mt-4 max-w-xl text-muted-foreground/75 text-shadow-sm p-0 m-0 text-sm space-y-3"
+        className="mt-4 max-w-xl text-muted-foreground text-shadow-xs p-0 m-0 text-sm space-y-3"
       >
         <motion.li
           variants={item}

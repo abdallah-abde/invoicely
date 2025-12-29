@@ -8,9 +8,11 @@ export default function ActiveLink({
   title,
   url,
   children,
+  className,
 }: {
   title: string;
   url: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -24,7 +26,8 @@ export default function ActiveLink({
         className={cn(
           "transition",
           "duration-300",
-          isActive ? "bg-primary/30 hover:bg-primary/20" : ""
+          isActive ? "bg-primary/30 hover:bg-primary/20" : "",
+          className
         )}
       >
         {children}

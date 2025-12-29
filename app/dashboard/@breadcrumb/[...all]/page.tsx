@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import Image from "next/image";
 
 export default async function BreadcrumbSlot({
   params,
@@ -54,7 +55,15 @@ export default async function BreadcrumbSlot({
     <Breadcrumb className="hidden xl:block">
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+          <BreadcrumbLink href="/dashboard" className="flex items-center gap-2">
+            <Image
+              src="/logos/logo.png"
+              alt={`${process.env.NEXT_PUBLIC_APP_NAME} Logo`}
+              width="20"
+              height="20"
+            />
+            Dashboard
+          </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator />
         {breadcrumbItems}

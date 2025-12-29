@@ -44,13 +44,13 @@ export const columns: ColumnDef<UserProps>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="capitalize flex items-center gap-4">
-        <Avatar className="rounded-md">
+        <Avatar className="rounded-md size-6 xs:size-8">
           <AvatarImage src={row.original.image} alt={row.original.name} />
-          <AvatarFallback className="rounded-md">
+          <AvatarFallback className="rounded-md text-[10px] xs:text-xs">
             {row.original.name.substring(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        {row.getValue("name")}
+        <span className="text-xs xs:text-sm">{row.getValue("name")}</span>
       </div>
     ),
   },
@@ -59,7 +59,11 @@ export const columns: ColumnDef<UserProps>[] = [
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Email" />;
     },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="lowercase text-xs xs:text-sm">
+        {row.getValue("email")}
+      </div>
+    ),
   },
   {
     accessorKey: "role",
@@ -68,7 +72,11 @@ export const columns: ColumnDef<UserProps>[] = [
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
-    cell: ({ row }) => <div>{row.original.role.toUpperCase()}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">
+        {row.original.role.toUpperCase()}
+      </div>
+    ),
   },
   {
     accessorKey: "emailVerified",
@@ -80,7 +88,7 @@ export const columns: ColumnDef<UserProps>[] = [
         {row.original.emailVerified ? (
           <Tooltip>
             <TooltipTrigger asChild>
-              <CircleCheck className="text-green-500" />
+              <CircleCheck className="text-green-500 size-5 xs:size-6" />
             </TooltipTrigger>
             <TooltipContent>
               <p className="font-semibold">Verified</p>
@@ -89,7 +97,7 @@ export const columns: ColumnDef<UserProps>[] = [
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
-              <CircleX className="text-destructive" />
+              <CircleX className="text-destructive size-5 xs:size-6" />
             </TooltipTrigger>
             <TooltipContent>
               <p className="font-semibold">Not Verified</p>

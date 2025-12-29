@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ColumnDef, Row, SortingFn } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { Loader, MoreVertical } from "lucide-react";
 import { useCustomers } from "@/features/customers/hooks/use-customers";
 import { useRouter } from "next/navigation";
@@ -51,20 +51,24 @@ export const columns: ColumnDef<CustomerType>[] = [
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
-    cell: ({ row }) => <div>{row.getValue("name")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("name")}</div>
+    ),
   },
   {
     accessorKey: "email",
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="Email" />;
     },
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("email")}</div>
+    ),
   },
   {
     accessorKey: "phone",
     header: "Phone",
     cell: ({ row }) => (
-      <div>
+      <div className="text-xs xs:text-sm">
         {row.original.phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
       </div>
     ),
@@ -73,7 +77,9 @@ export const columns: ColumnDef<CustomerType>[] = [
     accessorKey: "address",
     header: "Address",
     sortingFn: caseInsensitiveSort,
-    cell: ({ row }) => <div>{row.getValue("address")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("address")}</div>
+    ),
   },
   {
     accessorKey: "companyName",
@@ -81,13 +87,17 @@ export const columns: ColumnDef<CustomerType>[] = [
       return <DataTableHeaderSort column={column} title="Company" />;
     },
     sortingFn: caseInsensitiveSort,
-    cell: ({ row }) => <div>{row.getValue("companyName")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("companyName")}</div>
+    ),
   },
   {
     accessorKey: "taxNumber",
     header: "Tax Number",
     enableSorting: false,
-    cell: ({ row }) => <div>{row.getValue("taxNumber")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("taxNumber")}</div>
+    ),
   },
   {
     accessorKey: "_count.invoices",
@@ -96,7 +106,10 @@ export const columns: ColumnDef<CustomerType>[] = [
     },
     cell: ({ row }) => (
       <div>
-        <Badge variant="secondary" className="select-none">
+        <Badge
+          variant="secondary"
+          className="select-none text-xs xs:text-sm size-5 xs:size-6"
+        >
           {row.original._count.invoices}
         </Badge>
       </div>
@@ -113,8 +126,10 @@ export const columns: ColumnDef<CustomerType>[] = [
       if (isLoading) {
         return (
           <p className="flex gap-1 items-center">
-            <Loader className="animate-spin text-destructive" />{" "}
-            <span className="text-destructive text-xs">Deleting...</span>{" "}
+            <Loader className="animate-spin text-destructive size-4 xs:size-5" />{" "}
+            <span className="text-destructive text-xs xs:text-sm">
+              Deleting...
+            </span>{" "}
           </p>
         );
       }
@@ -122,20 +137,22 @@ export const columns: ColumnDef<CustomerType>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-6 xs:h-8 w-6 xs:w-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs xs:text-sm">
+              Actions
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <CustomerCU
                 mode="edit"
                 customer={customer}
                 trigger={
-                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary">
+                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary text-xs xs:text-sm">
                     Edit
                   </div>
                 }
@@ -143,11 +160,10 @@ export const columns: ColumnDef<CustomerType>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-destructive"
+              className="cursor-pointer text-destructive text-xs xs:text-sm"
               onClick={() => {
                 deleteCustomer.mutate(customer.id, {
                   onSuccess: () => {
-                    // optional UI refresh
                     router.refresh();
                     toast.success("Customer deleted successfully!");
                   },
@@ -157,7 +173,7 @@ export const columns: ColumnDef<CustomerType>[] = [
               Delete
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer details</DropdownMenuItem>
+            {/* <DropdownMenuItem className="text-xs xs:text-sm">View customer details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

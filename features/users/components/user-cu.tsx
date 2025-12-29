@@ -246,13 +246,13 @@ export default function UserCU({ users }: { users: UserProps[] }) {
       </Dialog>
 
       <div className="flex flex-col w-full py-4">
-        <div className="flex w-full justify-start sm:justify-between gap-3">
+        <div className="flex w-full justify-between gap-3">
           <h1 className="text-2xl font-semibold">Users</h1>
           <Button
             className="cursor-pointer text-xs sm:text-sm"
             onClick={() => setIsOpen(true)}
           >
-            <Plus /> Add User
+            <Plus /> <span className="hidden sm:block">Add User</span>
           </Button>
         </div>
 

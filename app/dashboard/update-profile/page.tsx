@@ -30,8 +30,10 @@ export default async function page() {
         name={user?.name ?? ""}
         image={user?.image ?? ""}
       />
-      <ChangePasswordForm />
-      <ToggleOTPForm twoFactorEnabled={user.twoFactorEnabled} />
+      <div className="w-full flex flex-col gap-6">
+        <ChangePasswordForm />
+        <ToggleOTPForm twoFactorEnabled={user.twoFactorEnabled} />
+      </div>
     </div>
   );
 }

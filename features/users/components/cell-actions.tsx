@@ -65,7 +65,7 @@ export const CellActions = ({
             });
           }}
         >
-          <Edit />
+          <Edit className="size-4 xs:size-5" />
         </div>
 
         {hasDeletePermission && (
@@ -75,7 +75,7 @@ export const CellActions = ({
               setIsDeleteModalOpen(true);
             }}
           >
-            <Trash className="text-rose-500 " />
+            <Trash className="text-rose-500 size-4 xs:size-5" />
           </div>
         )}
       </div>

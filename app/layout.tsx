@@ -126,3 +126,32 @@ export default function RootLayout({
 // TODO: Delete image in update profile
 // TODO: Fav icon for dark mode
 // TODO: Footer
+// TODO: Currency symbol in invoices and payments
+// TODO: Currency Exchange Rates API integration (like; exchangerate-api.com; ex: usd to syp and other currencies)
+// TODO: Tests
+// TODO: CI/CD
+// TODO: Docker
+// TODO: Analytics (like; Vercel Analytics; Google Analytics; Plausible; ...etc)
+// TODO: Notifications center (in-app notifications)
+// TODO: Audit Logs
+// TODO: User Roles Management (Admin, User, ...etc)
+// TODO: User Profile Pictures (Avatar upload)
+// TODO: Better error handling and messages
+// TODO: Optimize loading states and spinners
+// TODO: Optimize performance and bundle size
+// TODO: Accessibility improvements
+// TODO: SEO improvements
+// TODO: Internationalization (i18n) and localization (l10n)
+// TODO: Arabic language support (RTL layout)
+// TODO: In Invoice products list, show subtotal per product (quantity * unit price) + when change the quantity or unit price, update the total accordingly
+// TODO: Arabic PDF invoices generation
+// TODO: View product details page (contains product info + list of invoices that include this product + some charts about this product sales)
+// TODO: View customer details page (contains customer info + list of invoices for this customer + some charts about this customer purchases)
+// TODO: Make customer email + taxNumber optional fields
+// TODO: Make better format for the phone numbers based on the country code (ex: syrian number +(963)-11-1234567; us number +(1)-123-456-7890; ...etc, suggest to use libphonenumber-js)
+// TODO: Automatic generate invoice Number
+// TODO: Whem creating invoice give the user the option to draft it if not so it will be sent unless the user mark it as paid, for overdue invoices they will be brought through a custom page that shows all overdue invoices and give the option to send reminder emails to the customers with overdue invoices, for canceled invoices they will be moved to a separate page that shows all canceled invoices and they will be out of any related calculations
+// TODO: When creating a payment, give the option to select multiple invoices to pay at once
+// TODO: when creating invoice that marked as paid, enter a record in the payments table automatically
+// TODO: Don't bring canceled, drafted and paid invoices when payment is done, payment is just for sent and overdue invoices
+// TODO: Put a button in the invoices list (for drafted invoices) to send the invoice (change its status to sent) or in the invoice details page

@@ -8,7 +8,7 @@ import { ThemeColorToggle } from "@/components/theme/theme-color-toggle";
 import AuthenticationToggle from "@/features/auth/components/authentication-toggle";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export const metadata: Metadata = {
   title: {
@@ -29,22 +29,24 @@ export default async function DashboardLayout({
   await authIsRequired();
 
   return (
-    <SidebarProvider className="overflow-hidden">
+    <SidebarProvider className="">
       <AppSidebar />
 
-      <div className="w-full mx-6">
-        <div className="flex items-center justify-start sm:justify-between gap-4 py-2 border-b w-full">
-          <div className="flex items-center gap-4">
-            <SidebarTrigger className="cursor-pointer" />
-            {breadcrumb}
-          </div>
-          <div className="flex items-center max-sm:mx-auto gap-4">
-            <ThemeColorToggle />
-            <ModeToggle />
-            <AuthenticationToggle />
+      <div className="w-full">
+        <div className="w-full px-6">
+          <div className="flex items-center justify-start sm:justify-between gap-4 py-2 border-b">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="cursor-pointer" />
+              {breadcrumb}
+            </div>
+            <div className="flex items-center max-sm:mx-auto gap-4">
+              <ThemeColorToggle />
+              <ModeToggle />
+              <AuthenticationToggle />
+            </div>
           </div>
         </div>
-        <ScrollArea className="h-[calc(100vh-75px)]">{children}</ScrollArea>
+        <div className="px-6">{children}</div>
       </div>
     </SidebarProvider>
   );
