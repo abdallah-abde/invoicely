@@ -16,7 +16,7 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!), // TODO: Change to real domain
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL!),
 
   title: {
     default: `${process.env.NEXT_PUBLIC_APP_NAME} | Smart Invoicing & Business Dashboard`,
@@ -155,3 +155,9 @@ export default function RootLayout({
 // TODO: when creating invoice that marked as paid, enter a record in the payments table automatically
 // TODO: Don't bring canceled, drafted and paid invoices when payment is done, payment is just for sent and overdue invoices
 // TODO: Put a button in the invoices list (for drafted invoices) to send the invoice (change its status to sent) or in the invoice details page
+// TODO: In the invoice details page, show the payment history for that invoice (if any)
+// TODO: Delete Cascade in prisma schema for customer -> invoices -> products and payments
+// TODO: When deleting a customer, show a warning that all related invoices and payments will be deleted as well
+// TODO:  In the products list page, show the total quantity sold for each product
+// TODO: In the customers list page, show the total amount spent by each customer
+// Check user creation flow and role assignment

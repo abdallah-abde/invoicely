@@ -10,6 +10,7 @@ export const authClient = createAuthClient({
     adminClient({
       ac,
       roles,
+      adminRoles: "superadmin",
     }),
   ],
 });

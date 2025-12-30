@@ -20,7 +20,7 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
       void sendResetPasswordEmail({
-        to: process.env.EMAIL_TO!, //user.email
+        to: user.email, //process.env.EMAIL_TO!
         url,
       });
     },
@@ -39,7 +39,7 @@ export const auth = betterAuth({
     expiresIn: 900, // 15 minutes
     sendVerificationEmail: async ({ user, url }) => {
       await sendVerificationEmail({
-        to: process.env.EMAIL_TO!,
+        to: user.email, // process.env.EMAIL_TO!
         verificationUrl: url,
         username: user.name,
       });
@@ -71,7 +71,7 @@ export const auth = betterAuth({
       skipVerificationOnEnable: true,
       otpOptions: {
         async sendOTP({ user, otp }) {
-          sendOtpEmail({ to: process.env.EMAIL_TO!, otp });
+          sendOtpEmail({ to: user.email, otp }); // process.env.EMAIL_TO!
         },
       },
     }),

@@ -73,7 +73,7 @@ export default function UserCU({ users }: { users: UserProps[] }) {
           name: values.name,
           email: values.email,
           password: values.password as string,
-          role: values.role as Role,
+          data: { role: values.role as Role },
         });
 
         toast.success("New user created successfully");
