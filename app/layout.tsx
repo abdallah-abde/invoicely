@@ -120,7 +120,6 @@ export default function RootLayout({
 // TODO: lib folder refactoring
 // TODO: README file
 // TODO: prisma seed file
-// TODO: env file & appName & To Email
 // TODO: Email From (Resend) / Production
 // TODO: Email to (Reset Password + Verification Email + OTP) / Production
 // TODO: price in $ (currency converter with options / like syrian pound ...etc)
