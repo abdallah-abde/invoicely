@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Update Profile",
 };
 
-export default async function page() {
+export default async function DashboardUpdateProfilePage() {
   await authIsRequired();
 
   const user = await getUserProfile();

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   title: "Users",
 };
 
-export default async function UsersPage() {
+export default async function DashboardUsersPage() {
   await authIsRequired();
 
   const { users } = await auth.api.listUsers({

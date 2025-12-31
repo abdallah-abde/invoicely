@@ -5,7 +5,7 @@ import BlobsBackground from "@/features/home/components/blobs-backgrounds";
 import SectionDivider from "@/features/home/components/section-divider";
 import Footer from "@/features/home/components/footer";
 
-export default function Home() {
+export default function HomePage() {
   return (
     <div className="relative overflow-hidden">
       <HeroSection />
@@ -19,5 +19,3 @@ export default function Home() {
     </div>
   );
 }
-
-// TODO: Filter by Date

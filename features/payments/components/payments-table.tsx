@@ -12,13 +12,13 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
-import { DataTablePagination } from "@/features/shared/table/data-table-pagination";
+import { DataTablePagination } from "@/features/shared/components/table/data-table-pagination";
 import { columns } from "@/features/payments/components/columns";
 import { PaymentType } from "@/features/payments/payment.types";
-import DataTableSearchInput from "@/features/shared/table/data-table-search-input";
-import DataTableColumnsVisibility from "@/features/shared/table/data-table-columns-visibility";
-import DataTableHeader from "@/features/shared/table/data-table-header";
-import DataTableBody from "@/features/shared/table/data-table-body";
+import DataTableSearchInput from "@/features/shared/components/table/data-table-search-input";
+import DataTableColumnsVisibility from "@/features/shared/components/table/data-table-columns-visibility";
+import DataTableHeader from "@/features/shared/components/table/data-table-header";
+import DataTableBody from "@/features/shared/components/table/data-table-body";
 
 export function PaymentsTable({ data }: { data: PaymentType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([

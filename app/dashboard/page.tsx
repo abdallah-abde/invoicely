@@ -13,7 +13,7 @@ type Props = {
   searchParams: Promise<{ range?: string }>;
 };
 
-export default async function DashboardPage({ searchParams }: Props) {
+export default async function DashboardHomePage({ searchParams }: Props) {
   const params = await searchParams;
   const range = params?.range || "7d"; // default to last 30 days
 

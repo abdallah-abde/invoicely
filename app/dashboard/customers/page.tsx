@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Customers",
 };
 
-export default async function page() {
+export default async function DashboardCustomersPage() {
   const session = await authSession();
 
   if (!session?.user.role || session?.user.role === "user") {

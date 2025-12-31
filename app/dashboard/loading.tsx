@@ -1,5 +1,5 @@
-import LoadingComponent from "@/features/shared/table/loading-component";
+import LoadingComponent from "@/features/shared/components/table/loading-component";
 
-export default function loading() {
+export default function DashboardLoading() {
   return <LoadingComponent />;
 }

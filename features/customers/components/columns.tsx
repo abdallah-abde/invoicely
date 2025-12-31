@@ -1,6 +1,6 @@
 "use client";
 
-import DataTableHeaderSort from "@/features/shared/table/data-table-header-sort";
+import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {

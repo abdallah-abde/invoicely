@@ -115,7 +115,8 @@ export default function RootLayout({
   );
 }
 
-// TODO: Rename all page.tsx files and refactor code
+// TODO: Filter by Date
+// TODO: Refactor code in files
 // TODO: lib folder refactoring
 // TODO: README file
 // TODO: prisma seed file
