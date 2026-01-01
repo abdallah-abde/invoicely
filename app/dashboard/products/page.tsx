@@ -44,7 +44,9 @@ export default async function DashboardProductsPage() {
   return (
     <div>
       <PageHeader title="Products">
-        <ProductCU />
+        {session.user.role === "admin" || session.user.role === "superadmin" ? (
+          <ProductCU />
+        ) : null}
       </PageHeader>
       <ProductsTable data={result} />
     </div>

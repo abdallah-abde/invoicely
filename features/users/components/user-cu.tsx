@@ -36,9 +36,18 @@ import {
   ROLE_OPTIONS,
   userSchema,
 } from "@/features/users/schemas/user.schema";
+import {
+  isRoleUser,
+  isRoleModerator,
+  isRoleSuperAdmin,
+} from "@/features/auth/services/access";
 
 export default function UserCU({ users }: { users: UserProps[] }) {
   const router = useRouter();
+
+  if (isRoleUser() || isRoleModerator()) return null;
+
+  const isUserRoleSuperAdmin = isRoleSuperAdmin();
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -214,7 +223,11 @@ export default function UserCU({ users }: { users: UserProps[] }) {
                         <SelectValue placeholder="Role" />
                       </SelectTrigger>
                       <SelectContent>
-                        {ROLE_OPTIONS.map((role) => (
+                        {ROLE_OPTIONS.filter((role) =>
+                          !isUserRoleSuperAdmin && role === "superadmin"
+                            ? null
+                            : role
+                        ).map((role) => (
                           <SelectItem key={role} value={role}>
                             {role}{" "}
                           </SelectItem>

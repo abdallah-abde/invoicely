@@ -22,6 +22,7 @@ import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 import type { Customer } from "@/app/generated/prisma/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { hasPermission } from "@/features/auth/services/access";
 
 export default function CustomerForm({
   setIsOpen,
@@ -47,31 +48,49 @@ export default function CustomerForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof customerSchema>) {
+  async function onSubmit(values: z.infer<typeof customerSchema>) {
     if (mode === "create") {
-      createCustomer.mutate(values, {
-        onSuccess: () => {
-          // optional UI refresh
-          form.reset();
-          router.refresh();
-          setIsOpen(false);
-          toast.success("Customer created successfully!");
-        },
+      const hasCreatePermission = await hasPermission({
+        resource: "customer",
+        permission: ["create"],
       });
+
+      if (hasCreatePermission) {
+        createCustomer.mutate(values, {
+          onSuccess: () => {
+            // optional UI refresh
+            form.reset();
+            router.refresh();
+            setIsOpen(false);
+            toast.success("Customer created successfully!");
+          },
+        });
+      } else {
+        toast.error("You do not have permission to create customers.");
+      }
     } else {
       if (customer) {
-        updateCustomer.mutate(
-          { id: customer?.id, data: values },
-          {
-            onSuccess: () => {
-              // optional UI refresh
-              form.reset();
-              router.refresh();
-              toast.success("Customer updated successfully!");
-              setIsOpen(false);
-            },
-          }
-        );
+        const hasUpdatePermission = await hasPermission({
+          resource: "customer",
+          permission: ["update"],
+        });
+
+        if (hasUpdatePermission) {
+          updateCustomer.mutate(
+            { id: customer?.id, data: values },
+            {
+              onSuccess: () => {
+                // optional UI refresh
+                form.reset();
+                router.refresh();
+                toast.success("Customer updated successfully!");
+                setIsOpen(false);
+              },
+            }
+          );
+        } else {
+          toast.error("You do not have permission to update customers.");
+        }
       }
     }
   }

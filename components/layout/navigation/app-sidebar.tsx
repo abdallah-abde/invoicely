@@ -68,7 +68,7 @@ const items: ItemProps[] = [
     title: "Users",
     url: "/dashboard/users",
     Icon: Users,
-    deniedRoles: ["user"],
+    deniedRoles: ["user", "moderator"],
   },
   {
     title: "Update Profile",

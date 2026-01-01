@@ -18,6 +18,12 @@ import { toast } from "sonner";
 import { caseInsensitiveSort } from "@/lib/utils";
 import PaymentCU from "@/features/payments/components/payment-cu";
 import { Badge } from "@/components/ui/badge";
+import {
+  hasPermission,
+  isRoleModerator,
+  isRoleSuperAdmin,
+  isRoleUser,
+} from "@/features/auth/services/access";
 
 export const columns: ColumnDef<PaymentType>[] = [
   {
@@ -93,7 +99,10 @@ export const columns: ColumnDef<PaymentType>[] = [
     },
     cell: ({ row }) => (
       <div>
-        <Badge variant="secondary" className="select-none">
+        <Badge
+          variant="secondary"
+          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
+        >
           {row.getValue("method")}
         </Badge>
       </div>
@@ -120,6 +129,8 @@ export const columns: ColumnDef<PaymentType>[] = [
       const { deletePayment, isLoading } = usePayments();
       const router = useRouter();
 
+      if (isRoleUser() || isRoleModerator()) return null;
+
       if (isLoading) {
         return (
           <p className="flex gap-1 items-center">
@@ -139,7 +150,9 @@ export const columns: ColumnDef<PaymentType>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem asChild>
               <PaymentCU
                 mode="edit"
@@ -151,24 +164,38 @@ export const columns: ColumnDef<PaymentType>[] = [
                 }
               />
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer text-destructive"
-              onClick={() => {
-                deletePayment.mutate(payment.id, {
-                  onSuccess: () => {
-                    // optional UI refresh
-                    router.refresh();
-                    toast.success("Payment deleted successfully!");
-                  },
-                });
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
 
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            {isRoleSuperAdmin() && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive"
+                  onClick={async () => {
+                    const hasDeletePermission = await hasPermission({
+                      resource: "payment",
+                      permission: ["delete"],
+                    });
+
+                    if (hasDeletePermission)
+                      deletePayment.mutate(payment.id, {
+                        onSuccess: () => {
+                          router.refresh();
+                          toast.success("Payment deleted successfully!");
+                        },
+                      });
+                    else
+                      toast.error(
+                        "You do not have permission to delete payments."
+                      );
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+            {/* <DropdownMenuSeparator /> */}
+
+            {/* <DropdownMenuItem>View payment details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -109,6 +109,7 @@ export default function RootLayout({
       lang="en"
       className={`${montserrat.variable} antialiased scroll-smooth!`}
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
       <body cz-shortcut-listen="true" className="font-montserrat scroll-smooth">
         <QueryProvider>
@@ -137,8 +138,6 @@ export default function RootLayout({
 // TODO: lib folder refactoring
 // TODO: README file
 // TODO: prisma seed file
-// TODO: Delete image in update profile
-// TODO: Currency symbol in invoices and payments
 // TODO: Tests
 // TODO: CI/CD
 // TODO: Docker

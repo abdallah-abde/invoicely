@@ -71,7 +71,8 @@ export const auth = betterAuth({
       skipVerificationOnEnable: true,
       otpOptions: {
         async sendOTP({ user, otp }) {
-          sendOtpEmail({ to: process.env.EMAIL_TO!, otp }); // user.email
+          if (user.twoFactorEnabled)
+            sendOtpEmail({ to: process.env.EMAIL_TO!, otp }); // user.email
         },
       },
     }),
@@ -79,4 +80,3 @@ export const auth = betterAuth({
 });
 
 // TODO: on Production: change (to) parameter in send Verification Email function
-// TODO: skipVerificationOnEnable: false (work on it)

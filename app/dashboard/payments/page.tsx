@@ -56,7 +56,9 @@ export default async function DashboardPaymentsPage() {
   return (
     <div>
       <PageHeader title="Payments">
-        <PaymentCU />
+        {session.user.role === "admin" || session.user.role === "superadmin" ? (
+          <PaymentCU />
+        ) : null}
       </PageHeader>
       <PaymentsTable data={result} />
     </div>

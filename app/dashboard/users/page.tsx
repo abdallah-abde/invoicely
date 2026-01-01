@@ -44,7 +44,7 @@ export default async function DashboardUsersPage() {
         hasDeletePermission: hasDeletePermission.success,
       };
     })
-    .filter((f) => ["user", "admin"].includes(f.role as Role));
+    .filter((f) => ["user", "moderator", "admin"].includes(f.role as Role));
 
   if (!users) redirect("/sign-in");
 

@@ -77,7 +77,9 @@ export default async function DashboardInvoicesPage() {
   return (
     <div>
       <PageHeader title="Invoices">
-        <InvoiceCU />
+        {session.user.role === "admin" || session.user.role === "superadmin" ? (
+          <InvoiceCU />
+        ) : null}
       </PageHeader>
       <InvoicesTable data={result} />
     </div>

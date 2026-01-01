@@ -19,6 +19,12 @@ import InvoiceCU from "./invoice-cu";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import {
+  hasPermission,
+  isRoleAdmin,
+  isRoleSuperAdmin,
+  isRoleUser,
+} from "@/features/auth/services/access";
 
 export const columns: ColumnDef<InvoiceType>[] = [
   {
@@ -165,7 +171,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
       <div>
         <Badge
           variant="secondary"
-          className="select-none text-xs xs:text-sm size-5 xs:size-6"
+          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
         >
           {row.original._count.products}
         </Badge>
@@ -179,6 +185,8 @@ export const columns: ColumnDef<InvoiceType>[] = [
       const invoice = row.original;
       const { deleteInvoice, isLoading } = useInvoices();
       const router = useRouter();
+
+      if (isRoleUser()) return null;
 
       if (isLoading) {
         return (
@@ -194,7 +202,10 @@ export const columns: ColumnDef<InvoiceType>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-6 xs:h-8 w-6 xs:w-8 p-0">
+            <Button
+              variant="ghost"
+              className="h-6 xs:h-8 w-6 xs:w-8 p-0 cursor-pointer"
+            >
               <span className="sr-only">Open menu</span>
               <MoreVertical />
             </Button>
@@ -203,33 +214,57 @@ export const columns: ColumnDef<InvoiceType>[] = [
             <DropdownMenuLabel className="text-xs xs:text-sm">
               Actions
             </DropdownMenuLabel>
+
+            {(isRoleAdmin() || isRoleSuperAdmin()) && (
+              <>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem asChild>
+                  <InvoiceCU
+                    mode="edit"
+                    invoice={invoice}
+                    trigger={
+                      <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary text-xs xs:text-sm">
+                        Edit
+                      </div>
+                    }
+                  />
+                </DropdownMenuItem>
+              </>
+            )}
+
+            {isRoleSuperAdmin() && (
+              <>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive text-xs xs:text-sm"
+                  onClick={async () => {
+                    const hasDeletePermission = await hasPermission({
+                      resource: "invoice",
+                      permission: ["delete"],
+                    });
+
+                    if (hasDeletePermission)
+                      deleteInvoice.mutate(invoice.id, {
+                        onSuccess: () => {
+                          router.refresh();
+                          toast.success("Invoice deleted successfully!");
+                        },
+                      });
+                    else
+                      toast.error(
+                        "You do not have permission to delete invoices."
+                      );
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <InvoiceCU
-                mode="edit"
-                invoice={invoice}
-                trigger={
-                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary text-xs xs:text-sm">
-                    Edit
-                  </div>
-                }
-              />
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer text-destructive text-xs xs:text-sm"
-              onClick={() => {
-                deleteInvoice.mutate(invoice.id, {
-                  onSuccess: () => {
-                    router.refresh();
-                    toast.success("Invoice deleted successfully!");
-                  },
-                });
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+
             <DropdownMenuItem>
               <Link
                 href={`/api/invoices/${invoice.id}/pdf`}
@@ -240,6 +275,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
                 Download Invoice
               </Link>
             </DropdownMenuItem>
+
+            {/* <DropdownMenuSeparator /> */}
+
             {/* <DropdownMenuItem className="text-xs xs:text-sm">View invoice details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>

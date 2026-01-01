@@ -20,6 +20,12 @@ import { toast } from "sonner";
 import { caseInsensitiveSort } from "@/lib/utils";
 import { CustomerType } from "../customer.types";
 import { Badge } from "@/components/ui/badge";
+import {
+  hasPermission,
+  isRoleModerator,
+  isRoleSuperAdmin,
+  isRoleUser,
+} from "@/features/auth/services/access";
 
 export const columns: ColumnDef<CustomerType>[] = [
   {
@@ -108,7 +114,7 @@ export const columns: ColumnDef<CustomerType>[] = [
       <div>
         <Badge
           variant="secondary"
-          className="select-none text-xs xs:text-sm size-5 xs:size-6"
+          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
         >
           {row.original._count.invoices}
         </Badge>
@@ -122,6 +128,8 @@ export const columns: ColumnDef<CustomerType>[] = [
       const customer = row.original;
       const { deleteCustomer, isLoading } = useCustomers();
       const router = useRouter();
+
+      if (isRoleUser() || isRoleModerator()) return null;
 
       if (isLoading) {
         return (
@@ -137,7 +145,10 @@ export const columns: ColumnDef<CustomerType>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-6 xs:h-8 w-6 xs:w-8 p-0">
+            <Button
+              variant="ghost"
+              className="h-6 xs:h-8 w-6 xs:w-8 p-0 cursor-pointer"
+            >
               <span className="sr-only">Open menu</span>
               <MoreVertical />
             </Button>
@@ -146,7 +157,9 @@ export const columns: ColumnDef<CustomerType>[] = [
             <DropdownMenuLabel className="text-xs xs:text-sm">
               Actions
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem asChild>
               <CustomerCU
                 mode="edit"
@@ -158,21 +171,38 @@ export const columns: ColumnDef<CustomerType>[] = [
                 }
               />
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer text-destructive text-xs xs:text-sm"
-              onClick={() => {
-                deleteCustomer.mutate(customer.id, {
-                  onSuccess: () => {
-                    router.refresh();
-                    toast.success("Customer deleted successfully!");
-                  },
-                });
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+
+            {isRoleSuperAdmin() && (
+              <>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive text-xs xs:text-sm"
+                  onClick={async () => {
+                    const hasDeletePermission = await hasPermission({
+                      resource: "customer",
+                      permission: ["delete"],
+                    });
+
+                    if (hasDeletePermission)
+                      deleteCustomer.mutate(customer.id, {
+                        onSuccess: () => {
+                          router.refresh();
+                          toast.success("Customer deleted successfully!");
+                        },
+                      });
+                    else
+                      toast.error(
+                        "You do not have permission to delete customers."
+                      );
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+            {/* <DropdownMenuSeparator /> */}
+
             {/* <DropdownMenuItem className="text-xs xs:text-sm">View customer details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>

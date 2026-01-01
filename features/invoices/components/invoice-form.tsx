@@ -44,6 +44,7 @@ import InvoiceProductForm, {
 import { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/features/auth/lib/auth-client";
+import { hasPermission } from "@/features/auth/services/access";
 
 export default function InvoiceForm({
   setIsOpen,
@@ -95,31 +96,17 @@ export default function InvoiceForm({
     };
 
     if (mode === "create") {
-      const promise = createInvoiceWithRevalidate(payload);
-      toast.promise(promise, {
-        loading: "Creating invoice and revalidating...",
-        success: "Invoice created and table updated",
-        error: "Failed to create invoice",
+      const hasCreatePermission = await hasPermission({
+        resource: "invoice",
+        permission: ["create"],
       });
 
-      try {
-        await promise;
-        form.reset();
-        router.refresh();
-        setIsOpen(false);
-      } catch (err) {
-        // error already shown via toast
-      }
-    } else {
-      if (invoice) {
-        const promise = updateInvoiceWithRevalidate({
-          id: invoice?.id,
-          data: payload,
-        });
+      if (hasCreatePermission) {
+        const promise = createInvoiceWithRevalidate(payload);
         toast.promise(promise, {
-          loading: "Updating invoice and revalidating...",
-          success: "Invoice updated and table updated",
-          error: "Failed to update invoice",
+          loading: "Creating invoice and revalidating...",
+          success: "Invoice created and table updated",
+          error: "Failed to create invoice",
         });
 
         try {
@@ -127,7 +114,39 @@ export default function InvoiceForm({
           form.reset();
           router.refresh();
           setIsOpen(false);
-        } catch (err) {}
+        } catch (err) {
+          // error already shown via toast
+        }
+      } else {
+        toast.error("You do not have permission to create invoices.");
+      }
+    } else {
+      if (invoice) {
+        const hasUpdatePermission = await hasPermission({
+          resource: "invoice",
+          permission: ["update"],
+        });
+
+        if (hasUpdatePermission) {
+          const promise = updateInvoiceWithRevalidate({
+            id: invoice?.id,
+            data: payload,
+          });
+          toast.promise(promise, {
+            loading: "Updating invoice and revalidating...",
+            success: "Invoice updated and table updated",
+            error: "Failed to update invoice",
+          });
+
+          try {
+            await promise;
+            form.reset();
+            router.refresh();
+            setIsOpen(false);
+          } catch (err) {}
+        } else {
+          toast.error("You do not have permission to update invoices.");
+        }
       }
     }
   }

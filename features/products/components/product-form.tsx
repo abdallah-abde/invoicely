@@ -22,6 +22,7 @@ import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
 import { ProductType } from "@/features/products/product.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { hasPermission } from "@/features/auth/services/access";
 
 export default function ProductForm({
   setIsOpen,
@@ -45,31 +46,48 @@ export default function ProductForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof productSchema>) {
+  async function onSubmit(values: z.infer<typeof productSchema>) {
     if (mode === "create") {
-      createProduct.mutate(values, {
-        onSuccess: () => {
-          // optional UI refresh
-          form.reset();
-          router.refresh();
-          setIsOpen(false);
-          toast.success("Product created successfully!");
-        },
+      const hasCreatePermission = await hasPermission({
+        resource: "product",
+        permission: ["create"],
       });
+
+      if (hasCreatePermission) {
+        createProduct.mutate(values, {
+          onSuccess: () => {
+            // optional UI refresh
+            form.reset();
+            router.refresh();
+            setIsOpen(false);
+            toast.success("Product created successfully!");
+          },
+        });
+      } else {
+        toast.error("You do not have permission to create products.");
+      }
     } else {
       if (product) {
-        updateProduct.mutate(
-          { id: product?.id, data: values },
-          {
-            onSuccess: () => {
-              // optional UI refresh
-              form.reset();
-              router.refresh();
-              toast.success("Product updated successfully!");
-              setIsOpen(false);
-            },
-          }
-        );
+        const hasUpdatePermission = await hasPermission({
+          resource: "product",
+          permission: ["update"],
+        });
+
+        if (hasUpdatePermission) {
+          updateProduct.mutate(
+            { id: product?.id, data: values },
+            {
+              onSuccess: () => {
+                form.reset();
+                router.refresh();
+                toast.success("Product updated successfully!");
+                setIsOpen(false);
+              },
+            }
+          );
+        } else {
+          toast.error("You do not have permission to update products.");
+        }
       }
     }
   }

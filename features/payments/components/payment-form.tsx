@@ -40,6 +40,7 @@ import {
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
+import { hasPermission } from "@/features/auth/services/access";
 
 export type SelectedItem = {
   invoice: Invoice;
@@ -76,31 +77,48 @@ export default function PaymentForm({
     },
   });
 
-  function onSubmit(values: z.infer<typeof paymentSchema>) {
+  async function onSubmit(values: z.infer<typeof paymentSchema>) {
     if (mode === "create") {
-      createPayment.mutate(values, {
-        onSuccess: () => {
-          // optional UI refresh
-          form.reset();
-          router.refresh();
-          setIsOpen(false);
-          toast.success("Payment created successfully!");
-        },
+      const hasCreatePermission = await hasPermission({
+        resource: "payment",
+        permission: ["create"],
       });
+
+      if (hasCreatePermission) {
+        createPayment.mutate(values, {
+          onSuccess: () => {
+            form.reset();
+            router.refresh();
+            setIsOpen(false);
+            toast.success("Payment created successfully!");
+          },
+        });
+      } else {
+        toast.error("You do not have permission to create payments.");
+      }
     } else {
       if (payment) {
-        updatePayment.mutate(
-          { id: payment?.id, data: values },
-          {
-            onSuccess: () => {
-              // optional UI refresh
-              form.reset();
-              router.refresh();
-              toast.success("Payment updated successfully!");
-              setIsOpen(false);
-            },
-          }
-        );
+        const hasUpdatePermission = await hasPermission({
+          resource: "payment",
+          permission: ["update"],
+        });
+
+        if (hasUpdatePermission) {
+          updatePayment.mutate(
+            { id: payment?.id, data: values },
+            {
+              onSuccess: () => {
+                // optional UI refresh
+                form.reset();
+                router.refresh();
+                toast.success("Payment updated successfully!");
+                setIsOpen(false);
+              },
+            }
+          );
+        } else {
+          toast.error("You do not have permission to update payments.");
+        }
       }
     }
   }

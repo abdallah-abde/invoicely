@@ -31,7 +31,9 @@ export default async function DashboardCustomersPage() {
   return (
     <div>
       <PageHeader title="Customers">
-        <CustomerCU />
+        {session.user.role === "admin" || session.user.role === "superadmin" ? (
+          <CustomerCU />
+        ) : null}
       </PageHeader>
       <CustomersTable data={data} />
     </div>

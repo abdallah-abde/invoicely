@@ -18,6 +18,12 @@ import ProductCU from "@/features/products/components/product-cu";
 import { toast } from "sonner";
 import { caseInsensitiveSort, syPound } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import {
+  hasPermission,
+  isRoleModerator,
+  isRoleSuperAdmin,
+  isRoleUser,
+} from "@/features/auth/services/access";
 
 export const columns: ColumnDef<ProductType>[] = [
   {
@@ -94,7 +100,10 @@ export const columns: ColumnDef<ProductType>[] = [
     },
     cell: ({ row }) => (
       <div>
-        <Badge variant="secondary" className="select-none">
+        <Badge
+          variant="secondary"
+          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
+        >
           {row.original._count.invoices}
         </Badge>
       </div>
@@ -108,6 +117,8 @@ export const columns: ColumnDef<ProductType>[] = [
       const { deleteProduct, isLoading } = useProducts();
       const router = useRouter();
 
+      if (isRoleUser() || isRoleModerator()) return null;
+
       if (isLoading) {
         return (
           <p className="flex gap-1 items-center">
@@ -120,14 +131,19 @@ export const columns: ColumnDef<ProductType>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button
+              variant="ghost"
+              className="h-6 xs:h-8 w-6 xs:w-8 p-0 cursor-pointer"
+            >
               <span className="sr-only">Open menu</span>
               <MoreVertical />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem asChild>
               <ProductCU
                 mode="edit"
@@ -139,24 +155,39 @@ export const columns: ColumnDef<ProductType>[] = [
                 }
               />
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="cursor-pointer text-destructive"
-              onClick={() => {
-                deleteProduct.mutate(product.id, {
-                  onSuccess: () => {
-                    // optional UI refresh
-                    router.refresh();
-                    toast.success("Product deleted successfully!");
-                  },
-                });
-              }}
-            >
-              Delete
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
 
-            <DropdownMenuItem>View product details</DropdownMenuItem>
+            {isRoleSuperAdmin() && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive text-xs xs:text-sm"
+                  onClick={async () => {
+                    const hasDeletePermission = await hasPermission({
+                      resource: "product",
+                      permission: ["delete"],
+                    });
+
+                    if (hasDeletePermission)
+                      deleteProduct.mutate(product.id, {
+                        onSuccess: () => {
+                          router.refresh();
+                          toast.success("Product deleted successfully!");
+                        },
+                      });
+                    else
+                      toast.error(
+                        "You do not have permission to delete products."
+                      );
+                  }}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+
+            {/* <DropdownMenuSeparator /> */}
+
+            {/* <DropdownMenuItem>View product details</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );
