@@ -29,21 +29,17 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
-import ImageUpload from "@/features/auth/components/image-upload";
-
 interface ProfileFormProps {
   email: string;
   name: string;
-  image: string;
 }
 
-export function UpdateProfileForm({ name, email, image }: ProfileFormProps) {
+export function UpdateProfileForm({ name, email }: ProfileFormProps) {
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name,
       email,
-      image,
     },
   });
 
@@ -52,7 +48,6 @@ export function UpdateProfileForm({ name, email, image }: ProfileFormProps) {
       await authClient.updateUser(
         {
           name: data.name,
-          image: data.image,
         },
         {
           onSuccess: async () => {
@@ -119,25 +114,6 @@ export function UpdateProfileForm({ name, email, image }: ProfileFormProps) {
                 </Field>
               )}
             />
-            <Controller
-              name="image"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid} className="gap-1">
-                  <FieldLabel>Image</FieldLabel>
-                  <ImageUpload
-                    endpoint="imageUploader"
-                    defaultUrl={field.value}
-                    onChange={(url) => {
-                      field.onChange(url);
-                    }}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
           </FieldGroup>
         </form>
       </CardContent>
@@ -163,7 +139,7 @@ export function UpdateProfileForm({ name, email, image }: ProfileFormProps) {
             {form.formState.isSubmitting ? (
               <Loader className="siz-6 animate-spin" />
             ) : (
-              "Update Profile"
+              "Update Profile Details"
             )}
           </Button>
         </Field>

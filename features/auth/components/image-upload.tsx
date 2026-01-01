@@ -9,6 +9,13 @@ import { Trash } from "lucide-react";
 import { OurFileRouter } from "@/app/api/uploadthing/core";
 
 import { UploadDropzone } from "@/lib/uploadthing";
+import { deleteUserProfileImage } from "../actions/image.actions";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ImageUploadProps {
   defaultUrl?: string;
@@ -31,13 +38,36 @@ export default function ImageUpload({
 
   if (!showDropzone && value) {
     return (
-      <div className="relative">
-        <div className="relative w-[100px] h-[100px] shadow-lg overflow-hidden rounded-full">
-          <Image src={value} className="object-cover" fill alt={"user image"} />
+      <div className="relative flex flex-col items-center justify-center gap-3">
+        <div className="relative w-[150px] h-[150px] shadow-lg overflow-hidden rounded-full">
+          <Image
+            src={value}
+            className="object-cover"
+            fill
+            sizes="150x150"
+            alt="user image"
+            loading="eager"
+          />
         </div>
-        <div className="mt-3 flex gap-2">
-          <Trash className="absolute rounded-full left-1/2 top-1/2 opacity-60 hover:opacity-100 shadow-2xl cursor-pointer bg-primary p-2 size-8 -translate-y-1/2 -translate-x-1/2 transition duration-300 text-white" />
-        </div>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon-lg"
+              className="cursor-pointer"
+              onClick={() => {
+                handleChangeImage("");
+                deleteUserProfileImage(value);
+              }}
+            >
+              <Trash className="text-destructive" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right" align="center">
+            Delete your image
+          </TooltipContent>
+        </Tooltip>
       </div>
     );
   }
@@ -58,7 +88,7 @@ export default function ImageUpload({
             "data-[state=disabled]:bg-primary data-[state=ready]:bg-primary/80 data-[state=readying]:bg-primary data-[state=uploading]:bg-primary",
         }}
         onClientUploadComplete={(res) => {
-          const url = res?.[0]?.url;
+          const url = res?.[0]?.ufsUrl;
 
           if (url) {
             setShowDropzone(false);

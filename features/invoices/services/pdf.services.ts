@@ -98,7 +98,7 @@ export async function generateInvoicePDF(
       },
       {
         id: "price",
-        header: "Price ($)",
+        header: "Price (SYP)",
         width: 100,
         border: "BLR",
         align: "center",

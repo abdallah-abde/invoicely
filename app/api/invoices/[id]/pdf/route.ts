@@ -40,7 +40,7 @@ export async function GET(
       unitPrice: Number(i.unitPrice),
     })),
     total: Number(invoice.total),
-    currency: "USD",
+    currency: "SYP",
   });
 
   return new NextResponse(new Uint8Array(pdf), {

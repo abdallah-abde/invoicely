@@ -129,7 +129,7 @@ export default function ProductForm({
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price ($)</FormLabel>
+                <FormLabel>Price (SYP)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"

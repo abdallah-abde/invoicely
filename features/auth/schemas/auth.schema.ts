@@ -31,6 +31,9 @@ export const signUpSchema = z
 export const profileSchema = z.object({
   email: z.email("Enter a valid email."),
   name: z.string().min(3, "Enter a valid name."),
+});
+
+export const profileImageSchema = z.object({
   image: z.string("Image is required."),
 });
 

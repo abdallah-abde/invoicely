@@ -19,7 +19,7 @@ import {
 import { TopProductProps } from "@/features/charts/charts.types";
 import { useSearchParams } from "next/navigation";
 import { GripVertical } from "lucide-react";
-import { cn, usDollar, getRangeLabel, capitalize } from "@/lib/utils";
+import { cn, syPound, getRangeLabel, capitalize } from "@/lib/utils";
 
 const chartConfig = {
   total: {
@@ -60,7 +60,7 @@ export function TopProductsChart({ data }: { data: TopProductProps[] }) {
                   formatter={(value, name) => {
                     const valueInDollar =
                       name === "total" || name === "price"
-                        ? usDollar.format(Number(value))
+                        ? syPound.format(Number(value))
                         : value;
 
                     return (

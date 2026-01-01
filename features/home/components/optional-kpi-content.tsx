@@ -11,7 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { usDollar } from "@/lib/utils";
+import { syPound } from "@/lib/utils";
 import { useRef } from "react";
 
 interface OptionalKPIProps {
@@ -139,7 +139,7 @@ function KPI({
               prefix={prefix}
               suffix={suffix}
               formattingFn={(n) =>
-                isCurrency ? usDollar.format(n) : n.toString()
+                isCurrency ? syPound.format(n) : n.toString()
               }
               startOnMount={false}
             />

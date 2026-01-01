@@ -46,6 +46,11 @@ export const usDollar = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
+export const syPound = new Intl.NumberFormat("ar-SY", {
+  style: "currency",
+  currency: "SYP",
+});
+
 export function getRangeLabel(range: string | null) {
   return range
     ? range === "7d"

@@ -77,9 +77,23 @@ export const metadata: Metadata = {
   },
 
   // icons: {
-  //   icon: [{ url: "/favicon.ico" }, { url: "/icon.png", type: "image/png" }],
-  //   apple: [{ url: "/apple-touch-icon.png" }],
-  //   shortcut: ["/favicon.ico"],
+  //   icon: [
+  //     {
+  //       url: "/logos/favicon-dark.ico",
+  //       rel: "icon",
+  //       type: "image/ico",
+  //       media: "(prefers-color-scheme: light)",
+  //     },
+  //     {
+  //       url: "/logos/favicon-light.ico",
+  //       rel: "icon",
+  //       type: "image/ico",
+  //       media: "(prefers-color-scheme: dark)",
+  //     },
+  //   ],
+
+  // apple: [{ url: "/apple-touch-icon.png" }],
+  // shortcut: ["/favicon.ico"],
   // },
 
   // manifest: "/site.webmanifest",
@@ -115,19 +129,16 @@ export default function RootLayout({
   );
 }
 
+// TODO: Change Email From + Email To in .env file (for Resend) in Production When a custom domain is in use
+// TODO: Currency Exchange Rates API integration (like; exchangerate-api.com; ex: usd to syp and other currencies)
+// TODO: Fav icon for dark mode
 // TODO: Filter by Date
-// TODO: Refactor code in files
+// TODO: Refactor code in all files
 // TODO: lib folder refactoring
 // TODO: README file
 // TODO: prisma seed file
-// TODO: Email From (Resend) / Production
-// TODO: Email to (Reset Password + Verification Email + OTP) / Production
-// TODO: price in $ (currency converter with options / like syrian pound ...etc)
 // TODO: Delete image in update profile
-// TODO: Fav icon for dark mode
-// TODO: Footer
 // TODO: Currency symbol in invoices and payments
-// TODO: Currency Exchange Rates API integration (like; exchangerate-api.com; ex: usd to syp and other currencies)
 // TODO: Tests
 // TODO: CI/CD
 // TODO: Docker

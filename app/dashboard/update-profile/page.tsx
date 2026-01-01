@@ -11,6 +11,7 @@ import { ToggleOTPForm } from "@/features/auth/components/toggle-otp-form";
 import { UpdateProfileForm } from "@/features/auth/components/update-profile-form";
 
 import type { Metadata } from "next";
+import { UpdateImageForm } from "@/features/auth/components/update-image-form";
 
 export const metadata: Metadata = {
   title: "Update Profile",
@@ -25,11 +26,10 @@ export default async function DashboardUpdateProfilePage() {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 py-4 items-start pr-6">
-      <UpdateProfileForm
-        email={user?.email ?? ""}
-        name={user?.name ?? ""}
-        image={user?.image ?? ""}
-      />
+      <div className="w-full flex flex-col gap-6">
+        <UpdateImageForm image={user?.image ?? ""} />
+        <UpdateProfileForm email={user?.email ?? ""} name={user?.name ?? ""} />
+      </div>
       <div className="w-full flex flex-col gap-6">
         <ChangePasswordForm />
         <ToggleOTPForm twoFactorEnabled={user.twoFactorEnabled} />

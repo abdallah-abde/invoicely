@@ -16,7 +16,7 @@ import { useProducts } from "@/features/products/hooks/use-products";
 import { useRouter } from "next/navigation";
 import ProductCU from "@/features/products/components/product-cu";
 import { toast } from "sonner";
-import { caseInsensitiveSort } from "@/lib/utils";
+import { caseInsensitiveSort, syPound } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 export const columns: ColumnDef<ProductType>[] = [
@@ -68,17 +68,14 @@ export const columns: ColumnDef<ProductType>[] = [
   {
     accessorKey: "priceAsNumber",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Price ($)" />;
+      return <DataTableHeaderSort column={column} title="Price (SYP)" />;
     },
     enableHiding: false,
     cell: ({ row }) => {
       const price = parseFloat(row.getValue("priceAsNumber"));
 
-      // Format the price as a dollar price
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(price);
+      // Format the price as a SYP price
+      const formatted = syPound.format(price);
 
       return <div className="font-medium text-primary">{formatted}</div>;
     },

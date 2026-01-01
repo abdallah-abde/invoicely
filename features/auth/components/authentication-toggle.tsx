@@ -31,7 +31,7 @@ export default function AuthenticationToggle() {
             <DropdownMenuTrigger asChild className="select-none cursor-pointer">
               <Avatar>
                 <AvatarImage
-                  src={session.user.image || ""}
+                  src={session.user.image || undefined}
                   alt={session.user.name}
                 />
                 <AvatarFallback className="text-xs">

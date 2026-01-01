@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/chart";
 import { TopCustomerProps } from "@/features/charts/charts.types";
 import { useSearchParams } from "next/navigation";
-import { usDollar, getRangeLabel, capitalize } from "@/lib/utils";
+import { getRangeLabel, capitalize, syPound } from "@/lib/utils";
 
 export const description = "A horizontal bar chart";
 
@@ -68,7 +68,7 @@ export function TopCustomersChart({ data }: { data: TopCustomerProps[] }) {
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
               formatter={(value: string, name: string) => {
-                const valueInDollar = usDollar.format(Number(value));
+                const valueInDollar = syPound.format(Number(value));
                 return (
                   <div className="w-full flex gap-4 items-center justify-between">
                     <div className="text-xs flex items-center gap-2">

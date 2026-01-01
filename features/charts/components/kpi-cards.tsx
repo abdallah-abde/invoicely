@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 
 import { DashboardChartsData } from "@/features/charts/charts.types";
-import { usDollar } from "@/lib/utils";
+import { syPound } from "@/lib/utils";
 
 export default function KpiCards({
   totalRevenue,
@@ -22,7 +22,7 @@ export default function KpiCards({
   const items = [
     {
       title: "Total Revenue",
-      value: usDollar.format(totalRevenue),
+      value: syPound.format(totalRevenue),
       Icon: <Coins size="30" />,
     },
     {
