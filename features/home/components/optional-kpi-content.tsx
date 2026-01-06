@@ -4,64 +4,57 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 
 import CountUp from "react-countup";
 
-import { DollarSign, Users, Package, LucideIcon } from "lucide-react";
+import {
+  DollarSign,
+  Users,
+  Package,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { syPound } from "@/lib/utils";
+import {
+  arDigits,
+  arDigitsNoGrouping,
+  cn,
+  syPound,
+  usDollar,
+} from "@/lib/utils";
 import { useRef } from "react";
-
-interface OptionalKPIProps {
-  data: {
-    revenue: number;
-    revenueDelta: number | null;
-    customers: number;
-    customersDelta: number | null;
-    topProduct: { productId: string; quantity: number } | null;
-  };
-}
-
-interface KPIProps {
-  icon: LucideIcon;
-  label: string;
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  delta?: number | null;
-  tooltip: string;
-  isCurrency?: boolean;
-}
+import { useTranslations } from "next-intl";
+import { useArabic } from "@/hooks/use-arabic";
+import { Badge } from "@/components/ui/badge";
+import { KPIProps, OptionalKPIProps } from "../kpi.types";
 
 export default function OptionalKPIContent({ data }: OptionalKPIProps) {
+  // const t = useTranslations("KPI");
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
       <KPI
         icon={DollarSign}
-        label="Total Revenue (This Month)"
         value={data.revenue}
-        prefix="$"
         delta={data.revenueDelta}
-        tooltip="Total value of paid invoices generated during the current month."
         isCurrency={true}
+        title="revenue"
       />
 
       <KPI
         icon={Users}
-        label="New Customers (This Month)"
         value={data.customers}
         delta={data.customersDelta}
-        tooltip="Number of customers added to your system during the current month."
+        title="customers"
       />
 
       <KPI
         icon={Package}
-        label="Top Product"
         value={data.topProduct ? data.topProduct.quantity : 0}
         suffix=" sold"
-        tooltip="Product with the highest number of units sold this month."
+        title="products"
       />
     </div>
   );
@@ -69,13 +62,12 @@ export default function OptionalKPIContent({ data }: OptionalKPIProps) {
 
 function KPI({
   icon: Icon,
-  label,
   value,
   prefix,
   suffix,
   delta,
-  tooltip,
   isCurrency = false,
+  title,
 }: KPIProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, {
@@ -84,6 +76,9 @@ function KPI({
   });
 
   const reduceMotion = useReducedMotion();
+
+  const t = useTranslations("KPI");
+  const isArabic = useArabic();
 
   return (
     <motion.div
@@ -122,12 +117,16 @@ function KPI({
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <p className="max-w-[250px]  text-xs">{tooltip}</p>
+            <p className="max-w-[250px] text-xs">
+              {t(`card-${title}.tooltip`)}
+            </p>
           </TooltipContent>
         </Tooltip>
 
         {/* Label */}
-        <p className="text-sm text-muted-foreground">{label}</p>
+        <p className="text-sm text-muted-foreground">
+          {t(`card-${title}.title`)}
+        </p>
 
         {/* Value */}
         <p className="mt-2 text-2xl md:text-3xl font-bold tracking-tight">
@@ -139,29 +138,55 @@ function KPI({
               prefix={prefix}
               suffix={suffix}
               formattingFn={(n) =>
-                isCurrency ? syPound.format(n) : n.toString()
+                isCurrency
+                  ? isArabic
+                    ? syPound.format(n)
+                    : usDollar.format(n)
+                  : isArabic
+                    ? arDigitsNoGrouping.format(n)
+                    : n.toString()
               }
               startOnMount={false}
             />
-          ) : (
-            // prevents layout shift before animation
-            <span>
-              {prefix}0{suffix}
-            </span>
-          )}
+          ) : null}
         </p>
 
         {/* Delta */}
-        {delta && (
-          <p
-            className={`mt-1 text-xs font-medium ${
-              delta >= 0 ? "text-primary" : "text-destructive"
-            }`}
+        {delta ? (
+          <div
+            className={cn(
+              "mt-8 text-sm font-medium flex items-center justify-center gap-2",
+              `${delta > 0 ? "text-primary" : "text-destructive"}`
+            )}
           >
-            {delta >= 0 ? "+" : ""}
-            {delta.toFixed(1)}% vs last month
-          </p>
-        )}
+            {delta > 0 ? (
+              <TrendingUp
+                className={cn(
+                  "size-4 self-start",
+                  isArabic ? "rotate-y-180" : ""
+                )}
+              />
+            ) : (
+              <TrendingDown
+                className={cn(
+                  "size-4 self-start",
+                  isArabic ? "rotate-y-180" : ""
+                )}
+              />
+            )}
+            <Badge
+              variant={delta > 0 ? "default" : "destructive"}
+              className="text-sm"
+            >
+              {`${
+                isArabic
+                  ? arDigits.format(Math.abs(Number(delta.toFixed(1))))
+                  : Math.abs(Number(delta.toFixed(1)))
+              }%`}
+            </Badge>
+            {t("vs-last-month")}
+          </div>
+        ) : null}
       </div>
     </motion.div>
   );

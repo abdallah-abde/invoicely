@@ -45,6 +45,9 @@ import { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/features/auth/lib/auth-client";
 import { hasPermission } from "@/features/auth/services/access";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
+import { useArabic } from "@/hooks/use-arabic";
 
 export default function InvoiceForm({
   setIsOpen,
@@ -66,6 +69,10 @@ export default function InvoiceForm({
   } = useInvoices();
   const router = useRouter();
 
+  const t = useTranslations();
+  const dir = useDirection();
+  const isArabic = useArabic();
+
   const { data: session } = authClient.useSession();
   const statusList = getInvoiceStatusList();
 
@@ -84,12 +91,12 @@ export default function InvoiceForm({
   });
 
   async function onSubmit(values: z.infer<typeof invoiceSchema>) {
-    // attach products from items
     const payload: any = {
       ...values,
       products: items.map((it) => ({
         productId: (it.product as any).id,
         quantity: it.quantity,
+        unit: it.unit,
         unitPrice: it.price,
         totalPrice: it.price * it.quantity,
       })),
@@ -104,9 +111,9 @@ export default function InvoiceForm({
       if (hasCreatePermission) {
         const promise = createInvoiceWithRevalidate(payload);
         toast.promise(promise, {
-          loading: "Creating invoice and revalidating...",
-          success: "Invoice created and table updated",
-          error: "Failed to create invoice",
+          loading: t("invoices.messages.loading.add"),
+          success: t("invoices.messages.success.add"),
+          error: t("invoices.messages.error.add-failure"),
         });
 
         try {
@@ -115,10 +122,10 @@ export default function InvoiceForm({
           router.refresh();
           setIsOpen(false);
         } catch (err) {
-          // error already shown via toast
+          console.log(err);
         }
       } else {
-        toast.error("You do not have permission to create invoices.");
+        toast.error(t("invoices.messages.error.add"));
       }
     } else {
       if (invoice) {
@@ -133,9 +140,9 @@ export default function InvoiceForm({
             data: payload,
           });
           toast.promise(promise, {
-            loading: "Updating invoice and revalidating...",
-            success: "Invoice updated and table updated",
-            error: "Failed to update invoice",
+            loading: t("invoices.messages.loading.edit"),
+            success: t("invoices.messages.success.edit"),
+            error: t("invoices.messages.error.edit-failure"),
           });
 
           try {
@@ -145,37 +152,34 @@ export default function InvoiceForm({
             setIsOpen(false);
           } catch (err) {}
         } else {
-          toast.error("You do not have permission to update invoices.");
+          toast.error(t("invoices.messages.error.edit"));
         }
       }
     }
   }
 
-  // product items state and syncing total
   const [items, setItems] = useState<SelectedItem[]>(() => {
-    // try to initialize from invoice if it has products
     const invAny = invoice as any;
     if (invAny && Array.isArray(invAny.products)) {
       return invAny.products.map((p: any) => {
-        // case A: pivot row with nested product ({ product: {...}, quantity, unitPrice })
         if (p.product) {
           return {
             product: p.product,
             price: Number(p.unitPrice ?? p.product.price ?? 0),
             quantity: Number(p.quantity ?? 1),
+            unit: p.product.unit,
           } as SelectedItem;
         }
 
-        // case B: pivot row without nested product but with productId
         if (p.productId) {
           return {
             product: { id: p.productId, name: p.name ?? "" } as any,
             price: Number(p.unitPrice ?? p.price ?? 0),
             quantity: Number(p.quantity ?? 1),
+            unit: p.product.unit,
           } as SelectedItem;
         }
 
-        // case C: already-mapped product object (from page mapping)
         return {
           product: {
             id: p.id,
@@ -201,174 +205,147 @@ export default function InvoiceForm({
   }, [items, form]);
 
   return (
-    <ScrollArea className="pt-4 h-[75vh] pr-8">
+    <ScrollArea className="h-[75vh] px-4" dir={dir}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Invoice Number</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Invoice number..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="resize-none h-20"
-                      placeholder="notes..."
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="issuedAt"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Issued Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <>
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </>
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : new Date()
-                        }
-                        onSelect={field.onChange}
-                        autoFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="dueAt"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Due Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 grid">
+          <FormField
+            control={form.control}
+            name="number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("Fields.invoicenumber.label")}</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder={t("Fields.invoicenumber.placeholder")}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("Fields.notes.label")}</FormLabel>
+                <FormControl>
+                  <Textarea
+                    className="resize-none h-20"
+                    placeholder={t("Fields.notes.placeholder")}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="issuedAt"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t("Fields.issuedat.label")}</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full ps-3 text-start font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        <>
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
-                            <span>Pick a date</span>
+                            <span>{t("Fields.issuedat.pick")}</span>
                           )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={
-                          field.value ? new Date(field.value) : new Date()
-                        }
-                        onSelect={field.onChange}
-                        autoFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {!customersIsLoading ? (
-              <FormField
-                control={form.control}
-                name="customerId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Customer</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select customer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {customers.map((item) => (
-                          <SelectItem key={item.id} value={item.id}>
-                            {item.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            ) : (
-              <>
-                <Loader className="animate-spin" />
-              </>
+                        </>
+                        <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        field.value ? new Date(field.value) : new Date()
+                      }
+                      onSelect={field.onChange}
+                      autoFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
             )}
+          />
+          <FormField
+            control={form.control}
+            name="dueAt"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t("Fields.dueat.label")}</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full ps-3 text-start font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>{t("Fields.dueat.pick")}</span>
+                        )}
+                        <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={
+                        field.value ? new Date(field.value) : new Date()
+                      }
+                      onSelect={field.onChange}
+                      autoFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {!customersIsLoading ? (
             <FormField
               control={form.control}
-              name="status"
+              name="customerId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>{t("Fields.customer.label")}</FormLabel>
                   <Select
+                    dir={dir}
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl className="w-full">
                       <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
+                        <SelectValue
+                          placeholder={t("Fields.customer.placeholder")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {statusList.map((item) => (
-                        <SelectItem key={item} value={item}>
-                          {item}
+                      {customers.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -377,46 +354,81 @@ export default function InvoiceForm({
                 </FormItem>
               )}
             />
-            <div className="space-y-2">
-              <Label>Products</Label>
-              <InvoiceProductForm initialItems={items} onChange={setItems} />
-            </div>
-            <div className="w-1/2">
-              <FormField
-                control={form.control}
-                name="total"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Total</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled
-                        type="number"
-                        step={10}
-                        placeholder="total..."
-                        {...field}
+          ) : (
+            <Loader className="animate-spin" />
+          )}
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("Fields.status.label")}</FormLabel>
+                <Select
+                  dir={dir}
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl className="w-full">
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={t("Fields.status.placeholder")}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusList.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {t(`Labels.${item.toLowerCase()}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="space-y-1">
+            <Label>{t("products.label")}</Label>
+            <InvoiceProductForm initialItems={items} onChange={setItems} />
           </div>
-          <div className="space-y-6"></div>
+          {/* <div className="w-1/2"> */}
+          <FormField
+            control={form.control}
+            name="total"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t("Fields.total.label", {
+                    currency: isArabic ? "ل.س." : "$",
+                  })}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled
+                    type="number"
+                    step={10}
+                    placeholder={t("Fields.total.placeholder")}
+                    className="w-1/2"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* </div> */}
+          {/* </div> */}
 
           <Button
             type="submit"
             disabled={isLoading || !customers}
             size="lg"
-            className="w-fit cursor-pointer my-4 ml-auto col-span-2"
+            className="w-fit cursor-pointer ms-auto "
           >
             {isLoading || !customers ? (
-              <>
-                <Loader className="animate-spin" /> Submitting...
-              </>
+              <Loader className="animate-spin" />
             ) : (
-              "Submit"
+              <>{t("Labels.save")}</>
             )}
           </Button>
         </form>

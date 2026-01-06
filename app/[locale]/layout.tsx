@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 
 import { QueryProvider } from "@/providers/query-provider";
 
@@ -8,6 +8,11 @@ import { ThemeProvider as NextThemeProvider } from "next-themes";
 import ThemeDataProvider from "@/context/theme-data-provider";
 
 import { Toaster } from "@/components/ui/sonner";
+
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
+import { routing } from "@/i18n/routing";
+import { getDirection, isLocaleArabic } from "@/lib/utils";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -99,14 +104,23 @@ export const metadata: Metadata = {
   // manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }>) {
+  const { locale } = await params;
+
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={await getDirection()}
       className={`${montserrat.variable} antialiased scroll-smooth!`}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
@@ -120,8 +134,14 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ThemeDataProvider>
-              <div className="w-full">{children}</div>
-              <Toaster />
+              <div className="w-full">
+                <NextIntlClientProvider>{children}</NextIntlClientProvider>
+              </div>
+              <Toaster
+                position={
+                  (await isLocaleArabic()) ? "bottom-left" : "bottom-right"
+                }
+              />
             </ThemeDataProvider>
           </NextThemeProvider>
         </QueryProvider>
@@ -144,8 +164,6 @@ export default function RootLayout({
 // TODO: Analytics (like; Vercel Analytics; Google Analytics; Plausible; ...etc)
 // TODO: Notifications center (in-app notifications)
 // TODO: Audit Logs
-// TODO: User Roles Management (Admin, User, ...etc)
-// TODO: User Profile Pictures (Avatar upload)
 // TODO: Better error handling and messages
 // TODO: Optimize loading states and spinners
 // TODO: Optimize performance and bundle size

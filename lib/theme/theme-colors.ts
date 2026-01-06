@@ -1,4 +1,4 @@
-const themes = {
+export const themes = {
   Neutral: {
     light: {
       radius: "0.65rem",

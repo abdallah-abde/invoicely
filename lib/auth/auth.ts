@@ -9,6 +9,11 @@ import { ac, roles } from "@/features/auth/lib/permissions";
 import { sendVerificationEmail } from "@/features/auth/services/emails/send-verification-email";
 import { sendOtpEmail } from "@/features/auth/services/emails/send-otp-email";
 import { sendResetPasswordEmail } from "@/features/auth/services/emails/send-reset-password-email";
+import {
+  ADMIN_ROLE,
+  SUPERADMIN_ROLE,
+  USER_ROLE,
+} from "@/features/users/lib/constants";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -63,8 +68,8 @@ export const auth = betterAuth({
     admin({
       ac,
       roles,
-      defaultRole: "user",
-      adminRoles: ["admin", "superadmin"],
+      defaultRole: USER_ROLE,
+      adminRoles: [ADMIN_ROLE, SUPERADMIN_ROLE],
     }),
     nextCookies(),
     twoFactor({

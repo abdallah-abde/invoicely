@@ -6,7 +6,6 @@ import {
 } from "@/app/generated/prisma/client";
 
 export interface InvoiceType extends Omit<Omit<Invoice, "total">, "createdAt"> {
-  // createdAt: string;
   issuedDateAsString: string;
   dueDateAsString: string;
   customer: Customer;

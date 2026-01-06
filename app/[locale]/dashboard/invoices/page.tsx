@@ -5,18 +5,25 @@ import { InvoicesTable } from "@/features/invoices/components/invoices-table";
 import prisma from "@/lib/db/prisma";
 import InvoiceCU from "@/features/invoices/components/invoice-cu";
 import { APIError } from "better-auth";
-import { authSession } from "@/features/auth/lib/auth-utils";
+import { getUserRole } from "@/features/auth/lib/auth-utils";
 
 import type { Metadata } from "next";
+import {
+  ADMIN_ROLE,
+  SUPERADMIN_ROLE,
+  USER_ROLE,
+} from "@/features/users/lib/constants";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Invoices",
 };
 
 export default async function DashboardInvoicesPage() {
-  const session = await authSession();
+  const role = await getUserRole();
+  const t = await getTranslations();
 
-  if (!session?.user.role || session?.user.role === "user") {
+  if (role === USER_ROLE) {
     throw new APIError("FORBIDDEN");
   }
 
@@ -29,7 +36,6 @@ export default async function DashboardInvoicesPage() {
           products: true,
         },
       },
-      // include the related product for each invoice-product pivot row
       products: {
         include: {
           product: true,
@@ -39,32 +45,23 @@ export default async function DashboardInvoicesPage() {
   });
 
   const result = data.map((inv) => {
-    const createdDate = inv.createdAt.toLocaleDateString("en-EN", {
-      dateStyle: "medium",
-    });
-    const issuedDate = inv.issuedAt.toLocaleDateString("en-EN", {
-      dateStyle: "medium",
-    });
-    const dueDate = inv.dueAt.toLocaleDateString("en-EN", {
-      dateStyle: "medium",
-    });
-    const { total, ...invoiceWithoutTotal } = inv;
+    const createdDate = inv.createdAt.toLocaleDateString();
+    const issuedDate = inv.issuedAt.toLocaleDateString();
+    const dueDate = inv.dueAt.toLocaleDateString();
 
-    // map invoice-product pivot rows into the expected product shape
+    const { total, ...restOfInvoice } = inv;
+
     const products = inv.products.map((ip) => ({
-      // spread the actual product fields first (name, id, createdAt, updatedAt, description, price, unit, ...)
       ...(ip.product ?? {}),
-      // add invoice-specific fields if needed
       quantity: ip.quantity.toNumber(),
       unitPrice: ip.unitPrice.toNumber(),
       totalPrice: ip.totalPrice.toNumber(),
       price: ip.product.price.toNumber(),
-      // keep pivot ids if you need them later
       id: ip.product ? ip.product.id : ip.id,
     }));
 
     return {
-      ...invoiceWithoutTotal,
+      ...restOfInvoice,
       createdAt: createdDate,
       issuedDateAsString: issuedDate,
       dueDateAsString: dueDate,
@@ -76,10 +73,8 @@ export default async function DashboardInvoicesPage() {
 
   return (
     <div>
-      <PageHeader title="Invoices">
-        {session.user.role === "admin" || session.user.role === "superadmin" ? (
-          <InvoiceCU />
-        ) : null}
+      <PageHeader title={t("invoices.label")}>
+        {role === ADMIN_ROLE || role === SUPERADMIN_ROLE ? <InvoiceCU /> : null}
       </PageHeader>
       <InvoicesTable data={result} />
     </div>

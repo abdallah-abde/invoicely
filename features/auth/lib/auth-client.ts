@@ -2,6 +2,7 @@ import { createAuthClient } from "better-auth/react";
 import { twoFactorClient, adminClient } from "better-auth/client/plugins";
 
 import { ac, roles } from "@/features/auth/lib/permissions";
+import { SUPERADMIN_ROLE } from "@/features/users/lib/constants";
 
 export const authClient = createAuthClient({
   plugins: [
@@ -10,7 +11,7 @@ export const authClient = createAuthClient({
     adminClient({
       ac,
       roles,
-      adminRoles: "superadmin",
+      adminRoles: SUPERADMIN_ROLE,
     }),
   ],
 });

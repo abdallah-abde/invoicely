@@ -15,12 +15,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 
 import ImageUpload from "@/features/auth/components/image-upload";
+import { useTranslations } from "next-intl";
 
 interface ProfileImageProps {
   image: string;
 }
 
 export function UpdateImageForm({ image }: ProfileImageProps) {
+  const t = useTranslations();
+
   const form = useForm<z.infer<typeof profileImageSchema>>({
     resolver: zodResolver(profileImageSchema),
     defaultValues: {
@@ -36,7 +39,7 @@ export function UpdateImageForm({ image }: ProfileImageProps) {
         },
         {
           onSuccess: async () => {
-            toast.success("Profile image updated successfully");
+            toast.success(t("update-profile.update-image.messages.success"));
           },
 
           onError: (ctx) => {
@@ -45,14 +48,14 @@ export function UpdateImageForm({ image }: ProfileImageProps) {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-center">Update your image</CardTitle>
+        <CardTitle>{t("update-profile.update-image.label")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="updateProfileImageForm">

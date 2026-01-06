@@ -11,34 +11,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { selectColumn } from "@/features/shared/components/table/data-table-columns";
+import { useTranslations } from "next-intl";
+import { useRole } from "@/hooks/use-role";
 
 export const columns: ColumnDef<UserProps>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // selectColumn<UserProps>(),
   {
     accessorKey: "name",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Name" />;
+      return <DataTableHeaderSort column={column} title="name" />;
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
@@ -57,60 +39,68 @@ export const columns: ColumnDef<UserProps>[] = [
   {
     accessorKey: "email",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Email" />;
+      return <DataTableHeaderSort column={column} title="email" />;
     },
     cell: ({ row }) => (
-      <div className="lowercase text-xs xs:text-sm">
-        {row.getValue("email")}
-      </div>
+      <div className="text-xs xs:text-sm">{row.getValue("email")}</div>
     ),
   },
   {
     accessorKey: "role",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Role" />;
+      return <DataTableHeaderSort column={column} title="role" />;
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">
-        {row.original.role.toUpperCase()}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const t = useTranslations();
+
+      return (
+        <div className="text-xs xs:text-sm">
+          {t(`Labels.${row.original.role}-role`)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "emailVerified",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Email Verified" />;
+      return <DataTableHeaderSort column={column} title="emailverified" />;
     },
-    cell: ({ row }) => (
-      <div className="capitalize">
-        {row.original.emailVerified ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <CircleCheck className="text-green-500 size-5 xs:size-6" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-semibold">Verified</p>
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <CircleX className="text-destructive size-5 xs:size-6" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-semibold">Not Verified</p>
-            </TooltipContent>
-          </Tooltip>
-        )}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const t = useTranslations();
+
+      return (
+        <div className="capitalize">
+          {row.original.emailVerified ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CircleCheck className="text-green-500 size-5 xs:size-6" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-semibold">{t("Labels.verified")}</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CircleX className="text-destructive size-5 xs:size-6" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="font-semibold">{t("Labels.not-verified")}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      const { isRoleSuperAdmin } = useRole();
+
       return (
         <CellActions
           id={row.original.id}
@@ -120,6 +110,7 @@ export const columns: ColumnDef<UserProps>[] = [
           email={row.original.email}
           emailVerified={row.original.emailVerified}
           hasDeletePermission={row.original.hasDeletePermission}
+          showDelete={isRoleSuperAdmin}
         />
       );
     },

@@ -28,6 +28,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 interface ProfileFormProps {
   email: string;
@@ -43,6 +44,8 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
     },
   });
 
+  const t = useTranslations();
+
   async function onSubmit(data: z.infer<typeof profileSchema>) {
     try {
       await authClient.updateUser(
@@ -51,7 +54,7 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
         },
         {
           onSuccess: async () => {
-            toast.success("Profile updated successfully");
+            toast.success(t("update-profile.messages.success"));
           },
 
           onError: (ctx) => {
@@ -60,14 +63,14 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Update your details</CardTitle>
+        <CardTitle>{t("update-profile.update-label")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="updateProfileForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -77,12 +80,14 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="updateProfileForm-name">Name</FieldLabel>
+                  <FieldLabel htmlFor="updateProfileForm-name">
+                    {t("Fields.name.label")}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="updateProfileForm-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Enter your name"
+                    placeholder={t("Fields.name.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -97,7 +102,7 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="updateProfileForm-email">
-                    Email
+                    {t("Fields.email.label")}
                   </FieldLabel>
                   <Input
                     {...field}
@@ -105,7 +110,7 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
                     type="email"
                     aria-invalid={fieldState.invalid}
                     disabled
-                    placeholder="Enter your email"
+                    placeholder={t("Fields.email.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -128,7 +133,7 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
             onClick={() => form.reset()}
             className="cursor-pointer"
           >
-            Reset
+            {t("Form.reset")}
           </Button>
           <Button
             type="submit"
@@ -137,9 +142,9 @@ export function UpdateProfileForm({ name, email }: ProfileFormProps) {
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
-              <Loader className="siz-6 animate-spin" />
+              <Loader className="animate-spin" />
             ) : (
-              "Update Profile Details"
+              <>{t("Labels.update-profile")}</>
             )}
           </Button>
         </Field>

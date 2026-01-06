@@ -10,11 +10,14 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Image from "next/image";
+import { getLocale, getTranslations } from "next-intl/server";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { isLocaleArabic } from "@/lib/utils";
 
 export default async function BreadcrumbSlot({
   params,
 }: {
-  params: { all: string[] };
+  params: Promise<{ all: string[] }>;
 }) {
   const breadcrumbItems: ReactElement[] = [];
 
@@ -24,6 +27,9 @@ export default async function BreadcrumbSlot({
 
   let href = "/dashboard";
 
+  const t = await getTranslations();
+  const isLocalArabic = await isLocaleArabic();
+
   for (let i = 0; i < all.length; i++) {
     const route = all[i];
     href = `${href}/${route}`;
@@ -32,8 +38,7 @@ export default async function BreadcrumbSlot({
       breadcrumbPage = (
         <BreadcrumbItem>
           <BreadcrumbPage className="capitalize">
-            {" "}
-            {route.split("-").join(" ")}
+            {t(`${route}.label`)}
           </BreadcrumbPage>
         </BreadcrumbItem>
       );
@@ -42,10 +47,12 @@ export default async function BreadcrumbSlot({
         <React.Fragment key={href}>
           <BreadcrumbItem>
             <BreadcrumbLink href={href} className="capitalize">
-              {route.split("-").join(" ")}
+              {t(`${route}.label`)}
             </BreadcrumbLink>
           </BreadcrumbItem>
-          <BreadcrumbSeparator />
+          <BreadcrumbSeparator>
+            {isLocalArabic ? <ChevronLeft /> : <ChevronRight />}
+          </BreadcrumbSeparator>
         </React.Fragment>
       );
     }
@@ -58,14 +65,16 @@ export default async function BreadcrumbSlot({
           <BreadcrumbLink href="/dashboard" className="flex items-center gap-2">
             <Image
               src="/logos/logo.png"
-              alt={`${process.env.NEXT_PUBLIC_APP_NAME} Logo`}
+              alt={`${t("app-name")} Logo`}
               width="20"
               height="20"
             />
-            Dashboard
+            {t("dashboard")}
           </BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
+        <BreadcrumbSeparator>
+          {isLocalArabic ? <ChevronLeft /> : <ChevronRight />}
+        </BreadcrumbSeparator>
         {breadcrumbItems}
         {breadcrumbPage}
       </BreadcrumbList>

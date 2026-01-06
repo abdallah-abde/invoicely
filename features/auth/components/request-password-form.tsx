@@ -25,9 +25,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export function RequestPasswordForm() {
   const router = useRouter();
+  const t = useTranslations();
 
   const form = useForm<z.infer<typeof requestPasswordSchema>>({
     resolver: zodResolver(requestPasswordSchema),
@@ -56,7 +58,7 @@ export function RequestPasswordForm() {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
@@ -65,11 +67,11 @@ export function RequestPasswordForm() {
       {isEmailSent ? (
         <Card className="w-full sm:max-w-md">
           <CardHeader>
-            <CardTitle>Check your email</CardTitle>
+            <CardTitle>{t("Auth.request-password.sent-title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-center w-full p-6">
-              A password reset link has been sent to your email.
+              {t("Auth.request-password.sent")}
             </div>
             <Button
               className="cursor-pointer"
@@ -77,14 +79,14 @@ export function RequestPasswordForm() {
                 router.push("/sign-in");
               }}
             >
-              Back to sign in
+              {t("Auth.request-password.back-to-sign-in")}
             </Button>
           </CardContent>
         </Card>
       ) : (
         <Card className="w-full sm:max-w-md">
           <CardHeader>
-            <CardTitle>Enter your email</CardTitle>
+            <CardTitle>{t("Auth.request-password.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <form id="resetPasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -95,14 +97,14 @@ export function RequestPasswordForm() {
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="resetPasswordForm-email">
-                        Email
+                        {t("Fields.email.label")}
                       </FieldLabel>
                       <Input
                         {...field}
                         id="resetPasswordForm-email"
                         type="email"
                         aria-invalid={fieldState.invalid}
-                        placeholder="Enter your email"
+                        placeholder={t("Fields.email.placeholder")}
                         autoComplete="off"
                       />
                       {fieldState.invalid && (
@@ -124,7 +126,7 @@ export function RequestPasswordForm() {
                 onClick={() => form.reset()}
                 className="cursor-pointer"
               >
-                Reset
+                {t("Form.reset")}
               </Button>
               <Button
                 type="submit"
@@ -133,9 +135,9 @@ export function RequestPasswordForm() {
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? (
-                  <Loader className="siz-6 animate-spin" />
+                  <Loader className="animate-spin" />
                 ) : (
-                  "Send request"
+                  <>{t("Labels.send-request")}</>
                 )}
               </Button>
             </Field>

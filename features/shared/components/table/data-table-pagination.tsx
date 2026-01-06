@@ -13,6 +13,10 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { arDigits } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import { useArabic } from "@/hooks/use-arabic";
+import { useDirection } from "@/hooks/use-direction";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -21,16 +25,40 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const t = useTranslations();
+  const dir = useDirection();
+  const isArabic = useArabic();
+
+  const filteredSelectedRowModel =
+    table.getFilteredSelectedRowModel().rows.length;
+
+  const filteredRowModel = table.getFilteredRowModel().rows.length;
+
+  const currentPage = isArabic
+    ? arDigits.format(table.getState().pagination.pageIndex + 1)
+    : table.getState().pagination.pageIndex + 1;
+
+  const totalPages = isArabic
+    ? arDigits.format(table.getPageCount() || 1)
+    : table.getPageCount() || 1;
+
   return (
     <div className="flex items-center justify-between py-2">
       <div className="hidden sm:block text-muted-foreground flex-1 text-sm">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+        {t("Labels.rows-selected", {
+          selected: isArabic
+            ? arDigits.format(filteredSelectedRowModel)
+            : filteredSelectedRowModel,
+          total: isArabic
+            ? arDigits.format(filteredRowModel)
+            : filteredRowModel,
+        })}
       </div>
       <div className="max-sm:w-full flex items-center justify-between space-x-6 lg:space-x-8">
         <div className="hidden sm:flex items-center space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+          <p className="text-sm font-medium">{t("Labels.rows-per-page")}</p>
           <Select
+            dir={dir}
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
@@ -42,17 +70,16 @@ export function DataTablePagination<TData>({
             <SelectContent side="top">
               {[5, 10, 20, 25, 30, 40, 50].map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
+                  {isArabic ? arDigits.format(pageSize) : pageSize}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount() || 1}
+          {t("Labels.page-of", { current: currentPage, total: totalPages })}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
@@ -61,7 +88,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to first page</span>
-            <ChevronsLeft />
+            {isArabic ? <ChevronsRight /> : <ChevronsLeft />}
           </Button>
           <Button
             variant="outline"
@@ -71,7 +98,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
-            <ChevronLeft />
+            {isArabic ? <ChevronRight /> : <ChevronLeft />}
           </Button>
           <Button
             variant="outline"
@@ -81,7 +108,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
-            <ChevronRight />
+            {isArabic ? <ChevronLeft /> : <ChevronRight />}
           </Button>
           <Button
             variant="outline"
@@ -91,7 +118,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to last page</span>
-            <ChevronsRight />
+            {isArabic ? <ChevronsLeft /> : <ChevronsRight />}
           </Button>
         </div>
       </div>

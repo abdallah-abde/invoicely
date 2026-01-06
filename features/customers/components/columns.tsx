@@ -1,59 +1,30 @@
 "use client";
 
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import DataTableActions from "@/features/shared/components/table/data-table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { Loader, MoreVertical } from "lucide-react";
 import { useCustomers } from "@/features/customers/hooks/use-customers";
 import { useRouter } from "next/navigation";
 import CustomerCU from "./customer-cu";
 import { toast } from "sonner";
-import { caseInsensitiveSort } from "@/lib/utils";
+import { arDigitsNoGrouping, caseInsensitiveSort } from "@/lib/utils";
 import { CustomerType } from "../customer.types";
 import { Badge } from "@/components/ui/badge";
+import { hasPermission } from "@/features/auth/services/access";
 import {
-  hasPermission,
-  isRoleModerator,
-  isRoleSuperAdmin,
-  isRoleUser,
-} from "@/features/auth/services/access";
+  DeletingLoader,
+  selectColumn,
+} from "@/features/shared/components/table/data-table-columns";
+import { useRole } from "@/hooks/use-role";
+import { useTranslations } from "next-intl";
+import { useArabic } from "@/hooks/use-arabic";
 
 export const columns: ColumnDef<CustomerType>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // selectColumn<CustomerType>(),
   {
     accessorKey: "name",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Name" />;
+      return <DataTableHeaderSort column={column} title="name" />;
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
@@ -64,7 +35,7 @@ export const columns: ColumnDef<CustomerType>[] = [
   {
     accessorKey: "email",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Email" />;
+      return <DataTableHeaderSort column={column} title="email" />;
     },
     cell: ({ row }) => (
       <div className="text-xs xs:text-sm">{row.getValue("email")}</div>
@@ -72,16 +43,30 @@ export const columns: ColumnDef<CustomerType>[] = [
   },
   {
     accessorKey: "phone",
-    header: "Phone",
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">
-        {row.original.phone.replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
-      </div>
-    ),
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="phone" justTitle />;
+    },
+    cell: ({ row }) => {
+      const value = Number(row.original.phone);
+      // .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
+      const isArabic = useArabic();
+
+      return (
+        <div className="text-xs xs:text-sm">
+          {isArabic
+            ? arDigitsNoGrouping
+                .format(value)
+                .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
+            : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "address",
-    header: "Address",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="address" justTitle />;
+    },
     sortingFn: caseInsensitiveSort,
     cell: ({ row }) => (
       <div className="text-xs xs:text-sm">{row.getValue("address")}</div>
@@ -90,7 +75,7 @@ export const columns: ColumnDef<CustomerType>[] = [
   {
     accessorKey: "companyName",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Company" />;
+      return <DataTableHeaderSort column={column} title="company" />;
     },
     sortingFn: caseInsensitiveSort,
     cell: ({ row }) => (
@@ -99,27 +84,47 @@ export const columns: ColumnDef<CustomerType>[] = [
   },
   {
     accessorKey: "taxNumber",
-    header: "Tax Number",
+    header: ({ column }) => {
+      return (
+        <DataTableHeaderSort column={column} title="taxnumber" justTitle />
+      );
+    },
     enableSorting: false,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">{row.getValue("taxNumber")}</div>
-    ),
+    cell: ({ row }) => {
+      const isArabic = useArabic();
+
+      return (
+        <div className="text-xs xs:text-sm">
+          {isArabic
+            ? arDigitsNoGrouping.format(Number(row.original.taxNumber))
+            : row.original.taxNumber}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "_count.invoices",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Invoices Count" />;
+      return (
+        <DataTableHeaderSort column={column} title="invoicescount" justTitle />
+      );
     },
-    cell: ({ row }) => (
-      <div>
-        <Badge
-          variant="secondary"
-          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
-        >
-          {row.original._count.invoices}
-        </Badge>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const isArabic = useArabic();
+
+      return (
+        <div>
+          <Badge
+            variant="secondary"
+            className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
+          >
+            {isArabic
+              ? arDigitsNoGrouping.format(row.original._count.invoices)
+              : row.original._count.invoices}
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     id: "actions",
@@ -128,84 +133,34 @@ export const columns: ColumnDef<CustomerType>[] = [
       const customer = row.original;
       const { deleteCustomer, isLoading } = useCustomers();
       const router = useRouter();
+      const t = useTranslations();
 
-      if (isRoleUser() || isRoleModerator()) return null;
+      const { isRoleUser, isRoleModerator, isRoleSuperAdmin } = useRole();
 
-      if (isLoading) {
-        return (
-          <p className="flex gap-1 items-center">
-            <Loader className="animate-spin text-destructive size-4 xs:size-5" />{" "}
-            <span className="text-destructive text-xs xs:text-sm">
-              Deleting...
-            </span>{" "}
-          </p>
-        );
-      }
+      if (isRoleUser || isRoleModerator) return null;
+
+      if (isLoading) return <DeletingLoader />;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-6 xs:h-8 w-6 xs:w-8 p-0 cursor-pointer"
-            >
-              <span className="sr-only">Open menu</span>
-              <MoreVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel className="text-xs xs:text-sm">
-              Actions
-            </DropdownMenuLabel>
+        <DataTableActions
+          editTrigger={<CustomerCU mode="edit" customer={customer} />}
+          onDelete={async () => {
+            const hasDeletePermission = await hasPermission({
+              resource: "customer",
+              permission: ["delete"],
+            });
 
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem asChild>
-              <CustomerCU
-                mode="edit"
-                customer={customer}
-                trigger={
-                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary text-xs xs:text-sm">
-                    Edit
-                  </div>
-                }
-              />
-            </DropdownMenuItem>
-
-            {isRoleSuperAdmin() && (
-              <>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  className="cursor-pointer text-destructive text-xs xs:text-sm"
-                  onClick={async () => {
-                    const hasDeletePermission = await hasPermission({
-                      resource: "customer",
-                      permission: ["delete"],
-                    });
-
-                    if (hasDeletePermission)
-                      deleteCustomer.mutate(customer.id, {
-                        onSuccess: () => {
-                          router.refresh();
-                          toast.success("Customer deleted successfully!");
-                        },
-                      });
-                    else
-                      toast.error(
-                        "You do not have permission to delete customers."
-                      );
-                  }}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </>
-            )}
-            {/* <DropdownMenuSeparator /> */}
-
-            {/* <DropdownMenuItem className="text-xs xs:text-sm">View customer details</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            if (hasDeletePermission)
+              deleteCustomer.mutate(customer.id, {
+                onSuccess: () => {
+                  router.refresh();
+                  toast.success(t("customers.messages.success.delete"));
+                },
+              });
+            else toast.error(t("customers.messages.error.delete"));
+          }}
+          showDelete={isRoleSuperAdmin}
+        />
       );
     },
   },

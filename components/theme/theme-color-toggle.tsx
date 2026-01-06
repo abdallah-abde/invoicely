@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
 
 const availableThemeColors = [
   { name: "Neutral", light: "bg-neutral-900", dark: "bg-neutral-700" },
@@ -29,10 +31,13 @@ export function ThemeColorToggle() {
   const { themeColor, setThemeColor } = useThemeContext();
   const { theme } = useTheme();
 
+  const t = useTranslations();
+  const dir = useDirection();
+
   const createSelectItems = () => {
     return availableThemeColors.map(({ name, light, dark }) => (
       <SelectItem key={name} value={name}>
-        <div className="flex items-center space-x-0 md:space-x-3">
+        <div className={cn("flex items-center space-x-0 md:space-x-3")}>
           <div
             className={cn(
               "rounded-full",
@@ -40,8 +45,10 @@ export function ThemeColorToggle() {
               "h-5",
               theme === "light" ? light : dark
             )}
-          ></div>
-          <div className="hidden md:block text-sm text-foreground">{name}</div>
+          />
+          <div className="hidden md:block text-sm text-foreground">
+            {t(`theme-colors.${name.toLowerCase()}`)}
+          </div>
         </div>
       </SelectItem>
     ));
@@ -49,11 +56,12 @@ export function ThemeColorToggle() {
 
   return (
     <Select
+      dir={dir}
       defaultValue={themeColor}
       onValueChange={(value) => setThemeColor(value as ThemeColors)}
     >
       <SelectTrigger className="w-20 md:w-[180px] ring-offset-transparent focus:ring-transparent">
-        <SelectValue placeholder="Select Color" />
+        <SelectValue placeholder={t("select-color")} />
       </SelectTrigger>
       <SelectContent className="border-muted">
         {createSelectItems()}

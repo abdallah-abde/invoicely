@@ -1,5 +1,6 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { flexRender, Table } from "@tanstack/react-table";
+import { useTranslations } from "next-intl";
 
 export default function DataTableBody<TData>({
   table,
@@ -8,13 +9,15 @@ export default function DataTableBody<TData>({
   table: Table<TData>;
   columnsLength: number;
 }) {
+  const t = useTranslations();
+
   return (
     <TableBody>
       {table.getRowModel().rows?.length ? (
         table.getRowModel().rows.map((row) => (
           <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
             {row.getVisibleCells().map((cell) => (
-              <TableCell key={cell.id}>
+              <TableCell key={cell.id} className="last-of-type:text-end">
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
             ))}
@@ -23,7 +26,7 @@ export default function DataTableBody<TData>({
       ) : (
         <TableRow>
           <TableCell colSpan={columnsLength} className="h-24 text-center">
-            No results.
+            {t("Labels.no-results")}
           </TableCell>
         </TableRow>
       )}

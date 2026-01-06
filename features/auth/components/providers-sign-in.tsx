@@ -2,6 +2,7 @@ import { authClient } from "@/features/auth/lib/auth-client";
 
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export default function ProvidersSignIn() {
   const signInWithGoogle = async () => {
@@ -17,10 +18,12 @@ export default function ProvidersSignIn() {
       callbackURL: "/dashboard",
     });
   };
+  const t = useTranslations();
+
   return (
     <>
       <div className="flex flex-col w-full my-6 items-center justify-center">
-        <p className="text-sm">Or</p>
+        <p className="text-sm">{t("Auth.or")}</p>
         <Separator className="gap-6 my-1" />
       </div>
       <div className="flex flex-col w-full gap-3">
@@ -29,7 +32,7 @@ export default function ProvidersSignIn() {
           className="text-sm cursor-pointer"
           onClick={signInWithGoogle}
         >
-          Continue with Google
+          {t("Auth.sign-in-with-google")}
         </Button>
 
         <Button
@@ -37,7 +40,7 @@ export default function ProvidersSignIn() {
           className="text-sm cursor-pointer"
           onClick={signInWithGitHub}
         >
-          Continue with GitHub
+          {t("Auth.sign-in-with-github")}
         </Button>
       </div>
     </>

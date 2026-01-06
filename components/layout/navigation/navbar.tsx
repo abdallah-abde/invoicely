@@ -7,6 +7,7 @@ import { ThemeColorToggle } from "@/components/theme/theme-color-toggle";
 import { ModeToggle } from "@/components/theme/mode-toggle";
 import AuthenticationToggle from "@/features/auth/components/authentication-toggle";
 import Image from "next/image";
+import LanguageSwitcher from "../languages/language-switcher";
 
 export default function Navbar() {
   return (
@@ -32,6 +33,7 @@ export default function Navbar() {
             <ThemeColorToggle />
             <ModeToggle />
             <AuthenticationToggle />
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

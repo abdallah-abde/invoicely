@@ -1,0 +1,467 @@
+{
+  "app-name": "Invoicely",
+  "app-name-dashboard": "Invoicely Dashboard",
+  "dashboard": "Dashboard",
+  "update-profile": {
+    "label": "Update profile",
+    "update-label": "Update your details",
+    "messages": {
+      "success": "Profile updated successfully"
+    },
+    "update-image": {
+      "label": "Update your image",
+      "delete": "Delete your image",
+      "drop-replace": "Drop or click to replace the image",
+      "drop-upload": "Drop or click to upload the image",
+      "messages": {
+        "success": "Profile image updated successfully"
+      }
+    },
+    "update-password": {
+      "label": "Update your password",
+      "messages": {
+        "success": "Password has been changed successfully"
+      }
+    },
+    "2FA": {
+      "label": "Two Factor Authentication",
+      "enable": "Enable 2FA",
+      "disable": "Disable 2FA",
+      "dialog": {
+        "enable": "Enable two factor authentication",
+        "disable": "Disable two factor authentication"
+      },
+      "description": "Please confirm your password to {isDisabled} 2FA in your account.",
+      "messages": {
+        "success": "Two Factor Authentication {isDisabled}"
+      }
+    }
+  },
+  "customers": {
+    "label": "Customers",
+    "add": "Add Customer",
+    "add-description": "Add a new customer",
+    "edit": "Edit Customer",
+    "edit-description": "Edit this customer and save your changes.",
+    "messages": {
+      "success": {
+        "delete": "Customer deleted successfully!",
+        "add": "Customer added successfully!",
+        "edit": "Customer edited successfully!"
+      },
+      "error": {
+        "delete": "You do not have permission to delete customers.",
+        "add": "You do not have permission to add customers.",
+        "edit": "You do not have permission to edit customers."
+      }
+    }
+  },
+  "users": {
+    "label": "Users",
+    "add": "Add User",
+    "add-description": "Add a new user.",
+    "edit": "Edit User",
+    "edit-description": "Edit this user and save your changes.",
+    "messages": {
+      "success": {
+        "delete": "User deleted successfully!",
+        "add": "User added successfully!",
+        "edit": "User edited successfully!"
+      },
+      "error": {
+        "delete": "You do not have permission to delete users.",
+        "add": "You do not have permission to add users.",
+        "edit": "You do not have permission to edit users."
+      }
+    }
+  },
+  "invoices": {
+    "label": "Invoices",
+    "add": "Add Invoices",
+    "add-description": "Add a new invoices.",
+    "edit": "Edit Invoices",
+    "edit-description": "Edit this invoices and save your changes.",
+    "download-invoice": "Download invoice",
+    "messages": {
+      "loading": {
+        "add": "Creating invoice and revalidating...",
+        "edit": "Editing invoice and revalidating..."
+      },
+      "success": {
+        "delete": "Invoices deleted successfully!",
+        "add": "Invoices added successfully!",
+        "edit": "Invoices edited successfully!"
+      },
+      "error": {
+        "delete": "You do not have permission to delete invoices.",
+        "add": "You do not have permission to add invoices.",
+        "edit": "You do not have permission to edit invoices.",
+        "add-failure": "Failed to add invoice",
+        "edit-failure": "Failed to edit invoice"
+      }
+    }
+  },
+  "payments": {
+    "label": "Payments",
+    "add": "Add Payment",
+    "add-description": "Add a new payment.",
+    "edit": "Edit Payment",
+    "edit-description": "Edit this payment and save your changes.",
+    "messages": {
+      "success": {
+        "delete": "Payment deleted successfully!",
+        "add": "Payment added successfully!",
+        "edit": "Payment edited successfully!"
+      },
+      "error": {
+        "delete": "You do not have permission to delete payments.",
+        "add": "You do not have permission to add payments.",
+        "edit": "You do not have permission to edit payments."
+      }
+    }
+  },
+  "products": {
+    "label": "Products",
+    "add": "Add Product",
+    "add-description": "Add a new product.",
+    "edit": "Edit Product",
+    "edit-description": "Edit this product and save your changes.",
+    "messages": {
+      "success": {
+        "delete": "Product deleted successfully!",
+        "add": "Product added successfully!",
+        "edit": "Product edited successfully!"
+      },
+      "error": {
+        "delete": "You do not have permission to delete products.",
+        "add": "You do not have permission to add products.",
+        "edit": "You do not have permission to edit products."
+      }
+    }
+  },
+  "theme-colors": {
+    "neutral": "Neutral",
+    "rose": "Rose",
+    "orange": "orange",
+    "blue": "Blue",
+    "green": "Green",
+    "violet": "Violet",
+    "red": "Red",
+    "yellow": "Yellow"
+  },
+  "select-color": "Select color",
+  "theme-mode": {
+    "dark": "dark",
+    "light": "light"
+  },
+  "toggle-theme": "Toggle theme",
+  "languages": {
+    "ar": "AR",
+    "en": "EN"
+  },
+  "Hero": {
+    "sub-title": "Your smart invoicing dashboard",
+    "first-list-item": "Create and manage invoices with ease",
+    "second-list-item": "Manage customers and products in one unified system",
+    "third-list-item": "Track payments, revenue, and monthly growth",
+    "forth-list-item": "Visualize your business with real-time charts and KPIs",
+    "cta-dashboard": "Go to your dashboard",
+    "cta-sign-up": "Sign up",
+    "cta-or": "or",
+    "Icons": {
+      "invoices": "Invoices",
+      "payments": "Payments",
+      "revenue": "Revenue",
+      "analytics": "Analytics",
+      "reports": "Reports",
+      "wallet": "Wallet",
+      "receipts": "Receipts",
+      "customers": "Customers",
+      "growth": "Growth",
+      "banking": "Banking",
+      "billing-cycles": "Billing cycles",
+      "due-dates": "Due dates",
+      "taxes-discounts": "Taxes & discounts",
+      "secure-payments": "Secure payments",
+      "cash-flow": "Cash flow",
+      "invoice-totals": "Invoice totals",
+      "approved-invoices": "Approved invoices",
+      "recurring-invoices": "Recurring invoices",
+      "financial-trends": "Financial trends",
+      "business-settings": "Business settings"
+    }
+  },
+  "Features": {
+    "title": "Everything you need to run your invoicing workflow",
+    "sub-title": "Manage invoices, customers, products, and payments from a single, intuitive dashboard designed for clarity and growth.",
+    "card-1": {
+      "title": "Invoice Management",
+      "description": "Create, edit, and manage invoices with ease. Track status, due dates, and payments in one workflow."
+    },
+    "card-2": {
+      "title": "Payments & Revenue",
+      "description": "Monitor payments, monthly revenue, and growth trends with clear financial insights."
+    },
+    "card-3": {
+      "title": "Customers & Products",
+      "description": "Manage customers and products in one unified system and keep all business data connected."
+    },
+    "card-4": {
+      "title": "Analytics & Reports",
+      "description": "Visualize your business performance with real-time charts, KPIs, and comparisons."
+    }
+  },
+  "KPI": {
+    "title": "At-a-glance business insights",
+    "sub-title-1": "Get a quick overview of your business performance with key metrics that matter most. These numbers update automatically and reflect your current momentum.",
+    "sub-title-2": "Dive deeper into detailed analytics and reports inside the dashboard to explore trends, compare periods, and make informed decisions with confidence.",
+    "dashboard-link-text": "View dashboard",
+    "card-revenue": {
+      "title": "Total Revenue (This Month)",
+      "tooltip": "Total value of paid invoices generated during the current month."
+    },
+    "card-customers": {
+      "title": "New Customers (This Month)",
+      "tooltip": "Number of customers added to your system during the current month."
+    },
+    "card-products": {
+      "title": "Top Product",
+      "tooltip": "Product with the highest number of units sold this month."
+    },
+    "vs-last-month": "vs last month"
+  },
+  "Footer": {
+    "sub-title": "A smart invoicing and business insights dashboard built to help you manage customers, revenue, and growth with clarity.",
+    "home-link-text": "Home",
+    "dashboard-link-text": "Dashboard",
+    "github-link-text": "Github",
+    "copy": "@ {year} Invoicely. All rights reserved."
+  },
+  "Auth": {
+    "sign-in": {
+      "title": "Sign in",
+      "form-description": "Sign in to your account",
+      "form-no-account": "Do not have an account?"
+    },
+    "sign-in-with-google": "Continue with Google",
+    "sign-in-with-github": "Continue with Github",
+    "or": "Or",
+    "sign-up": {
+      "title": "Sign up",
+      "form-description": "Create an account to continue",
+      "form-already-have-account": "Already have an account?",
+      "success": {
+        "message-1": "Sign up successfully done",
+        "message-2": "A verification email sent"
+      }
+    },
+    "sign-out": "Sign out",
+    "otp": {
+      "title": "Enter OTP code"
+    },
+    "request-password": {
+      "title": "Request password reset",
+      "sent": "A password reset link has been sent to your email",
+      "back-to-sign-in": "Back to sign in",
+      "sent-title": "Check your email"
+    },
+    "reset-password": {
+      "title": "Change your password"
+    }
+  },
+  "Fields": {
+    "search": {
+      "placeholder": "Search all fields..."
+    },
+    "code": {
+      "label": "Code",
+      "placeholder": "Enter the OTP code you received at your email"
+    },
+    "name": {
+      "label": "Name",
+      "placeholder": "Enter name"
+    },
+    "description": {
+      "label": "Description",
+      "placeholder": "Enter description"
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "Enter email"
+    },
+    "emailverified": {
+      "label": "Email verified"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "********"
+    },
+    "current-password": {
+      "label": "Current password",
+      "placeholder": "********"
+    },
+    "new-password": {
+      "label": "New password",
+      "placeholder": "********"
+    },
+    "confirm-new-password": {
+      "label": "Confirm new password",
+      "placeholder": "********"
+    },
+    "confirm-password": {
+      "label": "Confirm password",
+      "placeholder": "********"
+    },
+    "forgot-password": {
+      "label": "Forgot password"
+    },
+    "role": {
+      "label": "Role",
+      "select": "select role..."
+    },
+    "phone": {
+      "label": "Phone",
+      "placeholder": "Enter phone"
+    },
+    "address": {
+      "label": "Address",
+      "placeholder": "Enter address"
+    },
+    "company": {
+      "label": "Company",
+      "placeholder": "Enter company name"
+    },
+    "taxnumber": {
+      "label": "Tax Number",
+      "placeholder": "Enter tax number"
+    },
+    "invoicescount": {
+      "label": "Invoices Count"
+    },
+    "unit": {
+      "label": "Unit",
+      "placeholder": "Enter unit"
+    },
+    "price": {
+      "label": "Price ({currency})",
+      "placeholder": "Enter price"
+    },
+    "quantity": {
+      "label": "Quantity",
+      "placeholder": "Enter quantity"
+    },
+    "invoicenumber": {
+      "label": "Number",
+      "placeholder": "Enter invoice number",
+      "select": "Select invoice...",
+      "loading": "Loading Invoices..."
+    },
+    "notes": {
+      "label": "Notes",
+      "placeholder": "Enter notes"
+    },
+    "method": {
+      "label": "Method",
+      "placeholder": "Select method"
+    },
+    "amount": {
+      "label": "Amount ({currency})",
+      "placeholder": "Enter amount"
+    },
+    "issuedat": {
+      "label": "Issued At",
+      "pick": "Pick issued date"
+    },
+    "dueat": {
+      "label": "Due At",
+      "pick": "Pick due date"
+    },
+    "paymentdate": {
+      "label": "Date",
+      "pick": "Pick date"
+    },
+    "invoicedate": {
+      "label": "Invoice date",
+      "pick": "Pick invoice date"
+    },
+    "customer": {
+      "label": "Customer",
+      "placeholder": "Select customer"
+    },
+    "createdby": {
+      "label": "Created by"
+    },
+    "productscount": {
+      "label": "Products count"
+    },
+    "status": {
+      "label": "Status",
+      "placeholder": "Select Status"
+    },
+    "total": {
+      "label": "Total ({currency})",
+      "placeholder": "Enter Total"
+    },
+    "products": {
+      "placeholder": "Select products",
+      "loading": "Loading Products..."
+    }
+  },
+  "Errors": {
+    "something-went-wrong": "Something went wrong",
+    "email-not-verified": "A new verification code is sent",
+    "not-allowed-to-see-page": "You are not allowed to view this page",
+    "dashboard-failed": "Dashboard failed",
+    "access-denied": "Access denied!"
+  },
+  "Form": {
+    "reset": "Reset"
+  },
+  "Table": {
+    "columns": "Columns"
+  },
+  "Labels": {
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "delete": "Delete",
+    "actions": "Actions",
+    "loading": "Loading...",
+    "rows-selected": "({selected}) of ({total}) row(s) selected.",
+    "rows-per-page": "Rows per page",
+    "page-of": "Page ({current}) of ({total})",
+    "no-results": "No results",
+    "save": "Save",
+    "remove-product": "Remove product",
+    "paid": "PAID",
+    "sent": "SENT",
+    "overdue": "OVERDUE",
+    "draft": "DRAFT",
+    "canceled": "CANCELED",
+    "total": "Invoice Total:",
+    "rest": "Invoice Rest:",
+    "loading-total-rest": "Loading invoice total & rest",
+    "credit_card": "Credit card",
+    "bank_transfer": "Bank transfer",
+    "cash": "Cash",
+    "check": "Check",
+    "other": "Other",
+    "change-password": "Change password",
+    "update-profile": "Update profile",
+    "user-role": "user",
+    "moderator-role": "moderator",
+    "admin-role": "admin",
+    "superadmin-role": "superadmin",
+    "verified": "Verified",
+    "not-verified": "Not verified",
+    "delete-user": "Delete user",
+    "delete-user-message": "Are you sure you want to delete \"{name}\" ? \nThis action cannot be undone.",
+    "yes": "Yes",
+    "verify": "Verify",
+    "send-request": "Send request",
+    "reset-password": "Reset password",
+    "enabled": "enabled",
+    "disabled": "disabled",
+    "enable": "enable",
+    "disable": "disable"
+  }
+}

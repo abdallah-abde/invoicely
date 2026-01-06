@@ -1,3 +1,9 @@
+import {
+  ADMIN_ROLE,
+  MODERATOR_ROLE,
+  SUPERADMIN_ROLE,
+  USER_ROLE,
+} from "@/features/users/lib/constants";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 
@@ -44,10 +50,10 @@ export const superadminRole = ac.newRole({
 });
 
 export const roles = {
-  user: userRole,
-  moderator: moderatorRole,
-  admin: adminRole,
-  superadmin: superadminRole,
+  [USER_ROLE]: userRole,
+  [MODERATOR_ROLE]: moderatorRole,
+  [ADMIN_ROLE]: adminRole,
+  [SUPERADMIN_ROLE]: superadminRole,
 } as const;
 
 export type RoleName = keyof typeof roles;

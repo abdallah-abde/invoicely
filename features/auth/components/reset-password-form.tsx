@@ -24,9 +24,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const t = useTranslations();
 
   const params = useSearchParams();
   const token = params.get("token");
@@ -56,14 +58,14 @@ export function ResetPasswordForm() {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Change your password</CardTitle>
+        <CardTitle>{t("Auth.reset-password.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="resetPasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -74,14 +76,14 @@ export function ResetPasswordForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="resetPasswordForm-newPassword">
-                    New Password
+                    {t("Fields.new-password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="resetPasswordForm-newPassword"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.new-password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -96,14 +98,14 @@ export function ResetPasswordForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="resetPasswordForm-confirmNewPassword">
-                    Confirm New Password
+                    {t("Fields.confirm-new-password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="resetPasswordForm-confirmNewPassword"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.confirm-new-password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -125,7 +127,7 @@ export function ResetPasswordForm() {
             onClick={() => form.reset()}
             className="cursor-pointer"
           >
-            Reset
+            {t("Form.reset")}
           </Button>
           <Button
             type="submit"
@@ -134,9 +136,9 @@ export function ResetPasswordForm() {
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
-              <Loader className="siz-6 animate-spin" />
+              <Loader className="animate-spin" />
             ) : (
-              "Reset password"
+              <>{t("Labels.reset-password")}</>
             )}
           </Button>
         </Field>

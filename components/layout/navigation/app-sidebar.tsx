@@ -23,6 +23,8 @@ import { ForwardRefExoticComponent, RefAttributes } from "react";
 import ActiveLink from "./active-link";
 import Link from "next/link";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
+import { isLocaleArabic } from "@/lib/utils";
 
 export interface ItemProps {
   title: string;
@@ -35,43 +37,43 @@ export interface ItemProps {
 
 const items: ItemProps[] = [
   {
-    title: "Dashboard",
+    title: "dashboard",
     url: "/dashboard",
     Icon: LayoutDashboard,
     deniedRoles: [],
   },
   {
-    title: "Customers",
+    title: "customers",
     url: "/dashboard/customers",
     Icon: User,
     deniedRoles: ["user"],
   },
   {
-    title: "Products",
+    title: "products",
     url: "/dashboard/products",
     Icon: Barcode,
     deniedRoles: ["user"],
   },
   {
-    title: "Invoices",
+    title: "invoices",
     url: "/dashboard/invoices",
     Icon: Receipt,
     deniedRoles: ["user"],
   },
   {
-    title: "Payments",
+    title: "payments",
     url: "/dashboard/payments",
     Icon: Banknote,
     deniedRoles: ["user"],
   },
   {
-    title: "Users",
+    title: "users",
     url: "/dashboard/users",
     Icon: Users,
     deniedRoles: ["user", "moderator"],
   },
   {
-    title: "Update Profile",
+    title: "update-profile",
     url: "/dashboard/update-profile",
     Icon: UserPen,
     deniedRoles: [],
@@ -81,20 +83,27 @@ const items: ItemProps[] = [
 export async function AppSidebar() {
   const session = await authSession();
 
+  const t = await getTranslations();
+  const isLocalArabic = await isLocaleArabic();
+
   const role = session?.user.role;
 
   return (
-    <Sidebar side="left" variant="floating" collapsible="icon">
+    <Sidebar
+      side={isLocalArabic ? "right" : "left"}
+      variant="floating"
+      collapsible="icon"
+    >
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[16px] pb-2 flex items-center gap-2">
+          <SidebarGroupLabel className="text-[16px] pb-2 flex items-center mx-0 ms-4 gap-2">
             <Image
               src="/logos/logo.png"
-              alt={`${process.env.NEXT_PUBLIC_APP_NAME} Logo`}
+              alt={`${t("app-name")} Logo`}
               width="25"
               height="25"
-            />{" "}
-            {process.env.NEXT_PUBLIC_APP_NAME} Dashboard
+            />
+            {t("app-name-dashboard")}
           </SidebarGroupLabel>
           <SidebarSeparator className="mb-2" />
           <SidebarGroupContent>
@@ -108,8 +117,14 @@ export async function AppSidebar() {
                       url={item.url}
                     >
                       <Link href={item.url}>
-                        <item.Icon />
-                        <span>{item.title}</span>
+                        <item.Icon
+                          className={isLocalArabic ? "rotate-y-180" : ""}
+                        />
+                        <span>
+                          {t(
+                            `${item.title === "dashboard" ? "dashboard" : `${item.title}.label`}`
+                          )}
+                        </span>
                       </Link>
                     </ActiveLink>
                   );

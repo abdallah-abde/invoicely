@@ -16,6 +16,8 @@ import {
 import { heroIcons } from "@/features/home/lib/hero-icons";
 import { cn } from "@/lib/utils";
 
+import { useTranslations } from "next-intl";
+
 export default function HeroSection() {
   return (
     <section
@@ -32,6 +34,8 @@ export default function HeroSection() {
 }
 
 function HeroVisual() {
+  const t = useTranslations("Hero.Icons");
+
   return (
     <div className="relative h-[480px] w-full max-w-xl hidden lg:block">
       {/* Background glow */}
@@ -47,7 +51,7 @@ function HeroVisual() {
             </div>
           </TooltipTrigger>
           <TooltipContent>
-            <span className="text-sm">{label}</span>
+            <span className="text-sm">{t(label)}</span>
           </TooltipContent>
         </Tooltip>
       ))}
@@ -56,6 +60,8 @@ function HeroVisual() {
 }
 
 function HeroText() {
+  const t = useTranslations();
+
   const shouldReduceMotion = useReducedMotion();
 
   const item = {
@@ -78,21 +84,22 @@ function HeroText() {
       <motion.h1
         variants={item}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="text-4xl md:text-5xl font-bold tracking-wider text-shadow-md text-center lg:text-left"
+        className="text-4xl md:text-5xl font-bold tracking-wider text-shadow-md text-center lg:text-start"
       >
-        {process.env.NEXT_PUBLIC_APP_NAME}
+        {/* {process.env.NEXT_PUBLIC_APP_NAME} */}
+        {t("app-name")}
       </motion.h1>
 
       <motion.p
         variants={item}
         transition={{ duration: 0.5, ease: "easeOut", delay: 0.25 }}
         className={cn(
-          "mt-10 text-lg md:text-2xl text-muted-foreground font-semibold text-center lg:text-left"
+          "mt-10 text-lg md:text-2xl text-muted-foreground font-semibold text-center lg:text-start"
           // FOR WRITTER EFFECT
           // "border-r-3 border-muted-foreground writter w-full overflow-hidden whitespace-nowrap leading-10"
         )}
       >
-        Your smart invoicing dashboard
+        {t("Hero.sub-title")}
       </motion.p>
 
       <motion.ul
@@ -109,7 +116,7 @@ function HeroText() {
             className="text-primary-foreground bg-primary rounded-full p-1"
             size="24"
           />
-          Create and manage invoices with ease
+          {t("Hero.first-list-item")}
         </motion.li>
         <motion.li
           variants={item}
@@ -120,7 +127,7 @@ function HeroText() {
             className="text-primary-foreground bg-primary rounded-full p-1"
             size="24"
           />
-          Manage customers and products in one unified system
+          {t("Hero.second-list-item")}
         </motion.li>
         <motion.li
           variants={item}
@@ -131,7 +138,7 @@ function HeroText() {
             className="text-primary-foreground bg-primary rounded-full p-1"
             size="24"
           />
-          Track payments, revenue, and monthly growth
+          {t("Hero.third-list-item")}
         </motion.li>
         <motion.li
           variants={item}
@@ -142,7 +149,7 @@ function HeroText() {
             className="text-primary-foreground bg-primary rounded-full p-1"
             size="24"
           />
-          Visualize your business with real-time charts and KPIs
+          {t("Hero.forth-list-item")}
         </motion.li>
       </motion.ul>
     </motion.div>
@@ -151,6 +158,7 @@ function HeroText() {
 
 function HeroCTA() {
   const reduceMotion = useReducedMotion();
+  const t = useTranslations("Hero");
 
   return (
     <motion.div
@@ -181,10 +189,10 @@ function HeroCTA() {
             "text-sm lg:text-[17px]"
           )}
         >
-          Go to your dashboard
+          {t("cta-dashboard")}
         </Link>
       </motion.div>
-      <span className="text-sm lg:text-[17px]">or</span>
+      <span className="text-sm lg:text-[17px]">{t("cta-or")}</span>
       <motion.div
         // whileHover={reduceMotion ? {} : { scale: 1.01 }}
         whileTap={reduceMotion ? {} : { scale: 0.98 }}
@@ -197,7 +205,7 @@ function HeroCTA() {
             "text-sm lg:text-[17px]"
           )}
         >
-          Sign up
+          {t("cta-sign-up")}
         </Link>
       </motion.div>
     </motion.div>

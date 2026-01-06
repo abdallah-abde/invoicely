@@ -5,7 +5,6 @@ export interface PaymentType extends Omit<
   "createdAt"
 > {
   amountAsNumber: number;
-  // createdAt: string;
   dateAsString: string;
   invoice: {
     number: string;

@@ -31,7 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, getPaymentMethodList } from "@/lib/utils";
+import { cn, getPaymentMethodList, syPound, usDollar } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -41,6 +41,9 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Badge } from "@/components/ui/badge";
 import { hasPermission } from "@/features/auth/services/access";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
+import { useArabic } from "@/hooks/use-arabic";
 
 export type SelectedItem = {
   invoice: Invoice;
@@ -57,6 +60,10 @@ export default function PaymentForm({
 }) {
   const { createPayment, updatePayment, isLoading } = usePayments();
   const router = useRouter();
+
+  const t = useTranslations();
+  const dir = useDirection();
+  const isArabic = useArabic();
 
   const methodList = getPaymentMethodList();
 
@@ -90,11 +97,11 @@ export default function PaymentForm({
             form.reset();
             router.refresh();
             setIsOpen(false);
-            toast.success("Payment created successfully!");
+            toast.success(t("payments.messages.success.add"));
           },
         });
       } else {
-        toast.error("You do not have permission to create payments.");
+        toast.error(t("payments.messages.error.add"));
       }
     } else {
       if (payment) {
@@ -108,16 +115,15 @@ export default function PaymentForm({
             { id: payment?.id, data: values },
             {
               onSuccess: () => {
-                // optional UI refresh
                 form.reset();
                 router.refresh();
-                toast.success("Payment updated successfully!");
+                toast.success(t("payments.messages.success.edit"));
                 setIsOpen(false);
               },
             }
           );
         } else {
-          toast.error("You do not have permission to update payments.");
+          toast.error(t("payments.messages.error.edit"));
         }
       }
     }
@@ -135,12 +141,10 @@ export default function PaymentForm({
   );
   const [options, setOptions] = useState<Option[]>();
   const [isTriggered, setIsTriggered] = useState(false);
-  // const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const [prevPayments, setPrevPayments] = useState<number | null>(null);
   const [invoiceTotal, setInvoiceTotal] = useState<number | null>(null);
   const [isNumbersLoading, setIsNumbersLoading] = useState(false);
 
-  // Watch invoiceId from the form and fetch invoice total + previous payments when it changes.
   const invoiceId = form.watch("invoiceId");
 
   useEffect(() => {
@@ -226,9 +230,6 @@ export default function PaymentForm({
         await payments.json(),
       ]);
 
-      // console.log("invoiceData", invoiceData);
-      // console.log("paymentsData", paymentsData);
-
       setPrevPayments(
         (paymentsData as Payment[]).reduce(
           (acc, item) => Number(item.amount) + acc,
@@ -244,18 +245,15 @@ export default function PaymentForm({
   };
 
   return (
-    <ScrollArea className="h-[75vh] px-4">
+    <ScrollArea className="h-[75vh] px-4" dir={dir}>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 grid grid-cols-1 gap-2"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 grid">
           <FormField
             control={form.control}
             name="invoiceId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Invoice</FormLabel>
+                <FormLabel>{t("Fields.invoicenumber.label")}</FormLabel>
                 <FormControl>
                   <MultipleSelector
                     {...field}
@@ -268,19 +266,20 @@ export default function PaymentForm({
                     onSearch={async (value) => {
                       return await handleSearch(value);
                     }}
-                    placeholder="Select invoices..."
+                    placeholder={t("Fields.invoicenumber.select")}
                     loadingIndicator={
                       <p className="w-full flex items-center gap-2 p-2 text-center text-lg leading-10 text-muted-foreground">
-                        <Loader className="animate-spin ml-auto" />{" "}
-                        <span className="mr-auto">Loading Invoices...</span>
+                        <Loader className="animate-spin ms-auto" />{" "}
+                        <span className="me-auto">
+                          {t("Fields.invoicenumber.loading")}
+                        </span>
                       </p>
                     }
                     emptyIndicator={
                       <p className="w-full text-center text-lg leading-10 text-muted-foreground">
-                        No results found.
+                        {t("Labels.no-results")}
                       </p>
                     }
-                    // onChange={(opts) => onselectionchange(opts)}
                   />
                 </FormControl>
                 <FormMessage />
@@ -292,11 +291,11 @@ export default function PaymentForm({
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Notes</FormLabel>
+                <FormLabel>{t("Fields.notes.label")}</FormLabel>
                 <FormControl>
                   <Textarea
                     className="resize-none h-20"
-                    placeholder="Enter payment notes..."
+                    placeholder={t("Fields.notes.placeholder")}
                     {...field}
                   />
                 </FormControl>
@@ -309,20 +308,23 @@ export default function PaymentForm({
             name="method"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Method</FormLabel>
+                <FormLabel>{t("Fields.method.label")}</FormLabel>
                 <Select
+                  dir={dir}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl className="w-full">
                     <SelectTrigger>
-                      <SelectValue placeholder="Select payment method" />
+                      <SelectValue
+                        placeholder={t("Fields.method.placeholder")}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {methodList.map((item) => (
                       <SelectItem key={item} value={item}>
-                        {item}
+                        {t(`Labels.${item.toLowerCase()}`)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -331,28 +333,36 @@ export default function PaymentForm({
               </FormItem>
             )}
           />
-          {prevPayments !== null && invoiceTotal !== null ? (
+          {!!prevPayments || !!invoiceTotal ? (
             <div className="flex items-center justify-between text-sm border p-2 rounded-md">
-              <p>
-                Invoice Total:{" "}
+              <p className="text-center">
+                {t("Labels.total")}
                 <Badge
                   variant="secondary"
-                  className="text-[15px] ml-1 bg-primary"
+                  className="text-[15px] ms-1 bg-primary"
                 >
-                  {invoiceTotal}
+                  {isArabic
+                    ? syPound.format(invoiceTotal ?? 0)
+                    : usDollar.format(invoiceTotal ?? 0)}
                 </Badge>
               </p>
-              <p>
-                Invoice rest:{" "}
-                <Badge variant="destructive" className="text-[15px] ml-1">
-                  {invoiceTotal - prevPayments}
+              <p className="text-center">
+                {t("Labels.rest")}
+                <Badge variant="destructive" className="text-[15px] ms-1">
+                  {isArabic
+                    ? syPound.format((invoiceTotal ?? 0) - (prevPayments ?? 0))
+                    : usDollar.format(
+                        (invoiceTotal ?? 0) - (prevPayments ?? 0)
+                      )}
                 </Badge>
               </p>
             </div>
           ) : isNumbersLoading ? (
             <div className="flex items-center gap-2">
-              <Loader className="animate-spin" />{" "}
-              <span className="animate-pulse">Loading total & rest</span>
+              <Loader className="animate-spin" />
+              <span className="animate-pulse">
+                {t("Labels.loading-total-rest")}
+              </span>
             </div>
           ) : null}
           <FormField
@@ -360,12 +370,16 @@ export default function PaymentForm({
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Amount</FormLabel>
+                <FormLabel>
+                  {t("Fields.amount.label", {
+                    currency: isArabic ? "ل.س." : "$",
+                  })}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     step={10}
-                    placeholder="Payment amount..."
+                    placeholder={t("Fields.amount.placeholder")}
                     {...field}
                   />
                 </FormControl>
@@ -378,25 +392,23 @@ export default function PaymentForm({
             name="date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Invoice Date</FormLabel>
+                <FormLabel>{t("Fields.invoicedate.label")}</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <Button
                         variant={"outline"}
                         className={cn(
-                          "w-full pl-3 text-left font-normal",
+                          "w-full ps-3 text-start font-normal",
                           !field.value && "text-muted-foreground"
                         )}
                       >
-                        <>
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                        </>
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>{t("Fields.invoicedate.pick")}</span>
+                        )}
+                        <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
@@ -419,14 +431,12 @@ export default function PaymentForm({
             type="submit"
             disabled={isLoading || isTriggered || isNumbersLoading}
             size="lg"
-            className="w-fit cursor-pointer ml-auto"
+            className="w-fit cursor-pointer ms-auto"
           >
             {isLoading ? (
-              <>
-                <Loader className="animate-spin" /> Submitting...
-              </>
+              <Loader className="animate-spin" />
             ) : (
-              "Submit"
+              <>{t("Labels.save")}</>
             )}
           </Button>
         </form>

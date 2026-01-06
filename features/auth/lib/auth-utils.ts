@@ -35,3 +35,9 @@ export const authIsNotRequired = async () => {
     redirect("/dashboard");
   }
 };
+
+export const getUserRole = async () => {
+  const session = await authSession();
+
+  return session?.user.role;
+};

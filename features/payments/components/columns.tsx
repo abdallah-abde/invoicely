@@ -1,125 +1,130 @@
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import DataTableActions from "@/features/shared/components/table/data-table-actions";
 import { PaymentType } from "@/features/payments/payment.types";
 import { ColumnDef } from "@tanstack/react-table";
-import { Loader, MoreVertical } from "lucide-react";
 import { usePayments } from "@/features/payments/hooks/use-payments";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { caseInsensitiveSort } from "@/lib/utils";
+import {
+  arToLocaleDate,
+  caseInsensitiveSort,
+  cn,
+  dateAsStringSort,
+  enToLocaleDate,
+  syPound,
+  usDollar,
+} from "@/lib/utils";
 import PaymentCU from "@/features/payments/components/payment-cu";
 import { Badge } from "@/components/ui/badge";
+import { hasPermission } from "@/features/auth/services/access";
 import {
-  hasPermission,
-  isRoleModerator,
-  isRoleSuperAdmin,
-  isRoleUser,
-} from "@/features/auth/services/access";
+  DeletingLoader,
+  selectColumn,
+} from "@/features/shared/components/table/data-table-columns";
+import { useRole } from "@/hooks/use-role";
+import { useTranslations } from "next-intl";
+import { useArabic } from "@/hooks/use-arabic";
 
 export const columns: ColumnDef<PaymentType>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // selectColumn<PaymentType>(),
   {
     accessorKey: "invoice.number",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Invoice Number" />;
+      return <DataTableHeaderSort column={column} title="invoicenumber" />;
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
-    cell: ({ row }) => <div>{row.original.invoice.number}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.original.invoice.number}</div>
+    ),
   },
   {
     accessorKey: "invoice.customer.name",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Customer" />;
+      return <DataTableHeaderSort column={column} title="customer" />;
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
-    cell: ({ row }) => <div>{row.original.invoice.customer.name}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">
+        {row.original.invoice.customer.name}
+      </div>
+    ),
   },
   {
-    accessorKey: "date",
+    accessorKey: "dateAsString",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Payment Date" />;
+      return <DataTableHeaderSort column={column} title="paymentdate" />;
     },
     enableHiding: false,
-    cell: ({ row }) => <div>{row.original.dateAsString}</div>,
+    sortingFn: dateAsStringSort,
+    cell: ({ row }) => {
+      const isArabic = useArabic();
+
+      return (
+        <div className="text-xs xs:text-sm">
+          {isArabic
+            ? arToLocaleDate.format(row.original.date)
+            : enToLocaleDate.format(row.original.date)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "amountAsNumber",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Amount" />;
+      return <DataTableHeaderSort column={column} title="amount" />;
     },
     enableHiding: false,
     cell: ({ row }) => {
+      const isArabic = useArabic();
+
       const amount = parseFloat(row.getValue("amountAsNumber"));
 
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
+      const formatted = isArabic
+        ? syPound.format(amount)
+        : usDollar.format(amount);
 
-      return <div className="font-medium text-primary">{formatted}</div>;
+      return (
+        <div className="font-medium text-primary text-xs xs:text-sm">
+          {formatted}
+        </div>
+      );
     },
   },
   {
     accessorKey: "method",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Method" />;
+      return <DataTableHeaderSort column={column} title="method" />;
     },
-    cell: ({ row }) => (
-      <div>
-        <Badge
-          variant="secondary"
-          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
-        >
-          {row.getValue("method")}
-        </Badge>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const t = useTranslations();
+      const isArabic = useArabic();
+
+      return (
+        <div>
+          <Badge
+            variant="secondary"
+            className={cn(
+              "select-none text-xs xs:text-[13px]",
+              isArabic ? "text-[11px] xs:text-[13px]" : ""
+            )}
+          >
+            {t(`Labels.${row.original.method.toLowerCase()}`)}
+          </Badge>
+        </div>
+      );
+    },
   },
-  // {
-  //   accessorKey: "createdAt",
-  //   header: ({ column }) => {
-  //     return <DataTableHeaderSort column={column} title="Created At" />;
-  //   },
-  //   cell: ({ row }) => <div>{row.getValue("createdAt")}</div>,
-  // },
   {
     accessorKey: "notes",
-    header: "Notes",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="notes" justTitle />;
+    },
     enableSorting: false,
-    cell: ({ row }) => <div>{row.getValue("notes")}</div>,
+    cell: ({ row }) => (
+      <div className="text-xs xs:text-sm">{row.getValue("notes")}</div>
+    ),
   },
   {
     id: "actions",
@@ -128,76 +133,34 @@ export const columns: ColumnDef<PaymentType>[] = [
       const payment = row.original;
       const { deletePayment, isLoading } = usePayments();
       const router = useRouter();
+      const t = useTranslations();
 
-      if (isRoleUser() || isRoleModerator()) return null;
+      const { isRoleUser, isRoleModerator, isRoleSuperAdmin } = useRole();
 
-      if (isLoading) {
-        return (
-          <p className="flex gap-1 items-center">
-            <Loader className="animate-spin text-destructive" />{" "}
-            <span className="text-destructive text-xs">Deleting...</span>{" "}
-          </p>
-        );
-      }
+      if (isRoleUser || isRoleModerator) return null;
+
+      if (isLoading) return <DeletingLoader />;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DataTableActions
+          editTrigger={<PaymentCU mode="edit" payment={payment} />}
+          onDelete={async () => {
+            const hasDeletePermission = await hasPermission({
+              resource: "payment",
+              permission: ["delete"],
+            });
 
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem asChild>
-              <PaymentCU
-                mode="edit"
-                payment={payment}
-                trigger={
-                  <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary">
-                    Edit
-                  </div>
-                }
-              />
-            </DropdownMenuItem>
-
-            {isRoleSuperAdmin() && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer text-destructive"
-                  onClick={async () => {
-                    const hasDeletePermission = await hasPermission({
-                      resource: "payment",
-                      permission: ["delete"],
-                    });
-
-                    if (hasDeletePermission)
-                      deletePayment.mutate(payment.id, {
-                        onSuccess: () => {
-                          router.refresh();
-                          toast.success("Payment deleted successfully!");
-                        },
-                      });
-                    else
-                      toast.error(
-                        "You do not have permission to delete payments."
-                      );
-                  }}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </>
-            )}
-            {/* <DropdownMenuSeparator /> */}
-
-            {/* <DropdownMenuItem>View payment details</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
+            if (hasDeletePermission)
+              deletePayment.mutate(payment.id, {
+                onSuccess: () => {
+                  router.refresh();
+                  toast.success(t("payments.messages.success.delete"));
+                },
+              });
+            else toast.error(t("payments.messages.error.delete"));
+          }}
+          showDelete={isRoleSuperAdmin}
+        />
       );
     },
   },

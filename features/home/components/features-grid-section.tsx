@@ -8,27 +8,32 @@ import {
   Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 const features = [
   {
+    id: "1",
     icon: FileText,
     title: "Invoice Management",
     description:
       "Create, edit, and manage invoices with ease. Track status, due dates, and payments in one workflow.",
   },
   {
+    id: "2",
     icon: TrendingUp,
     title: "Payments & Revenue",
     description:
       "Monitor payments, monthly revenue, and growth trends with clear financial insights.",
   },
   {
+    id: "3",
     icon: Users,
     title: "Customers & Products",
     description:
       "Manage customers and products in one unified system and keep all business data connected.",
   },
   {
+    id: "4",
     icon: BarChart3,
     title: "Analytics & Reports",
     description:
@@ -37,21 +42,22 @@ const features = [
 ];
 
 export default function FeaturesGridSection() {
+  const t = useTranslations("Features");
+
   return (
     <section className="mx-auto pt-24 select-none max-w-5xl px-6" id="features">
       <div className="mb-12 text-center">
         <h2 className="text-xl md:text-2xl lg:text-3xl font-bold">
-          Everything you need to run your invoicing workflow
+          {t("title")}
         </h2>
         <p className="mt-4 max-w-md md:max-w-lg lg:max-w-2xl mx-auto text-muted-foreground text-sm md:text-[16px] lg:text-lg">
-          Manage invoices, customers, products, and payments from a single,
-          intuitive dashboard designed for clarity and growth.
+          {t("sub-title")}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
         {features.map((feature, index) => (
-          <FeatureCard key={feature.title} {...feature} index={index} />
+          <FeatureCard key={feature.id} {...feature} index={index} />
         ))}
       </div>
     </section>
@@ -63,12 +69,16 @@ function FeatureCard({
   title,
   description,
   index,
+  id,
 }: {
   icon: LucideIcon;
   title: string;
   description: string;
   index: number;
+  id: string;
 }) {
+  const t = useTranslations("Features");
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
@@ -103,8 +113,12 @@ function FeatureCard({
           <Icon className="h-5 w-5 text-primary" />
         </div>
 
-        <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-        <p className="text-[14px] dark:text-muted-foreground">{description}</p>
+        <h3 className="mb-2 text-lg font-semibold">
+          {t("card-" + id + ".title")}
+        </h3>
+        <p className="text-[14px] dark:text-muted-foreground">
+          {t("card-" + id + ".description")}
+        </p>
       </div>
     </motion.div>
   );

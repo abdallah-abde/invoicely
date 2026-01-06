@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, SquarePen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,24 +13,33 @@ import {
 import ProductForm from "@/features/products/components/product-form";
 import { useState } from "react";
 import { ProductType } from "@/features/products/product.types";
+import { useTranslations } from "next-intl";
 
 export default function ProductCU({
   product = undefined,
   mode = "create",
-  trigger,
 }: {
   product?: ProductType | undefined;
   mode?: "create" | "edit";
-  trigger?: React.ReactNode; // custom trigger (Edit button)
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {trigger || (
+        {mode === "edit" ? (
+          <Button
+            className="cursor-pointer text-xs sm:text-sm p-2 w-full justify-start group"
+            variant="outline"
+          >
+            <SquarePen className="group-hover:text-primary transition-colors duration-300" />
+            {t("Labels.edit")}
+          </Button>
+        ) : (
           <Button className="cursor-pointer text-xs sm:text-sm">
-            <Plus /> <span className="hidden sm:block">Add Prodcut</span>
+            <Plus />{" "}
+            <span className="hidden sm:block">{t("products.add")}</span>
           </Button>
         )}
       </DialogTrigger>
@@ -38,13 +47,15 @@ export default function ProductCU({
         <DialogHeader>
           <DialogTitle>
             {" "}
-            {mode === "create" ? "Add Product" : "Edit Product"}
-          </DialogTitle>
-          <DialogDescription>
             {mode === "create"
-              ? "Add a new product."
-              : "Update this product and save your changes."}
-          </DialogDescription>
+              ? t("products.add-description")
+              : t("products.edit")}
+          </DialogTitle>
+          {/* <DialogDescription>
+            {mode === "create"
+              ? t("products.add-description")
+              : t("products.edit-description")}
+          </DialogDescription> */}
         </DialogHeader>
         <ProductForm setIsOpen={setIsOpen} product={product} mode={mode} />
       </DialogContent>

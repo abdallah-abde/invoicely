@@ -1,58 +1,42 @@
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import DataTableActions from "@/features/shared/components/table/data-table-actions";
 import { InvoiceType } from "@/features/invoices/invoice.types";
-import { caseInsensitiveSort, cn, dateAsStringSort } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
-import { Loader, MoreVertical } from "lucide-react";
+import {
+  arDigitsNoGrouping,
+  caseInsensitiveSort,
+  cn,
+  dateAsStringSort,
+  syPound,
+  arToLocaleDate,
+  enToLocaleDate,
+  usDollar,
+} from "@/lib/utils";
+import { ColumnDef, Row } from "@tanstack/react-table";
 import { useInvoices } from "@/features/invoices/hooks/use-invoices";
 import { useRouter } from "next/navigation";
 import InvoiceCU from "./invoice-cu";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { hasPermission } from "@/features/auth/services/access";
 import {
-  hasPermission,
-  isRoleAdmin,
-  isRoleSuperAdmin,
-  isRoleUser,
-} from "@/features/auth/services/access";
+  DeletingLoader,
+  selectColumn,
+} from "@/features/shared/components/table/data-table-columns";
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { useRole } from "@/hooks/use-role";
+import { useArabic } from "@/hooks/use-arabic";
+import { useTranslations } from "next-intl";
 
 export const columns: ColumnDef<InvoiceType>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // selectColumn<InvoiceType>(),
   {
     accessorKey: "number",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Number" />;
+      return <DataTableHeaderSort column={column} title="invoicenumber" />;
     },
     enableHiding: false,
     cell: ({ row }) => (
@@ -62,7 +46,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
   {
     accessorKey: "customer.name",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Customer" />;
+      return <DataTableHeaderSort column={column} title="customer" />;
     },
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
@@ -73,69 +57,61 @@ export const columns: ColumnDef<InvoiceType>[] = [
   {
     accessorKey: "issuedDateAsString",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Issued At" />;
+      return <DataTableHeaderSort column={column} title="issuedat" />;
     },
     enableHiding: false,
     sortingFn: dateAsStringSort,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">
-        {row.getValue("issuedDateAsString")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const isArabic = useArabic();
+
+      return (
+        <div className="text-xs xs:text-sm">
+          {isArabic
+            ? arToLocaleDate.format(row.original.issuedAt)
+            : enToLocaleDate.format(row.original.issuedAt)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "dueDateAsString",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Due At" />;
+      return <DataTableHeaderSort column={column} title="dueat" />;
     },
     sortingFn: dateAsStringSort,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">
-        {row.getValue("dueDateAsString")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const isArabic = useArabic();
+
+      return (
+        <div className="text-xs xs:text-sm">
+          {isArabic
+            ? arToLocaleDate.format(row.original.dueAt)
+            : enToLocaleDate.format(row.original.dueAt)}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Status" />;
+      return <DataTableHeaderSort column={column} title="status" />;
     },
-    cell: ({ row }) => (
-      <div
-        className={cn(
-          `text-[8px] xs:text-[10px] border rounded-md p-1.5 w-fit tracking-widest select-none`,
-          `${
-            row.original.status === "PAID"
-              ? "text-purple-400"
-              : row.original.status === "CANCELED"
-                ? "text-red-400"
-                : row.original.status === "DRAFT"
-                  ? "text-gray-400"
-                  : row.original.status === "SENT"
-                    ? "text-sky-400"
-                    : row.original.status === "OVERDUE"
-                      ? "text-red-400"
-                      : ""
-          }`
-        )}
-      >
-        {row.original.status}
-      </div>
-    ),
+    cell: ({ row }) => renderStatus(row),
   },
   {
     accessorKey: "totalAsNumber",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Total" />;
+      return <DataTableHeaderSort column={column} title="total" />;
     },
     enableHiding: false,
     cell: ({ row }) => {
+      const isArabic = useArabic();
+
       const total = parseFloat(row.getValue("totalAsNumber"));
 
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(total);
+      const formatted = isArabic
+        ? syPound.format(total)
+        : usDollar.format(total);
 
       return (
         <div className="font-medium text-primary text-xs xs:text-sm">
@@ -146,7 +122,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
   },
   {
     accessorKey: "notes",
-    header: "Notes",
+    header: ({ column }) => {
+      return <DataTableHeaderSort column={column} title="notes" />;
+    },
     enableSorting: false,
     cell: ({ row }) => (
       <div className="text-xs xs:text-sm">{row.getValue("notes")}</div>
@@ -155,7 +133,7 @@ export const columns: ColumnDef<InvoiceType>[] = [
   {
     accessorKey: "createdBy.name",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Created By" />;
+      return <DataTableHeaderSort column={column} title="createdby" />;
     },
     sortingFn: caseInsensitiveSort,
     cell: ({ row }) => (
@@ -165,18 +143,24 @@ export const columns: ColumnDef<InvoiceType>[] = [
   {
     accessorKey: "_count.products",
     header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="Products Count" />;
+      return <DataTableHeaderSort column={column} title="productscount" />;
     },
-    cell: ({ row }) => (
-      <div>
-        <Badge
-          variant="secondary"
-          className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
-        >
-          {row.original._count.products}
-        </Badge>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const isArabic = useArabic();
+
+      return (
+        <div>
+          <Badge
+            variant="secondary"
+            className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
+          >
+            {isArabic
+              ? arDigitsNoGrouping.format(row.original._count.products)
+              : row.original._count.products}
+          </Badge>
+        </div>
+      );
+    },
   },
   {
     id: "actions",
@@ -186,102 +170,90 @@ export const columns: ColumnDef<InvoiceType>[] = [
       const { deleteInvoice, isLoading } = useInvoices();
       const router = useRouter();
 
-      if (isRoleUser()) return null;
+      const t = useTranslations();
 
-      if (isLoading) {
-        return (
-          <p className="flex gap-1 items-center">
-            <Loader className="animate-spin text-destructive size-4 xs:size-5" />{" "}
-            <span className="text-destructive text-xs xs:text-sm">
-              Deleting...
-            </span>{" "}
-          </p>
-        );
-      }
+      const { isRoleUser, isRoleAdmin, isRoleSuperAdmin } = useRole();
+
+      if (isRoleUser) return null;
+
+      if (isLoading) return <DeletingLoader />;
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="h-6 xs:h-8 w-6 xs:w-8 p-0 cursor-pointer"
+        <DataTableActions
+          editTrigger={
+            (isRoleAdmin || isRoleSuperAdmin) && (
+              <InvoiceCU mode="edit" invoice={invoice} />
+            )
+          }
+          onDelete={async () => {
+            const hasDeletePermission = await hasPermission({
+              resource: "invoice",
+              permission: ["delete"],
+            });
+
+            if (hasDeletePermission)
+              deleteInvoice.mutate(invoice.id, {
+                onSuccess: () => {
+                  router.refresh();
+                  toast.success(t("invoices.messages.success.delete"));
+                },
+              });
+            else toast.error(t("invoices.messages.error.delete"));
+          }}
+          showDelete={isRoleSuperAdmin}
+        >
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>
+            <Link
+              href={`/api/invoices/${invoice.id}/pdf`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs xs:text-sm text-primary"
             >
-              <span className="sr-only">Open menu</span>
-              <MoreVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel className="text-xs xs:text-sm">
-              Actions
-            </DropdownMenuLabel>
-
-            {(isRoleAdmin() || isRoleSuperAdmin()) && (
-              <>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem asChild>
-                  <InvoiceCU
-                    mode="edit"
-                    invoice={invoice}
-                    trigger={
-                      <div className="w-full text-left cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded-md bg-secondary/50 text-primary text-xs xs:text-sm">
-                        Edit
-                      </div>
-                    }
-                  />
-                </DropdownMenuItem>
-              </>
-            )}
-
-            {isRoleSuperAdmin() && (
-              <>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem
-                  className="cursor-pointer text-destructive text-xs xs:text-sm"
-                  onClick={async () => {
-                    const hasDeletePermission = await hasPermission({
-                      resource: "invoice",
-                      permission: ["delete"],
-                    });
-
-                    if (hasDeletePermission)
-                      deleteInvoice.mutate(invoice.id, {
-                        onSuccess: () => {
-                          router.refresh();
-                          toast.success("Invoice deleted successfully!");
-                        },
-                      });
-                    else
-                      toast.error(
-                        "You do not have permission to delete invoices."
-                      );
-                  }}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </>
-            )}
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem>
-              <Link
-                href={`/api/invoices/${invoice.id}/pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs xs:text-sm"
-              >
-                Download Invoice
-              </Link>
-            </DropdownMenuItem>
-
-            {/* <DropdownMenuSeparator /> */}
-
-            {/* <DropdownMenuItem className="text-xs xs:text-sm">View invoice details</DropdownMenuItem> */}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {t("invoices.download-invoice")}
+            </Link>
+          </DropdownMenuItem>
+        </DataTableActions>
       );
     },
   },
 ];
+
+function renderStatus(row: Row<InvoiceType>) {
+  const paidClr = `text-[oklch(0.488_0.243_264.376)]`;
+
+  const sentClr = `text-[oklch(0.696_0.17_162.48)]`;
+
+  const overdueClr = `text-[oklch(0.769_0.188_70.08)]`;
+
+  const draftClr = `text-[oklch(0.627_0.265_303.9)]`;
+
+  const canceledClr = `text-[oklch(0.645_0.246_16.439)]`;
+
+  const t = useTranslations();
+  const isArabic = useArabic();
+
+  return (
+    <div
+      className={cn(
+        `text-[8px] xs:text-[10px] border rounded-md p-1.5 w-fit tracking-widest select-none`,
+        `${
+          row.original.status === "PAID"
+            ? paidClr //"text-chart-1" // text-purple-400
+            : row.original.status === "SENT"
+              ? sentClr // text-red-400
+              : row.original.status === "OVERDUE"
+                ? overdueClr // text-gray-400
+                : row.original.status === "DRAFT"
+                  ? draftClr // text-sky-400
+                  : row.original.status === "CANCELED"
+                    ? canceledClr // text-red-400
+                    : ""
+        }`,
+        isArabic ? "text-[11px] xs:text-[13px]" : ""
+      )}
+    >
+      {t(`Labels.${row.original.status.toLowerCase()}`)}
+    </div>
+  );
+}

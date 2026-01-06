@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import type { Customer } from "@/app/generated/prisma/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { hasPermission } from "@/features/auth/services/access";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
 
 export default function CustomerForm({
   setIsOpen,
@@ -35,6 +37,9 @@ export default function CustomerForm({
 }) {
   const { createCustomer, updateCustomer, isLoading } = useCustomers();
   const router = useRouter();
+
+  const t = useTranslations();
+  const dir = useDirection();
 
   const form = useForm<z.infer<typeof customerSchema>>({
     resolver: zodResolver(customerSchema),
@@ -58,15 +63,14 @@ export default function CustomerForm({
       if (hasCreatePermission) {
         createCustomer.mutate(values, {
           onSuccess: () => {
-            // optional UI refresh
             form.reset();
             router.refresh();
             setIsOpen(false);
-            toast.success("Customer created successfully!");
+            toast.success(t("customers.messages.success.add"));
           },
         });
       } else {
-        toast.error("You do not have permission to create customers.");
+        toast.error(t("customers.messages.error.add"));
       }
     } else {
       if (customer) {
@@ -80,23 +84,22 @@ export default function CustomerForm({
             { id: customer?.id, data: values },
             {
               onSuccess: () => {
-                // optional UI refresh
                 form.reset();
                 router.refresh();
-                toast.success("Customer updated successfully!");
+                toast.success(t("customers.messages.success.edit"));
                 setIsOpen(false);
               },
             }
           );
         } else {
-          toast.error("You do not have permission to update customers.");
+          toast.error(t("customers.messages.error.edit"));
         }
       }
     }
   }
 
   return (
-    <ScrollArea className="h-[75vh] px-4">
+    <ScrollArea className="h-[75vh] px-4" dir={dir}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -107,9 +110,12 @@ export default function CustomerForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("Fields.name.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="name..." {...field} />
+                  <Input
+                    placeholder={t("Fields.name.placeholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,9 +126,12 @@ export default function CustomerForm({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone</FormLabel>
+                <FormLabel>{t("Fields.phone.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="phone..." {...field} />
+                  <Input
+                    placeholder={t("Fields.phone.placeholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -134,9 +143,13 @@ export default function CustomerForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>{t("Fields.email.label")}</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="email..." {...field} />
+                    <Input
+                      type="email"
+                      placeholder={t("Fields.email.placeholder")}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -149,11 +162,11 @@ export default function CustomerForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>{t("Fields.address.label")}</FormLabel>
                   <FormControl>
                     <Textarea
                       className="resize-none"
-                      placeholder="address..."
+                      placeholder={t("Fields.address.placeholder")}
                       {...field}
                     />
                   </FormControl>
@@ -168,9 +181,12 @@ export default function CustomerForm({
             name="companyName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company</FormLabel>
+                <FormLabel>{t("Fields.company.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="company..." {...field} />
+                  <Input
+                    placeholder={t("Fields.company.placeholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -181,9 +197,12 @@ export default function CustomerForm({
             name="taxNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tax Number</FormLabel>
+                <FormLabel>{t("Fields.taxnumber.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Tax Number..." {...field} />
+                  <Input
+                    placeholder={t("Fields.taxnumber.placeholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -193,14 +212,12 @@ export default function CustomerForm({
             type="submit"
             disabled={isLoading}
             size="lg"
-            className="w-fit cursor-pointer ml-auto col-span-2"
+            className="w-fit cursor-pointer ms-auto col-span-2"
           >
             {isLoading ? (
-              <>
-                <Loader className="animate-spin" /> Submitting...
-              </>
+              <Loader className="animate-spin" />
             ) : (
-              "Submit"
+              <>{t("Labels.save")}</>
             )}
           </Button>
         </form>

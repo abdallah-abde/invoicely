@@ -24,9 +24,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export function OTPCodeForm() {
   const router = useRouter();
+  const t = useTranslations();
 
   const form = useForm<z.infer<typeof oTPCodeSchema>>({
     resolver: zodResolver(oTPCodeSchema),
@@ -51,14 +53,14 @@ export function OTPCodeForm() {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full sm:max-w-md">
       <CardHeader>
-        <CardTitle>Enter your OTP code</CardTitle>
+        <CardTitle>{t("Auth.otp.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="oTPCodeForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -68,12 +70,14 @@ export function OTPCodeForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="oTPCodeForm-code">Code</FieldLabel>
+                  <FieldLabel htmlFor="oTPCodeForm-code">
+                    {t("Fields.code.label")}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="oTPCodeForm-code"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Enter the OTP code you received at your email"
+                    placeholder={t("Fields.code.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -104,9 +108,9 @@ export function OTPCodeForm() {
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
-              <Loader className="siz-6 animate-spin" />
+              <Loader className="animate-spin" />
             ) : (
-              "Verify"
+              <>{t("Labels.verify")}</>
             )}
           </Button>
         </Field>

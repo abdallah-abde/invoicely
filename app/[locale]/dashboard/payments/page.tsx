@@ -5,18 +5,25 @@ import { PaymentsTable } from "@/features/payments/components/payments-table";
 import prisma from "@/lib/db/prisma";
 import PaymentCU from "@/features/payments/components/payment-cu";
 import { APIError } from "better-auth";
-import { authSession } from "@/features/auth/lib/auth-utils";
+import { getUserRole } from "@/features/auth/lib/auth-utils";
 
 import type { Metadata } from "next";
+import {
+  ADMIN_ROLE,
+  SUPERADMIN_ROLE,
+  USER_ROLE,
+} from "@/features/users/lib/constants";
+import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {
   title: "Payments",
 };
 
 export default async function DashboardPaymentsPage() {
-  const session = await authSession();
+  const role = await getUserRole();
+  const t = await getTranslations();
 
-  if (!session?.user.role || session?.user.role === "user") {
+  if (role === USER_ROLE) {
     throw new APIError("FORBIDDEN");
   }
 
@@ -36,18 +43,12 @@ export default async function DashboardPaymentsPage() {
   });
 
   const result = data.map((payment) => {
-    const { amount, createdAt, date, ...paymentWithout } = payment;
-    // const createdDate = createdAt.toLocaleDateString("en-EN", {
-    //   dateStyle: "medium",
-    // });
-    const invoiceDate = date.toLocaleDateString("en-EN", {
-      dateStyle: "medium",
-    });
+    const { amount, ...restOfPayment } = payment;
+
+    const invoiceDate = payment.date.toLocaleDateString();
 
     return {
-      ...paymentWithout,
-      date,
-      // createdAt: createdDate,
+      ...restOfPayment,
       dateAsString: invoiceDate,
       amountAsNumber: amount.toNumber(),
     };
@@ -55,10 +56,8 @@ export default async function DashboardPaymentsPage() {
 
   return (
     <div>
-      <PageHeader title="Payments">
-        {session.user.role === "admin" || session.user.role === "superadmin" ? (
-          <PaymentCU />
-        ) : null}
+      <PageHeader title={t("payments.label")}>
+        {role === ADMIN_ROLE || role === SUPERADMIN_ROLE ? <PaymentCU /> : null}
       </PageHeader>
       <PaymentsTable data={result} />
     </div>

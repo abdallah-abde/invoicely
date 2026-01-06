@@ -31,23 +31,22 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Loader, Plus } from "lucide-react";
-import {
-  Role,
-  ROLE_OPTIONS,
-  userSchema,
-} from "@/features/users/schemas/user.schema";
-import {
-  isRoleUser,
-  isRoleModerator,
-  isRoleSuperAdmin,
-} from "@/features/auth/services/access";
+import { userSchema } from "@/features/users/schemas/user.schema";
+import { Role, ROLE_OPTIONS } from "@/features/users/role.types";
+import { hasPermission, isRoleAdmin } from "@/features/auth/services/access";
+import { SUPERADMIN_ROLE } from "../lib/constants";
+import { useTranslations } from "next-intl";
+import { useRole } from "@/hooks/use-role";
+import { useDirection } from "@/hooks/use-direction";
 
 export default function UserCU({ users }: { users: UserProps[] }) {
   const router = useRouter();
+  const t = useTranslations();
+  const dir = useDirection();
 
-  if (isRoleUser() || isRoleModerator()) return null;
+  const { isRoleUser, isRoleModerator, isRoleSuperAdmin } = useRole();
 
-  const isUserRoleSuperAdmin = isRoleSuperAdmin();
+  if (isRoleUser || isRoleModerator) return null;
 
   const form = useForm({
     resolver: zodResolver(userSchema),
@@ -78,28 +77,46 @@ export default function UserCU({ users }: { users: UserProps[] }) {
   const onSubmit = async (values: z.infer<typeof userSchema>) => {
     try {
       if (!user.id) {
-        await authClient.admin.createUser({
-          name: values.name,
-          email: values.email,
-          password: values.password as string,
-          data: { role: values.role as Role },
+        const hasCreatePermission = await hasPermission({
+          resource: "user",
+          permission: ["create"],
         });
 
-        toast.success("New user created successfully");
-      } else {
-        await authClient.admin.updateUser({
-          userId: user.id,
-          data: {
+        if (hasCreatePermission) {
+          await authClient.admin.createUser({
             name: values.name,
             email: values.email,
-            role: values.role as Role,
-          },
+            password: values.password as string,
+            data: { role: values.role as Role },
+          });
+
+          toast.success(t("users.messages.success.add"));
+        } else {
+          toast.error(t("users.messages.error.add"));
+        }
+      } else {
+        const hasUpdatePermission = await hasPermission({
+          resource: "user",
+          permission: ["update"],
         });
 
-        toast.success("User updated successfully");
+        if (hasUpdatePermission) {
+          await authClient.admin.updateUser({
+            userId: user.id,
+            data: {
+              name: values.name,
+              email: values.email,
+              role: values.role as Role,
+            },
+          });
+
+          toast.success(t("users.messages.success.edit"));
+        } else {
+          toast.error(t("users.messages.error.edit"));
+        }
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("Errors.something-went-wrong"));
     } finally {
       setIsOpen(false);
       form.reset();
@@ -142,7 +159,10 @@ export default function UserCU({ users }: { users: UserProps[] }) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle> {!!user.id ? "Edit" : "Create user"} </DialogTitle>
+            <DialogTitle>
+              {" "}
+              {!!user.id ? t("users.edit") : t("users.add-description")}{" "}
+            </DialogTitle>
           </DialogHeader>
 
           <form
@@ -156,11 +176,12 @@ export default function UserCU({ users }: { users: UserProps[] }) {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel>Name</FieldLabel>
+                    <FieldLabel>{t("Fields.name.label")}</FieldLabel>
                     <Input
-                      {...field}
-                      autoComplete="off"
                       aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                      placeholder={t("Fields.name.placeholder")}
+                      {...field}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -174,11 +195,12 @@ export default function UserCU({ users }: { users: UserProps[] }) {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel>Email</FieldLabel>
+                    <FieldLabel>{t("Fields.email.label")}</FieldLabel>
                     <Input
-                      {...field}
-                      autoComplete="off"
                       aria-invalid={fieldState.invalid}
+                      autoComplete="off"
+                      placeholder={t("Fields.email.placeholder")}
+                      {...field}
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -193,12 +215,13 @@ export default function UserCU({ users }: { users: UserProps[] }) {
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid} className="gap-1">
-                      <FieldLabel>Password</FieldLabel>
+                      <FieldLabel>{t("Fields.password.label")}</FieldLabel>
                       <Input
-                        {...field}
-                        autoComplete="off"
-                        aria-invalid={fieldState.invalid}
                         type="password"
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="off"
+                        placeholder={t("Fields.password.placeholder")}
+                        {...field}
                       />
                       {fieldState.invalid && (
                         <FieldError errors={[fieldState.error]} />
@@ -213,23 +236,24 @@ export default function UserCU({ users }: { users: UserProps[] }) {
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid} className="gap-1">
-                    <FieldLabel>Role</FieldLabel>
+                    <FieldLabel>{t("Fields.role.label")}</FieldLabel>
                     <Select
                       {...field}
                       onValueChange={field.onChange}
                       defaultValue={user.role}
+                      dir={dir}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Role" />
+                        <SelectValue placeholder={t("Fields.role.select")} />
                       </SelectTrigger>
                       <SelectContent>
                         {ROLE_OPTIONS.filter((role) =>
-                          !isUserRoleSuperAdmin && role === "superadmin"
+                          !isRoleSuperAdmin && role === SUPERADMIN_ROLE
                             ? null
                             : role
                         ).map((role) => (
                           <SelectItem key={role} value={role}>
-                            {role}{" "}
+                            {t(`Labels.${role}-role`)}{" "}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -249,9 +273,9 @@ export default function UserCU({ users }: { users: UserProps[] }) {
               form="user-management"
             >
               {form.formState.isSubmitting ? (
-                <Loader className="size-6 animate-spin" />
+                <Loader className="animate-spin" />
               ) : (
-                "Save changes"
+                <>{t("Labels.save")}</>
               )}
             </Button>
           </form>
@@ -260,13 +284,15 @@ export default function UserCU({ users }: { users: UserProps[] }) {
 
       <div className="flex flex-col w-full py-4">
         <div className="flex w-full justify-between gap-3">
-          <h1 className="text-2xl font-semibold">Users</h1>
-          <Button
-            className="cursor-pointer text-xs sm:text-sm"
-            onClick={() => setIsOpen(true)}
-          >
-            <Plus /> <span className="hidden sm:block">Add User</span>
-          </Button>
+          <h1 className="text-2xl font-semibold">{t("users.label")}</h1>
+          {isRoleSuperAdmin ? (
+            <Button
+              className="cursor-pointer text-xs sm:text-sm"
+              onClick={() => setIsOpen(true)}
+            >
+              <Plus /> <span className="hidden sm:block">{t("users.add")}</span>
+            </Button>
+          ) : null}
         </div>
 
         <div className="flex flex-col">

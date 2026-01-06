@@ -8,6 +8,7 @@ import { ThemeColorToggle } from "@/components/theme/theme-color-toggle";
 import AuthenticationToggle from "@/features/auth/components/authentication-toggle";
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import LanguageSwitcher from "@/components/layout/languages/language-switcher";
 
 export const metadata: Metadata = {
   title: {
@@ -28,27 +29,26 @@ export default async function DashboardLayout({
   await authIsRequired();
 
   return (
-    <>
-      <SidebarProvider className="">
-        <AppSidebar />
+    <SidebarProvider>
+      <AppSidebar />
 
-        <div className="w-full">
-          <div className="w-full px-6">
-            <div className="flex items-center justify-start sm:justify-between gap-4 py-2 border-b">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger className="cursor-pointer" />
-                {breadcrumb}
-              </div>
-              <div className="flex items-center max-sm:mx-auto gap-4">
-                <ThemeColorToggle />
-                <ModeToggle />
-                <AuthenticationToggle />
-              </div>
+      <div className="w-full">
+        <div className="w-full px-6">
+          <div className="flex items-center justify-start sm:justify-between gap-4 py-2 border-b">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="cursor-pointer" />
+              {breadcrumb}
+            </div>
+            <div className="flex items-center max-sm:mx-auto gap-4">
+              <ThemeColorToggle />
+              <ModeToggle />
+              <AuthenticationToggle />
+              <LanguageSwitcher />
             </div>
           </div>
-          <div className="px-6">{children}</div>
         </div>
-      </SidebarProvider>
-    </>
+        <div className="px-6">{children}</div>
+      </div>
+    </SidebarProvider>
   );
 }

@@ -22,7 +22,7 @@ import DataTableBody from "@/features/shared/components/table/data-table-body";
 
 export function PaymentsTable({ data }: { data: PaymentType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "date", desc: true },
+    { id: "dateAsString", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

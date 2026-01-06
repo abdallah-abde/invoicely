@@ -23,6 +23,9 @@ import { toast } from "sonner";
 import { ProductType } from "@/features/products/product.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { hasPermission } from "@/features/auth/services/access";
+import { useTranslations } from "next-intl";
+import { useArabic } from "@/hooks/use-arabic";
+import { useDirection } from "@/hooks/use-direction";
 
 export default function ProductForm({
   setIsOpen,
@@ -35,6 +38,10 @@ export default function ProductForm({
 }) {
   const { createProduct, updateProduct, isLoading } = useProducts();
   const router = useRouter();
+
+  const t = useTranslations();
+  const dir = useDirection();
+  const isArabic = useArabic();
 
   const form = useForm<z.infer<typeof productSchema>>({
     resolver: zodResolver(productSchema),
@@ -56,15 +63,14 @@ export default function ProductForm({
       if (hasCreatePermission) {
         createProduct.mutate(values, {
           onSuccess: () => {
-            // optional UI refresh
             form.reset();
             router.refresh();
             setIsOpen(false);
-            toast.success("Product created successfully!");
+            toast.success(t("products.messages.success.add"));
           },
         });
       } else {
-        toast.error("You do not have permission to create products.");
+        toast.error(t("products.messages.error.add"));
       }
     } else {
       if (product) {
@@ -80,20 +86,20 @@ export default function ProductForm({
               onSuccess: () => {
                 form.reset();
                 router.refresh();
-                toast.success("Product updated successfully!");
+                toast.success(t("products.messages.success.edit"));
                 setIsOpen(false);
               },
             }
           );
         } else {
-          toast.error("You do not have permission to update products.");
+          toast.error(t("products.messages.error.edit"));
         }
       }
     }
   }
 
   return (
-    <ScrollArea className="h-[75vh] px-4">
+    <ScrollArea className="h-[75vh] px-4" dir={dir}>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -104,9 +110,12 @@ export default function ProductForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("Fields.name.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="name..." {...field} />
+                  <Input
+                    placeholder={t("Fields.name.placeholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -117,11 +126,11 @@ export default function ProductForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t("Fields.description.label")}</FormLabel>
                 <FormControl>
                   <Textarea
                     className="resize-none h-20"
-                    placeholder="description..."
+                    placeholder={t("Fields.description.placeholder")}
                     {...field}
                   />
                 </FormControl>
@@ -134,9 +143,12 @@ export default function ProductForm({
             name="unit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Unit</FormLabel>
+                <FormLabel>{t("Fields.unit.label")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="unit..." {...field} />
+                  <Input
+                    placeholder={t("Fields.unit.placeholder")}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -147,12 +159,18 @@ export default function ProductForm({
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price (SYP)</FormLabel>
+                <FormLabel>
+                  {t("Fields.price.label", {
+                    currency: isArabic ? "ل.س." : "$",
+                  })}
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     step={10}
-                    placeholder="price..."
+                    placeholder={t("Fields.price.placeholder", {
+                      product: isArabic ? "المنتج" : "product",
+                    })}
                     {...field}
                   />
                 </FormControl>
@@ -164,14 +182,12 @@ export default function ProductForm({
             type="submit"
             disabled={isLoading}
             size="lg"
-            className="w-fit cursor-pointer ml-auto"
+            className="w-fit cursor-pointer ms-auto"
           >
             {isLoading ? (
-              <>
-                <Loader className="animate-spin" /> Submitting...
-              </>
+              <Loader className="animate-spin" />
             ) : (
-              "Submit"
+              <>{t("Labels.save")}</>
             )}
           </Button>
         </form>

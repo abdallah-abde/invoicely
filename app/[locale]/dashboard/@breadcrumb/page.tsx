@@ -7,9 +7,12 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
+import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 
-export default function BreadcrumbSlot() {
+export default async function BreadcrumbSlot() {
+  const t = await getTranslations();
+
   return (
     <Breadcrumb className="hidden xl:block">
       <BreadcrumbList>
@@ -18,11 +21,11 @@ export default function BreadcrumbSlot() {
             {" "}
             <Image
               src="/logos/logo.png"
-              alt={`${process.env.NEXT_PUBLIC_APP_NAME} Logo`}
+              alt={`${t("app-name")} Logo`}
               width="20"
               height="20"
             />
-            Dashboard
+            {t("dashboard")}
           </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>

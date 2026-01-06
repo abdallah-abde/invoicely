@@ -20,6 +20,7 @@ import DataTableHeader from "@/features/shared/components/table/data-table-heade
 import DataTableBody from "@/features/shared/components/table/data-table-body";
 import { UserProps } from "@/features/users/hooks/use-users";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useDirection } from "@/hooks/use-direction";
 
 export function UsersTable({ data }: { data: UserProps[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -53,6 +54,8 @@ export function UsersTable({ data }: { data: UserProps[] }) {
     },
   });
 
+  const dir = useDirection();
+
   return (
     <div className="w-full">
       <div className="flex flex-row items-start justify-between gap-2 py-4">
@@ -63,7 +66,7 @@ export function UsersTable({ data }: { data: UserProps[] }) {
         <DataTableColumnsVisibility table={table} />
       </div>
       <div className="rounded-md border">
-        <ScrollArea>
+        <ScrollArea dir={dir}>
           <Table>
             <DataTableHeader table={table} />
             <DataTableBody table={table} columnsLength={columns.length} />

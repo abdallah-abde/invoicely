@@ -34,9 +34,11 @@ import {
 import { Input } from "@/components/ui/input";
 
 import ProvidersSignIn from "@/features/auth/components/providers-sign-in";
+import { useTranslations } from "next-intl";
 
 export function SignInForm() {
   const router = useRouter();
+  const t = useTranslations();
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -69,7 +71,7 @@ export function SignInForm() {
           onError: (ctx) => {
             let error = "";
             if (ctx.error.code === "EMAIL_NOT_VERIFIED") {
-              error = "A new verification code is sent";
+              error = t("Errors.email-not-verified");
             }
             toast.error(() => (
               <>
@@ -81,15 +83,15 @@ export function SignInForm() {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full sm:max-w-md mt-20">
       <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>Sign in to your account</CardDescription>
+        <CardTitle>{t("Auth.sign-in.title")}</CardTitle>
+        <CardDescription>{t("Auth.sign-in.form-description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form id="signInForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -99,13 +101,15 @@ export function SignInForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="signInForm-email">Email</FieldLabel>
+                  <FieldLabel htmlFor="signInForm-email">
+                    {t("Fields.email.label")}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="signInForm-email"
                     type="email"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Enter your email"
+                    placeholder={t("Fields.email.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -123,12 +127,12 @@ export function SignInForm() {
                     htmlFor="signInForm-password"
                     className="flex items-center justify-between"
                   >
-                    <span>Password</span>
+                    <span>{t("Fields.password.label")}</span>
                     <Link
                       href="/request-password"
                       className="text-primary hover:text-primary/50 transition duration-300"
                     >
-                      Forgot password
+                      {t("Fields.forgot-password.label")}
                     </Link>
                   </FieldLabel>
                   <Input
@@ -136,7 +140,7 @@ export function SignInForm() {
                     id="signInForm-password"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -154,20 +158,20 @@ export function SignInForm() {
           className="flex flex-col md:flex-row gap-4 items-center justify-between w-full"
         >
           <p className="text-sm flex items-center gap-2">
-            Do not have an account?{" "}
+            {t("Auth.sign-in.form-no-account")}
             <Link
               href="/sign-up"
               className="text-primary hover:text-primary/50 transition duration-300"
             >
               {" "}
-              Sign up
+              {t("Auth.sign-up.title")}
             </Link>
           </p>
           <Button type="submit" form="signInForm" className="cursor-pointer">
             {form.formState.isSubmitting ? (
               <Loader className="siz-6 animate-spin" />
             ) : (
-              "Sign in"
+              <>{t("Auth.sign-in.title")}</>
             )}
           </Button>
         </Field>

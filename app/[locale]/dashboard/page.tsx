@@ -8,8 +8,10 @@ import { TopProductsChart } from "@/features/charts/components/top-products-char
 import { NewCustomersCountChart } from "@/features/charts/components/new-customers-count-chart";
 import { MonthlyRevenueChart } from "@/features/charts/components/monthly-revenue-chart";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { authSession } from "@/features/auth/lib/auth-utils";
+import { getUserRole } from "@/features/auth/lib/auth-utils";
 import AccessDenied from "@/features/shared/components/access-denied";
+import { USER_ROLE } from "@/features/users/lib/constants";
+import { getTranslations } from "next-intl/server";
 
 type Props = {
   searchParams: Promise<{ range?: string }>;
@@ -19,28 +21,27 @@ export default async function DashboardHomePage({ searchParams }: Props) {
   const params = await searchParams;
   const range = params?.range || "7d"; // default to last 30 days
 
-  const session = await authSession();
+  const role = await getUserRole();
 
-  if (!session || !session.user)
-    return <div>Please log in to view the dashboard.</div>;
+  const t = await getTranslations();
 
-  if (session.user.role === "user")
+  if (role === USER_ROLE)
     return (
       <AccessDenied
         errorName=""
-        message="You are not allowed to view this page"
+        message={t("Errors.not-allowed-to-see-page")}
       />
     );
 
   const res = await fetch(
     `${process.env.BETTER_AUTH_URL}/api/dashboard?range=${range}`,
     {
-      // cache: "force-cache",
-      // next: { revalidate: 300 }, // 5 minutes
+      cache: "force-cache",
+      next: { revalidate: 300 }, // 5 minutes
     }
   );
 
-  if (!res.ok) throw new Error("Dashboard failed");
+  if (!res.ok) throw new Error(t("Errors.dashboard-failed"));
 
   const data: DashboardChartsData = await res.json();
 

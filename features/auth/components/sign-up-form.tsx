@@ -34,9 +34,11 @@ import {
 import { Input } from "@/components/ui/input";
 
 import ProvidersSignIn from "@/features/auth/components/providers-sign-in";
+import { useTranslations } from "next-intl";
 
 export function SignUpForm() {
   const router = useRouter();
+  const t = useTranslations();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -61,8 +63,8 @@ export function SignUpForm() {
           onSuccess: async () => {
             toast.success(() => (
               <>
-                <p>Sign up successfully done</p>
-                <p>A verification email sent</p>
+                <p>{t("Auth.sign-up.success.message-1")}</p>
+                <p>{t("Auth.sign-up.success.message-2")}</p>
               </>
             ));
             router.push("/sign-in");
@@ -74,15 +76,15 @@ export function SignUpForm() {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full sm:max-w-md ">
       <CardHeader>
-        <CardTitle>Sign up</CardTitle>
-        <CardDescription>Create an account to continue</CardDescription>
+        <CardTitle>{t("Auth.sign-up.title")}</CardTitle>
+        <CardDescription>{t("Auth.sign-up.form-description")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form id="signUpForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -92,12 +94,14 @@ export function SignUpForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="signUpForm-name">Name</FieldLabel>
+                  <FieldLabel htmlFor="signUpForm-name">
+                    {t("Fields.name.label")}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="signUpForm-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Enter your name"
+                    placeholder={t("Fields.name.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -111,13 +115,15 @@ export function SignUpForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="signUpForm-email">Email</FieldLabel>
+                  <FieldLabel htmlFor="signUpForm-email">
+                    {t("Fields.email.label")}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="signUpForm-email"
                     type="email"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Enter your email"
+                    placeholder={t("Fields.email.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -132,14 +138,14 @@ export function SignUpForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="signUpForm-password">
-                    Password
+                    {t("Fields.password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="signUpForm-password"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -154,14 +160,14 @@ export function SignUpForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="signUpForm-confirmPassword">
-                    Confirm Password
+                    {t("Fields.confirm-password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="signUpForm-confirmPassword"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.confirm-password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -179,13 +185,12 @@ export function SignUpForm() {
           className="flex flex-col md:flex-row gap-4 items-center justify-between w-full"
         >
           <p className="text-sm flex items-center gap-2">
-            Already have an account?{" "}
+            {t("Auth.sign-up.form-already-have-account")}
             <Link
               href="/sign-in"
               className="text-primary hover:text-primary/50 transition duration-300"
             >
-              {" "}
-              Sign in
+              {t("Auth.sign-in.title")}
             </Link>
           </p>
           <Button
@@ -194,13 +199,13 @@ export function SignUpForm() {
             onClick={() => form.reset()}
             className="cursor-pointer"
           >
-            Reset
+            {t("Form.reset")}
           </Button>
           <Button type="submit" form="signUpForm" className="cursor-pointer">
             {form.formState.isSubmitting ? (
               <Loader className="siz-6 animate-spin" />
             ) : (
-              "Sign up"
+              <> {t("Auth.sign-up.title")}</>
             )}
           </Button>
         </Field>

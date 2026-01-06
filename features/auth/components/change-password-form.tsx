@@ -28,6 +28,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useTranslations } from "next-intl";
 
 export function ChangePasswordForm() {
   const form = useForm<z.infer<typeof changePasswordSchema>>({
@@ -39,6 +40,8 @@ export function ChangePasswordForm() {
     },
   });
 
+  const t = useTranslations();
+
   async function onSubmit(data: z.infer<typeof changePasswordSchema>) {
     try {
       await authClient.changePassword(
@@ -48,7 +51,7 @@ export function ChangePasswordForm() {
         },
         {
           onSuccess: async () => {
-            toast.success("Password has been changed successfully");
+            toast.success(t("update-profile.update-password.messages.success"));
           },
 
           onError: (ctx) => {
@@ -57,14 +60,14 @@ export function ChangePasswordForm() {
         }
       );
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     }
   }
 
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Update your password</CardTitle>
+        <CardTitle>{t("update-profile.update-password.label")}</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="changePasswordForm" onSubmit={form.handleSubmit(onSubmit)}>
@@ -75,14 +78,14 @@ export function ChangePasswordForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="changePasswordForm-currentPassword">
-                    Current Password
+                    {t("Fields.current-password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="changePasswordForm-currentPassword"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.current-password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -97,14 +100,14 @@ export function ChangePasswordForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="changePasswordForm-newPassword">
-                    New Password
+                    {t("Fields.new-password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="changePasswordForm-newPassword"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.new-password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -119,14 +122,14 @@ export function ChangePasswordForm() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="changePasswordForm-confirmNewPassword">
-                    Confirm New Password
+                    {t("Fields.confirm-new-password.label")}
                   </FieldLabel>
                   <Input
                     {...field}
                     id="changePasswordForm-confirmNewPassword"
                     type="password"
                     aria-invalid={fieldState.invalid}
-                    placeholder="******"
+                    placeholder={t("Fields.confirm-new-password.placeholder")}
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -149,7 +152,7 @@ export function ChangePasswordForm() {
             onClick={() => form.reset()}
             className="cursor-pointer"
           >
-            Reset
+            {t("Form.reset")}
           </Button>
           <Button
             type="submit"
@@ -160,7 +163,7 @@ export function ChangePasswordForm() {
             {form.formState.isSubmitting ? (
               <Loader className="siz-6 animate-spin" />
             ) : (
-              "Change Password"
+              <>{t("Labels.change-password")}</>
             )}
           </Button>
         </Field>

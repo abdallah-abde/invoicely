@@ -1,6 +1,7 @@
 import { InvoiceStatus, PaymentMethod } from "@/app/generated/prisma/enums";
 import { Row, SortingFn } from "@tanstack/react-table";
 import { clsx, type ClassValue } from "clsx";
+import { getLocale } from "next-intl/server";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -32,43 +33,6 @@ export const dateAsStringSort: SortingFn<any> = (
     return 0;
   }
 };
-
-export function getInvoiceStatusList() {
-  return Object.values(InvoiceStatus);
-}
-
-export function getPaymentMethodList() {
-  return Object.values(PaymentMethod);
-}
-
-export const usDollar = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
-export const syPound = new Intl.NumberFormat("ar-SY", {
-  style: "currency",
-  currency: "SYP",
-});
-
-export function getRangeLabel(range: string | null) {
-  return range
-    ? range === "7d"
-      ? "Last 7 days"
-      : range === "1m"
-        ? "Last month"
-        : range === "3m"
-          ? "Last 3 months"
-          : "Last 7 days"
-    : "Last 7 days";
-}
-
-export function capitalize(value: string) {
-  const firstLetter = value[0].toUpperCase();
-  const rest = value.substring(1);
-
-  return `${firstLetter}${rest}`;
-}
 
 export function getMonth(value: string) {
   let result = "";
@@ -115,4 +79,72 @@ export function getMonth(value: string) {
   }
 
   return result;
+}
+
+export const arToLocaleDate = new Intl.DateTimeFormat("ar-SY", {
+  dateStyle: "long",
+});
+
+export const enToLocaleDate = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+});
+
+export function getInvoiceStatusList() {
+  return Object.values(InvoiceStatus);
+}
+
+export function getPaymentMethodList() {
+  return Object.values(PaymentMethod);
+}
+
+export const usDollar = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
+export const syPound = new Intl.NumberFormat("ar-SY", {
+  style: "currency",
+  currency: "SYP",
+});
+
+export const arDigits = new Intl.NumberFormat("ar-SY", {
+  style: "decimal",
+  currency: "SYP",
+});
+
+export const arDigitsNoGrouping = new Intl.NumberFormat("ar-SY", {
+  style: "decimal",
+  currency: "SYP",
+  useGrouping: false,
+});
+
+export function getRangeLabel(range: string | null) {
+  return range
+    ? range === "7d"
+      ? "Last 7 days"
+      : range === "1m"
+        ? "Last month"
+        : range === "3m"
+          ? "Last 3 months"
+          : "Last 7 days"
+    : "Last 7 days";
+}
+
+export function capitalize(value: string) {
+  const firstLetter = value[0].toUpperCase();
+  const rest = value.substring(1);
+
+  return `${firstLetter}${rest}`;
+}
+
+export async function getDirection() {
+  const locale = await getLocale();
+
+  return locale === "ar" ? "rtl" : "ltr";
+}
+
+export async function isLocaleArabic() {
+  const locale = await getLocale();
+
+  return locale === "ar";
 }

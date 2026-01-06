@@ -16,6 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTranslations } from "next-intl";
 
 interface ImageUploadProps {
   defaultUrl?: string;
@@ -30,6 +31,8 @@ export default function ImageUpload({
 }: ImageUploadProps) {
   const [value, setValue] = useState<string | null>(defaultUrl ?? null);
   const [showDropzone, setShowDropzone] = useState<boolean>(!defaultUrl);
+
+  const t = useTranslations();
 
   const handleChangeImage = (url: string | null) => {
     setValue(url);
@@ -65,7 +68,7 @@ export default function ImageUpload({
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right" align="center">
-            Delete your image
+            {t("update-profile.update-image.delete")}
           </TooltipContent>
         </Tooltip>
       </div>
@@ -78,8 +81,8 @@ export default function ImageUpload({
         endpoint={endpoint}
         content={{
           label: value
-            ? "Drop or click to replace the image"
-            : "Drop or click to upload an image",
+            ? t("update-profile.update-image.drop-replace")
+            : t("update-profile.update-image.drop-upload"),
         }}
         appearance={{
           container: "rounded-xl border dark:border-muted",

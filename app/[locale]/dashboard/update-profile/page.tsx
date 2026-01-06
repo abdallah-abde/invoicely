@@ -25,7 +25,7 @@ export default async function DashboardUpdateProfilePage() {
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 py-4 items-start pr-6">
+    <div className="flex flex-col lg:flex-row gap-6 py-4 items-start pe-6">
       <div className="w-full flex flex-col gap-6">
         <UpdateImageForm image={user?.image ?? ""} />
         <UpdateProfileForm email={user?.email ?? ""} name={user?.name ?? ""} />

@@ -34,6 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 interface ToggleOTPFormProps {
   twoFactorEnabled: boolean;
@@ -51,6 +52,8 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const t = useTranslations();
+
   const handleChange = () => {
     setIsOpen(true);
   };
@@ -66,7 +69,11 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
           toast.error(error.message);
           return;
         }
-        toast.success("Two Factor Authentication Disabled");
+        toast.success(
+          t("update-profile.2FA.messages.success", {
+            isDisabled: t("Labels.disabled"),
+          })
+        );
         router.refresh();
       } else {
         const { error, data: d } = await authClient.twoFactor.enable({
@@ -77,11 +84,15 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
           toast.error(error.message);
           return;
         }
-        toast.success("Two Factor Authentication Enabled");
+        toast.success(
+          t("update-profile.2FA.messages.success", {
+            isDisabled: t("Labels.enabled"),
+          })
+        );
         router.refresh();
       }
     } catch (error) {
-      throw new Error("Something went wrong");
+      throw new Error(t("Errors.something-went-wrong"));
     } finally {
       setIsOpen(false);
       form.reset();
@@ -91,24 +102,35 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
   return (
     <Card className="w-full ">
       <CardHeader>
-        <CardTitle>Two Factor Authentication</CardTitle>
+        <CardTitle>{t("update-profile.2FA.label")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center gap-3">
-          <Label>{!twoFactorEnabled ? "Enable 2FA" : "Disable 2FA"}</Label>
-          <Switch checked={twoFactorEnabled} onCheckedChange={handleChange} />
+          <Label>
+            {!twoFactorEnabled
+              ? t("update-profile.2FA.enable")
+              : t("update-profile.2FA.disable")}
+          </Label>
+          <Switch
+            checked={twoFactorEnabled}
+            onCheckedChange={handleChange}
+            className="cursor-pointer"
+          />
         </div>
         <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
                 {!twoFactorEnabled
-                  ? "Enable two factor authentication"
-                  : "Disable two factor authentication"}
+                  ? t("update-profile.2FA.dialog.enable")
+                  : t("update-profile.2FA.dialog.enable")}
               </DialogTitle>
               <DialogDescription>
-                Please confirm your password to{" "}
-                {!twoFactorEnabled ? "enable" : "disable"} 2FA in your account.
+                {t("update-profile.2FA.description", {
+                  isDisabled: !twoFactorEnabled
+                    ? t("Labels.enable")
+                    : t("Labels.disable"),
+                })}
               </DialogDescription>
             </DialogHeader>
 
@@ -123,14 +145,14 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel htmlFor="twoFactorAuthenticationForm-password">
-                        Password
+                        {t("Fields.password.label")}
                       </FieldLabel>
                       <Input
                         {...field}
                         id="twoFactorAuthenticationForm-password"
                         type="password"
                         aria-invalid={fieldState.invalid}
-                        placeholder="******"
+                        placeholder={t("Fields.password.placeholder")}
                         autoComplete="off"
                       />
                       {fieldState.invalid && (
@@ -152,7 +174,7 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
                 onClick={() => form.reset()}
                 className="cursor-pointer"
               >
-                Reset
+                {t("Form.reset")}
               </Button>
               <Button
                 type="submit"
@@ -161,11 +183,11 @@ export function ToggleOTPForm({ twoFactorEnabled }: ToggleOTPFormProps) {
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? (
-                  <Loader className="siz-6 animate-spin" />
+                  <Loader className="animate-spin" />
                 ) : !twoFactorEnabled ? (
-                  "Enable 2FA"
+                  <>{t("update-profile.2FA.enable")}</>
                 ) : (
-                  "Disable 2FA"
+                  <>{t("update-profile.2FA.disable")}</>
                 )}
               </Button>
             </Field>

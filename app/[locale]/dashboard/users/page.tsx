@@ -5,10 +5,15 @@ import { authIsRequired, authSession } from "@/features/auth/lib/auth-utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { Role } from "@/features/users/schemas/user.schema";
+import { Role } from "@/features/users/role.types";
 import UserCU from "@/features/users/components/user-cu";
 
 import type { Metadata } from "next";
+import {
+  ADMIN_ROLE,
+  MODERATOR_ROLE,
+  USER_ROLE,
+} from "@/features/users/lib/constants";
 
 export const metadata: Metadata = {
   title: "Users",
@@ -44,7 +49,9 @@ export default async function DashboardUsersPage() {
         hasDeletePermission: hasDeletePermission.success,
       };
     })
-    .filter((f) => ["user", "moderator", "admin"].includes(f.role as Role));
+    .filter((f) =>
+      [USER_ROLE, MODERATOR_ROLE, ADMIN_ROLE].includes(f.role as Role)
+    );
 
   if (!users) redirect("/sign-in");
 

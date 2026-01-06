@@ -1,13 +1,5 @@
 import z from "zod";
-
-export const ROLE_OPTIONS = [
-  "user",
-  "moderator",
-  "admin",
-  "superadmin",
-] as const;
-
-export type Role = (typeof ROLE_OPTIONS)[number];
+import { ROLE_OPTIONS } from "@/features/users/role.types";
 
 export const userSchema = z.object({
   name: z.string().min(3, "Name is required"),

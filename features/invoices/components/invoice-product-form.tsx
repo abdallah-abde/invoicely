@@ -7,17 +7,25 @@ import { Loader, Trash2 } from "lucide-react";
 import type { Product } from "@/app/generated/prisma/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
+import { Label } from "@/components/ui/label";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { useArabic } from "@/hooks/use-arabic";
 
 export type SelectedItem = {
   product: Product;
   price: number;
   quantity: number;
+  unit: string;
 };
 
 interface InvoiceProductFormProps {
-  /** For edit mode: pre-populate rows */
   initialItems?: SelectedItem[];
-  /** Called when selected items change (add/remove/update price/qty) */
   onChange?: (items: SelectedItem[]) => void;
 }
 
@@ -27,17 +35,16 @@ export default function InvoiceProductForm({
 }: InvoiceProductFormProps) {
   const [isTriggered, setIsTriggered] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
-  // map of productId -> Product (string keys)
   const [productsMap, setProductsMap] = useState<Record<string, Product>>({});
 
-  // selected options shown in MultipleSelector (controlled)
   const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
-  // rows rendered below selector
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
+
+  const t = useTranslations();
+  const isArabic = useArabic();
 
   useEffect(() => {
     if (initialItems && initialItems.length > 0) {
-      // populate selected items and options from initialItems
       const initialOpts: Option[] = initialItems.map((it) => ({
         value: String((it.product as any).id),
         label: it.product.name || String((it.product as any).id),
@@ -55,17 +62,16 @@ export default function InvoiceProductForm({
           product: it.product,
           price: it.price ?? (it.product as any).price ?? 0,
           quantity: it.quantity ?? 1,
+          unit: it.unit ?? "",
         }))
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     onChange?.(selectedItems);
   }, [selectedItems, onChange]);
 
-  // The search endpoint returns Option[] ({ label, value })
   const handleSearch = async (value: string) => {
     setIsTriggered(true);
     try {
@@ -88,17 +94,14 @@ export default function InvoiceProductForm({
   };
 
   const handleSelectionChange = async (opts: Option[]) => {
-    // sync selectedOptions
     setSelectedOptions(opts);
 
     const ids = opts.map((o) => String(o.value));
 
-    // keep existing items that are still selected
     const kept = selectedItems.filter((it) =>
       ids.includes(String((it.product as any).id))
     );
 
-    // find newly added ids
     const keptIds = new Set(kept.map((it) => String((it.product as any).id)));
     const addedIds = ids.filter((id) => !keptIds.has(id));
 
@@ -111,13 +114,14 @@ export default function InvoiceProductForm({
         if (fetchedProd) {
           prod = fetchedProd;
         } else {
-          continue; // skip if product not found
+          continue;
         }
       }
       addedItems.push({
         product: prod,
         price: (prod as any).price ?? 0,
         quantity: 1,
+        unit: "",
       });
     }
 
@@ -140,7 +144,6 @@ export default function InvoiceProductForm({
     setSelectedItems((prev) => {
       const copy = [...prev];
       const removed = copy.splice(index, 1)[0];
-      // also remove from selectedOptions so UI deselects badge
       setSelectedOptions((prevOpts) =>
         prevOpts.filter((o) => o.value !== String((removed.product as any).id))
       );
@@ -159,16 +162,16 @@ export default function InvoiceProductForm({
         onSearch={async (value) => {
           return await handleSearch(value);
         }}
-        placeholder="Select products..."
+        placeholder={t("Fields.products.placeholder")}
         loadingIndicator={
           <p className="w-full flex items-center gap-2 p-2 text-center text-lg leading-10 text-muted-foreground">
-            <Loader className="animate-spin ml-auto" />{" "}
-            <span className="mr-auto">Loading Products...</span>
+            <Loader className="animate-spin ms-auto" />{" "}
+            <span className="me-auto">{t("Fields.products.loading")}</span>
           </p>
         }
         emptyIndicator={
           <p className="w-full text-center text-lg leading-10 text-muted-foreground">
-            No results found.
+            {t("Labels.no-results")}
           </p>
         }
         onChange={(opts) => {
@@ -178,45 +181,86 @@ export default function InvoiceProductForm({
 
       {selectedItems.length > 0 && (
         <div className="mt-4 space-y-2">
-          {selectedItems.map((it, idx) => (
-            <div
-              key={String((it.product as any).id)}
-              className="flex items-center gap-2"
-            >
-              <div className="flex-1">{it.product.name}</div>
-              <div className="w-28">
-                <label className="sr-only">Price</label>
-                <Input
-                  type="number"
-                  className="input"
-                  value={it.price}
-                  step={10}
-                  onChange={(e) =>
-                    updateItem(idx, { price: Number(e.target.value) })
-                  }
-                />
+          {selectedItems.length > 0 && (
+            <div className="flex items-center gap-2 border-b">
+              <div className="flex-1">{t("Fields.name.label")}</div>
+              <div className="w-28 text-center">
+                {t("Fields.price.label", {
+                  currency: isArabic ? "SYR" : "USD",
+                })}
               </div>
-              <div className="w-24">
-                <label className="sr-only">Quantity</label>
-                <Input
-                  type="number"
-                  className="input"
-                  value={it.quantity}
-                  onChange={(e) =>
-                    updateItem(idx, { quantity: Number(e.target.value) })
-                  }
-                />
+              <div className="w-28 text-center me-2">
+                {t("Fields.quantity.label")}
               </div>
-              <Button
-                type="button"
-                onClick={() => removeItem(idx)}
-                size="icon"
-                className="cursor-pointer"
-              >
-                <Trash2 />
-              </Button>
+              <div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="hover:bg-transparent dark:hover:bg-transparent"
+                >
+                  <Trash2 />
+                </Button>
+              </div>
             </div>
-          ))}
+          )}
+          {selectedItems.map((it, idx) => {
+            return (
+              <div
+                key={String((it.product as any).id)}
+                className="flex items-center gap-2"
+              >
+                <div className="flex-1">{it.product.name}</div>
+                <div className="w-28">
+                  <Label className="sr-only">
+                    {t("Fields.price.label", {
+                      currency: isArabic ? "SYP" : "USD",
+                    })}
+                  </Label>
+                  <Input
+                    type="number"
+                    className="input"
+                    value={it.price}
+                    step={10}
+                    onChange={(e) =>
+                      updateItem(idx, { price: Number(e.target.value) })
+                    }
+                  />
+                </div>
+                <div className="w-28 flex items-center gap-2 me-2">
+                  <Label className="sr-only">
+                    {t("Fields.quantity.label")}
+                  </Label>
+                  <Input
+                    type="number"
+                    className="input"
+                    value={it.quantity}
+                    onChange={(e) =>
+                      updateItem(idx, { quantity: Number(e.target.value) })
+                    }
+                  />
+                  <Badge variant="secondary" className="text-xs font-semibold">
+                    {it.product.unit}
+                  </Badge>
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      onClick={() => removeItem(idx)}
+                      size="icon"
+                      className="cursor-pointer"
+                    >
+                      <Trash2 />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" align="center">
+                    {t("Labels.remove-product")}
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            );
+          })}
         </div>
       )}
     </>
