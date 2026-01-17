@@ -14,11 +14,11 @@ import {
 import { Table } from "@/components/ui/table";
 import { DataTablePagination } from "@/features/shared/components/table/data-table-pagination";
 import { columns } from "./columns";
+import { InvoiceType } from "@/features/invoices/invoice.types";
 import DataTableSearchInput from "@/features/shared/components/table/data-table-search-input";
 import DataTableColumnsVisibility from "@/features/shared/components/table/data-table-columns-visibility";
 import DataTableHeader from "@/features/shared/components/table/data-table-header";
 import DataTableBody from "@/features/shared/components/table/data-table-body";
-import { InvoiceType } from "@/features/invoices/invoice.types";
 
 export function InvoicesTable({ data }: { data: InvoiceType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([

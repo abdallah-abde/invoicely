@@ -13,7 +13,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
-import { arDigits } from "@/lib/utils";
+import { formatNumbers } from "@/lib/utils/number.utils";
 import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
 import { useDirection } from "@/hooks/use-direction";
@@ -29,29 +29,29 @@ export function DataTablePagination<TData>({
   const dir = useDirection();
   const isArabic = useArabic();
 
-  const filteredSelectedRowModel =
-    table.getFilteredSelectedRowModel().rows.length;
+  // const filteredSelectedRowModel =
+  // table.getFilteredSelectedRowModel().rows.length;
 
   const filteredRowModel = table.getFilteredRowModel().rows.length;
 
-  const currentPage = isArabic
-    ? arDigits.format(table.getState().pagination.pageIndex + 1)
-    : table.getState().pagination.pageIndex + 1;
+  const currentPage = formatNumbers({
+    isArabic,
+    value: table.getState().pagination.pageIndex + 1,
+  });
 
-  const totalPages = isArabic
-    ? arDigits.format(table.getPageCount() || 1)
-    : table.getPageCount() || 1;
+  const totalPages = formatNumbers({
+    isArabic,
+    value: table.getPageCount() || 1,
+  });
 
   return (
     <div className="flex items-center justify-between py-2">
       <div className="hidden sm:block text-muted-foreground flex-1 text-sm">
-        {t("Labels.rows-selected", {
-          selected: isArabic
-            ? arDigits.format(filteredSelectedRowModel)
-            : filteredSelectedRowModel,
-          total: isArabic
-            ? arDigits.format(filteredRowModel)
-            : filteredRowModel,
+        {t("Labels.rows-count", {
+          count: formatNumbers({
+            isArabic,
+            value: filteredRowModel,
+          }),
         })}
       </div>
       <div className="max-sm:w-full flex items-center justify-between space-x-6 lg:space-x-8">
@@ -70,13 +70,16 @@ export function DataTablePagination<TData>({
             <SelectContent side="top">
               {[5, 10, 20, 25, 30, 40, 50].map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {isArabic ? arDigits.format(pageSize) : pageSize}
+                  {formatNumbers({
+                    isArabic,
+                    value: pageSize,
+                  })}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+        <div className="flex items-center justify-center text-sm font-medium">
           {t("Labels.page-of", { current: currentPage, total: totalPages })}
         </div>
         <div className="flex items-center gap-2">

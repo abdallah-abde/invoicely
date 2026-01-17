@@ -10,9 +10,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Image from "next/image";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { isLocaleArabic } from "@/lib/utils";
+import { isLocaleArabic } from "@/lib/utils/locale.utils";
 
 export default async function BreadcrumbSlot({
   params,
@@ -28,7 +28,7 @@ export default async function BreadcrumbSlot({
   let href = "/dashboard";
 
   const t = await getTranslations();
-  const isLocalArabic = await isLocaleArabic();
+  const isArabic = await isLocaleArabic();
 
   for (let i = 0; i < all.length; i++) {
     const route = all[i];
@@ -51,7 +51,7 @@ export default async function BreadcrumbSlot({
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            {isLocalArabic ? <ChevronLeft /> : <ChevronRight />}
+            {isArabic ? <ChevronLeft /> : <ChevronRight />}
           </BreadcrumbSeparator>
         </React.Fragment>
       );
@@ -73,7 +73,7 @@ export default async function BreadcrumbSlot({
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
-          {isLocalArabic ? <ChevronLeft /> : <ChevronRight />}
+          {isArabic ? <ChevronLeft /> : <ChevronRight />}
         </BreadcrumbSeparator>
         {breadcrumbItems}
         {breadcrumbPage}

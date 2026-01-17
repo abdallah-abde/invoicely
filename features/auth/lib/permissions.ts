@@ -3,7 +3,7 @@ import {
   MODERATOR_ROLE,
   SUPERADMIN_ROLE,
   USER_ROLE,
-} from "@/features/users/lib/constants";
+} from "@/features/users/lib/user.constants";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 

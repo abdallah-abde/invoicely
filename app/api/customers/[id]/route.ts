@@ -30,6 +30,9 @@ export async function PUT(
     const customer = await prisma.customer.update({
       where: { id },
       data: { ...body, email: body.email.toLowerCase() },
+      include: {
+        _count: { select: { invoices: true } },
+      },
     });
 
     return NextResponse.json(customer);

@@ -1,16 +1,8 @@
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
 import DataTableActions from "@/features/shared/components/table/data-table-actions";
 import { InvoiceType } from "@/features/invoices/invoice.types";
-import {
-  arDigitsNoGrouping,
-  caseInsensitiveSort,
-  cn,
-  dateAsStringSort,
-  syPound,
-  arToLocaleDate,
-  enToLocaleDate,
-  usDollar,
-} from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatNumbers, formatCurrency } from "@/lib/utils/number.utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { useInvoices } from "@/features/invoices/hooks/use-invoices";
 import { useRouter } from "next/navigation";
@@ -19,10 +11,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { hasPermission } from "@/features/auth/services/access";
-import {
-  DeletingLoader,
-  selectColumn,
-} from "@/features/shared/components/table/data-table-columns";
+import { DeletingLoader } from "@/features/shared/components/table/data-table-columns";
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -30,9 +19,15 @@ import {
 import { useRole } from "@/hooks/use-role";
 import { useArabic } from "@/hooks/use-arabic";
 import { useTranslations } from "next-intl";
+import {
+  caseInsensitiveSort,
+  dateAsStringSort,
+} from "@/features/shared/utils/table.utils";
+import { formatDates } from "@/lib/utils/date.utils";
+import { InvoiceRowActions } from "./invoice-row-actions";
+import DropdownDownloadInvoice from "./dropdown-download-invoice";
 
 export const columns: ColumnDef<InvoiceType>[] = [
-  // selectColumn<InvoiceType>(),
   {
     accessorKey: "number",
     header: ({ column }) => {
@@ -51,7 +46,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
     cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">{row.original.customer.name}</div>
+      <div className="text-xs xs:text-sm">
+        {row.original.customer?.name ?? "---"}
+      </div>
     ),
   },
   {
@@ -64,11 +61,14 @@ export const columns: ColumnDef<InvoiceType>[] = [
     cell: ({ row }) => {
       const isArabic = useArabic();
 
+      // console.log("original date: ", row.original.issuedAt);
+
       return (
         <div className="text-xs xs:text-sm">
-          {isArabic
-            ? arToLocaleDate.format(row.original.issuedAt)
-            : enToLocaleDate.format(row.original.issuedAt)}
+          {formatDates({
+            isArabic,
+            value: row.original.issuedDateAsString,
+          })}
         </div>
       );
     },
@@ -84,9 +84,10 @@ export const columns: ColumnDef<InvoiceType>[] = [
 
       return (
         <div className="text-xs xs:text-sm">
-          {isArabic
-            ? arToLocaleDate.format(row.original.dueAt)
-            : enToLocaleDate.format(row.original.dueAt)}
+          {formatDates({
+            isArabic,
+            value: row.original.dueDateAsString,
+          })}
         </div>
       );
     },
@@ -109,13 +110,12 @@ export const columns: ColumnDef<InvoiceType>[] = [
 
       const total = parseFloat(row.getValue("totalAsNumber"));
 
-      const formatted = isArabic
-        ? syPound.format(total)
-        : usDollar.format(total);
-
       return (
         <div className="font-medium text-primary text-xs xs:text-sm">
-          {formatted}
+          {formatCurrency({
+            isArabic,
+            value: total,
+          })}
         </div>
       );
     },
@@ -137,7 +137,9 @@ export const columns: ColumnDef<InvoiceType>[] = [
     },
     sortingFn: caseInsensitiveSort,
     cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">{row.original.createdBy.name}</div>
+      <div className="text-xs xs:text-sm">
+        {row.original.createdBy?.name ?? "---"}
+      </div>
     ),
   },
   {
@@ -154,9 +156,10 @@ export const columns: ColumnDef<InvoiceType>[] = [
             variant="secondary"
             className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
           >
-            {isArabic
-              ? arDigitsNoGrouping.format(row.original._count.products)
-              : row.original._count.products}
+            {formatNumbers({
+              isArabic,
+              value: row.original._count?.products ?? 0,
+            })}
           </Badge>
         </div>
       );
@@ -165,57 +168,11 @@ export const columns: ColumnDef<InvoiceType>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const invoice = row.original;
-      const { deleteInvoice, isLoading } = useInvoices();
-      const router = useRouter();
-
-      const t = useTranslations();
-
-      const { isRoleUser, isRoleAdmin, isRoleSuperAdmin } = useRole();
-
-      if (isRoleUser) return null;
-
-      if (isLoading) return <DeletingLoader />;
-
-      return (
-        <DataTableActions
-          editTrigger={
-            (isRoleAdmin || isRoleSuperAdmin) && (
-              <InvoiceCU mode="edit" invoice={invoice} />
-            )
-          }
-          onDelete={async () => {
-            const hasDeletePermission = await hasPermission({
-              resource: "invoice",
-              permission: ["delete"],
-            });
-
-            if (hasDeletePermission)
-              deleteInvoice.mutate(invoice.id, {
-                onSuccess: () => {
-                  router.refresh();
-                  toast.success(t("invoices.messages.success.delete"));
-                },
-              });
-            else toast.error(t("invoices.messages.error.delete"));
-          }}
-          showDelete={isRoleSuperAdmin}
-        >
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
-            <Link
-              href={`/api/invoices/${invoice.id}/pdf`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs xs:text-sm text-primary"
-            >
-              {t("invoices.download-invoice")}
-            </Link>
-          </DropdownMenuItem>
-        </DataTableActions>
-      );
-    },
+    cell: ({ row }) => (
+      <InvoiceRowActions invoice={row.original}>
+        <DropdownDownloadInvoice invoiceId={row.original.id} />
+      </InvoiceRowActions>
+    ),
   },
 ];
 

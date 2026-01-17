@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
+import { localizeArabicCurrencySymbol } from "@/lib/utils/number.utils";
 
 export default function DataTableHeaderSort<TData>({
   column,
@@ -22,7 +23,7 @@ export default function DataTableHeaderSort<TData>({
         {t(
           `Fields.${title}.label`,
           title === "price" || title === "total" || title === "amount"
-            ? { currency: isArabic ? "ل.س." : "$" }
+            ? { currency: localizeArabicCurrencySymbol(isArabic) }
             : {}
         )}
       </span>
@@ -37,7 +38,7 @@ export default function DataTableHeaderSort<TData>({
         {t(
           `Fields.${title}.label`,
           title === "price" || title === "total" || title === "amount"
-            ? { currency: isArabic ? "ل.س." : "$" }
+            ? { currency: localizeArabicCurrencySymbol(isArabic) }
             : {}
         )}
       </span>

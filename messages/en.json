@@ -388,6 +388,14 @@
       "label": "Customer",
       "placeholder": "Select customer"
     },
+    "product": {
+      "label": "Product",
+      "placeholder": "Select product"
+    },
+    "invoice": {
+      "label": "Invoice",
+      "placeholder": "Select invoice"
+    },
     "createdby": {
       "label": "Created by"
     },
@@ -419,6 +427,56 @@
   },
   "Table": {
     "columns": "Columns"
+  },
+  "month": {
+    "jan": "Jan",
+    "feb": "Feb",
+    "mar": "Mar",
+    "apr": "Apr",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "aug": "Aug",
+    "sep": "Sep",
+    "oct": "Oct",
+    "nov": "Nov",
+    "dec": "Dec"
+  },
+  "week": {
+    "su": "Su",
+    "mo": "Mo",
+    "tu": "Tu",
+    "we": "We",
+    "th": "Th",
+    "fr": "Fr",
+    "sa": "Sa"
+  },
+  "charts": {
+    "revenue-by-date": "Revenue by date",
+    "revenue-by-date-footer": "Showing total revenue for the",
+    "invoices-by-status": "Invoices by status",
+    "invoices-by-status-footer": "Showing invoices count by status for the",
+    "top-customers": "Top customers",
+    "top-customers-footer": "Showing top customers for the",
+    "top-products": "Top products",
+    "top-products-footer": "Showing top products for the",
+    "new-customers": "New customers",
+    "new-customers-footer": "Showing new customers for the",
+    "monthly-revenue": "Monthly revenue",
+    "monthly-revenue-footer": "Showing monthly revenue for one year",
+    "total-revenue": "Total Revenue",
+    "paid-invoices": "Paid invoices",
+    "overdue-invoices": "Overdue Invoices",
+    "customers": "Customers",
+    "total": "Total",
+    "price": "Price",
+    "quantity": "Quantity",
+    "no-invoices": "No invoices in this period",
+    "no-new-customers": "No new customers in this period",
+    "no-revenue-data": "No revenue data in this period",
+    "no-top-customers": "No top customers data in this period",
+    "no-top-products": "No top products data in this period",
+    "no-monthly-revenue": "No monthly revenue"
   },
   "Labels": {
     "deleting": "Deleting...",
@@ -462,6 +520,22 @@
     "enabled": "enabled",
     "disabled": "disabled",
     "enable": "enable",
-    "disable": "disable"
+    "disable": "disable",
+    "last-days": "last {days} {daysLabel}",
+    "revenue": "Revenue",
+    "invoices": "Invoices",
+    "rows-count": "Rows count ({count})",
+    "count": "Count",
+    "confirm-alert": "Are you absolutely sure?",
+    "confirm-alert-body": "This action cannot be undone. This {resource} will be permanently deleted.",
+    "cancel": "Cancel"
+  },
+  "validation": {
+    "min": "Field Must be at least {min} characters",
+    "max": "Field Must be at most {max} characters",
+    "invalid_type": "Invalid type",
+    "required": "This field is required",
+    "email": "Invalid email address",
+    "default": "Invalid value"
   }
 }

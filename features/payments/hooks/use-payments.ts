@@ -1,9 +1,15 @@
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ZodError } from "zod";
+import { translateZodError } from "@/lib/utils/zod-intl";
+// import { toast } from "sonner";
 
 export function usePayments() {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const t = useTranslations();
 
   const paymentsQuery = useQuery({
     queryKey: ["payments"],
@@ -33,8 +39,20 @@ export function usePayments() {
       setIsLoading(false);
     },
 
-    onError: (error) => {
-      console.error(error);
+    onError: (error: any) => {
+      if (error?.name === "ZodError") {
+        const zodError = new ZodError(error.issues);
+
+        const translated = translateZodError(zodError, t);
+
+        // translated.forEach((err) => {
+        //   toast.error(err.message);
+        // });
+
+        return;
+      }
+
+      // toast.error("error");
     },
   });
 
@@ -63,8 +81,20 @@ export function usePayments() {
       setIsLoading(false);
     },
 
-    onError: (error) => {
-      console.error({ message: error });
+    onError: (error: any) => {
+      if (error?.name === "ZodError") {
+        const zodError = new ZodError(error.issues);
+
+        const translated = translateZodError(zodError, t);
+
+        // translated.forEach((err) => {
+        //   toast.error(err.message);
+        // });
+
+        return;
+      }
+
+      // toast.error("error");
     },
   });
 

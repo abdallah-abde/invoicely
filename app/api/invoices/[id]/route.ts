@@ -1,5 +1,6 @@
 import prisma from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
+import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
 
 export async function DELETE(
   request: Request,
@@ -28,12 +29,10 @@ export async function PUT(
     const { id } = await params;
     const body = await req.json();
 
-    // Avoid passing relation arrays (like `products`) directly into prisma.update `data`
     const { products, ...rest } = body as any;
 
-    // Use a transaction to update invoice and replace products atomically
-    const updated = await prisma.$transaction(async (tx) => {
-      const inv = await tx.invoice.update({
+    const invoice = await prisma.$transaction(async (tx) => {
+      await tx.invoice.update({
         where: { id },
         data: {
           ...rest,
@@ -44,30 +43,50 @@ export async function PUT(
       });
 
       if (Array.isArray(body.products)) {
-        // delete existing products
         await tx.invoiceProduct.deleteMany({ where: { invoiceId: id } });
 
-        const productsToCreate = body.products.map((p: any) => ({
-          invoiceId: id,
-          productId: p.productId,
-          quantity: Number(p.quantity),
-          unitPrice: Number(p.unitPrice),
-          totalPrice: Number(p.totalPrice),
-        }));
-
-        if (productsToCreate.length > 0) {
-          await tx.invoiceProduct.createMany({ data: productsToCreate });
+        if (products.length > 0) {
+          await tx.invoiceProduct.createMany({
+            data: body.products.map((p: any) => ({
+              invoiceId: id,
+              productId: p.productId,
+              quantity: Number(p.quantity),
+              unitPrice: Number(p.unitPrice),
+              totalPrice: Number(p.totalPrice),
+            })),
+          });
         }
       }
 
       return tx.invoice.findUnique({
         where: { id },
-        include: { products: true },
+        include: {
+          customer: true,
+          createdBy: true,
+          products: {
+            include: {
+              product: true,
+            },
+          },
+          _count: {
+            select: { products: true },
+          },
+        },
       });
     });
 
-    return NextResponse.json(updated);
+    if (!invoice) {
+      return NextResponse.json(
+        { error: "Invoice not found after update" },
+        { status: 404 }
+      );
+    }
+
+    const normalized = mapInvoicesToDTO([invoice])[0];
+
+    return NextResponse.json(normalized, { status: 200 });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { error: "Error updating invoice" },
       { status: 500 }

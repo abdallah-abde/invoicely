@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, SquarePen } from "lucide-react";
+import { Loader, Plus, SquarePen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -14,6 +13,7 @@ import CustomerForm from "@/features/customers/components/customer-form";
 import { useState } from "react";
 import type { Customer } from "@/app/generated/prisma/client";
 import { useTranslations } from "next-intl";
+import { useIsMutating } from "@tanstack/react-query";
 
 export default function CustomerCU({
   customer = undefined,
@@ -24,9 +24,18 @@ export default function CustomerCU({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations();
+  const isMutating =
+    useIsMutating({
+      mutationKey: ["cusomters"],
+    }) > 0;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={() => {
+        if (!isMutating) setIsOpen(!isOpen);
+      }}
+    >
       <DialogTrigger asChild>
         {mode === "edit" ? (
           <Button
@@ -43,21 +52,31 @@ export default function CustomerCU({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
-        <DialogHeader>
-          <DialogTitle>
-            {" "}
-            {mode === "create"
-              ? t("customers.add-description")
-              : t("customers.edit")}
-          </DialogTitle>
-          {/* <DialogDescription>
-            {mode === "create"
-              ? t("customers.add-description")
-              : t("customers.edit-description")}
-          </DialogDescription> */}
-        </DialogHeader>
-        <CustomerForm setIsOpen={setIsOpen} customer={customer} mode={mode} />
+      <DialogContent
+        className="sm:max-w-[625px]"
+        onInteractOutside={(e) => {
+          if (!isMutating) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (!isMutating) e.preventDefault();
+        }}
+      >
+        <>
+          {isMutating && (
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-50 flex items-center justify-center">
+              <Loader className="animate-spin" />
+            </div>
+          )}
+
+          <DialogHeader>
+            <DialogTitle>
+              {mode === "create"
+                ? t("customers.add-description")
+                : t("customers.edit")}
+            </DialogTitle>
+          </DialogHeader>
+          <CustomerForm setIsOpen={setIsOpen} customer={customer} mode={mode} />
+        </>
       </DialogContent>
     </Dialog>
   );

@@ -1,22 +1,19 @@
 import { UserProps } from "@/features/users/hooks/use-users";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { CircleCheck, CircleX } from "lucide-react";
 import { CellActions } from "@/features/users/components/cell-actions";
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import { caseInsensitiveSort } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { selectColumn } from "@/features/shared/components/table/data-table-columns";
 import { useTranslations } from "next-intl";
 import { useRole } from "@/hooks/use-role";
+import { caseInsensitiveSort } from "@/features/shared/utils/table.utils";
 
 export const columns: ColumnDef<UserProps>[] = [
-  // selectColumn<UserProps>(),
   {
     accessorKey: "name",
     header: ({ column }) => {

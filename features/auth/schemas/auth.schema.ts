@@ -29,8 +29,14 @@ export const signUpSchema = z
   });
 
 export const profileSchema = z.object({
-  email: z.email("Enter a valid email."),
-  name: z.string().min(3, "Enter a valid name."),
+  email: z.string().nonempty({ error: "required" }).email({
+    error: "email",
+  }),
+  name: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(3, { error: "min" }),
 });
 
 export const profileImageSchema = z.object({

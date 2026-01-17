@@ -5,26 +5,30 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { customerSchema } from "@/features/customers/schemas/customer.schema";
 import z from "zod";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useCustomers } from "@/features/customers/hooks/use-customers";
-import { useRouter } from "next/navigation";
-import { Loader } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { CircleQuestionMark } from "lucide-react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import type { Customer } from "@/app/generated/prisma/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { hasPermission } from "@/features/auth/services/access";
 import { useTranslations } from "next-intl";
 import { useDirection } from "@/hooks/use-direction";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
+import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
+import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
 
 export default function CustomerForm({
   setIsOpen,
@@ -35,14 +39,17 @@ export default function CustomerForm({
   customer?: Customer | undefined;
   mode: "create" | "edit";
 }) {
-  const { createCustomer, updateCustomer, isLoading } = useCustomers();
-  const router = useRouter();
+  const [checkingPermission, setCheckingPermission] = useState(false);
+  const { createCustomer, updateCustomer, isCreating, isUpdating } =
+    useCustomers();
+
+  const isSubmitting = checkingPermission || isCreating || isUpdating;
 
   const t = useTranslations();
   const dir = useDirection();
 
   const form = useForm<z.infer<typeof customerSchema>>({
-    resolver: zodResolver(customerSchema),
+    resolver: useIntlZodResolver(customerSchema),
     defaultValues: {
       name: customer?.name || "",
       email: customer?.email || "",
@@ -54,47 +61,37 @@ export default function CustomerForm({
   });
 
   async function onSubmit(values: z.infer<typeof customerSchema>) {
-    if (mode === "create") {
-      const hasCreatePermission = await hasPermission({
+    setCheckingPermission(true);
+
+    try {
+      const allowed = await hasPermission({
         resource: "customer",
-        permission: ["create"],
+        permission: [mode === "create" ? "create" : "update"],
       });
 
-      if (hasCreatePermission) {
-        createCustomer.mutate(values, {
-          onSuccess: () => {
-            form.reset();
-            router.refresh();
-            setIsOpen(false);
-            toast.success(t("customers.messages.success.add"));
-          },
-        });
+      if (!allowed) {
+        toast.error(
+          t(
+            mode === "create"
+              ? "customers.messages.error.add"
+              : "customers.messages.error.edit"
+          )
+        );
+        return;
+      }
+      if (mode === "create") {
+        await createCustomer.mutateAsync(values);
+        toast.success(t("customers.messages.success.add"));
       } else {
-        toast.error(t("customers.messages.error.add"));
+        if (customer)
+          await updateCustomer.mutateAsync({ id: customer.id, data: values });
+        toast.success(t("customers.messages.success.edit"));
       }
-    } else {
-      if (customer) {
-        const hasUpdatePermission = await hasPermission({
-          resource: "customer",
-          permission: ["update"],
-        });
-
-        if (hasUpdatePermission) {
-          updateCustomer.mutate(
-            { id: customer?.id, data: values },
-            {
-              onSuccess: () => {
-                form.reset();
-                router.refresh();
-                toast.success(t("customers.messages.success.edit"));
-                setIsOpen(false);
-              },
-            }
-          );
-        } else {
-          toast.error(t("customers.messages.error.edit"));
-        }
-      }
+      form.reset();
+      setIsOpen(false);
+    } catch {
+    } finally {
+      setCheckingPermission(false);
     }
   }
 
@@ -110,10 +107,14 @@ export default function CustomerForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.name.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.name.label")}
+                  isRequired={true}
+                />
                 <FormControl>
                   <Input
                     placeholder={t("Fields.name.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -126,10 +127,21 @@ export default function CustomerForm({
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.phone.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.phone.label")}
+                  isRequired={true}
+                >
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <CircleQuestionMark className="size-3 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent dir="ltr">00963xxxxxxxxx</TooltipContent>
+                  </Tooltip>
+                </CustomFormLabel>
                 <FormControl>
                   <Input
                     placeholder={t("Fields.phone.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -143,11 +155,15 @@ export default function CustomerForm({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("Fields.email.label")}</FormLabel>
+                  <CustomFormLabel
+                    label={t("Fields.email.label")}
+                    isRequired={true}
+                  />
                   <FormControl>
                     <Input
                       type="email"
                       placeholder={t("Fields.email.placeholder")}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -162,11 +178,15 @@ export default function CustomerForm({
               name="address"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("Fields.address.label")}</FormLabel>
+                  <CustomFormLabel
+                    label={t("Fields.address.label")}
+                    isRequired={true}
+                  />
                   <FormControl>
                     <Textarea
                       className="resize-none"
                       placeholder={t("Fields.address.placeholder")}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -181,10 +201,11 @@ export default function CustomerForm({
             name="companyName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.company.label")}</FormLabel>
+                <CustomFormLabel label={t("Fields.company.label")} />
                 <FormControl>
                   <Input
                     placeholder={t("Fields.company.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -197,10 +218,14 @@ export default function CustomerForm({
             name="taxNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.taxnumber.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.taxnumber.label")}
+                  isRequired={true}
+                />
                 <FormControl>
                   <Input
                     placeholder={t("Fields.taxnumber.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -208,18 +233,11 @@ export default function CustomerForm({
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            disabled={isLoading}
-            size="lg"
-            className="w-fit cursor-pointer ms-auto col-span-2"
-          >
-            {isLoading ? (
-              <Loader className="animate-spin" />
-            ) : (
-              <>{t("Labels.save")}</>
-            )}
-          </Button>
+          <CustomFormSubmitButton
+            isLoading={isSubmitting}
+            label={t("Labels.save")}
+            className="col-span-2"
+          />
         </form>
       </Form>
     </ScrollArea>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { useArabic } from "@/hooks/use-arabic";
+import { localizeArabicCurrencySymbol } from "@/lib/utils/number.utils";
 
 export type SelectedItem = {
   product: Product;
@@ -186,7 +187,7 @@ export default function InvoiceProductForm({
               <div className="flex-1">{t("Fields.name.label")}</div>
               <div className="w-28 text-center">
                 {t("Fields.price.label", {
-                  currency: isArabic ? "SYR" : "USD",
+                  currency: localizeArabicCurrencySymbol(isArabic),
                 })}
               </div>
               <div className="w-28 text-center me-2">
@@ -214,7 +215,7 @@ export default function InvoiceProductForm({
                 <div className="w-28">
                   <Label className="sr-only">
                     {t("Fields.price.label", {
-                      currency: isArabic ? "SYP" : "USD",
+                      currency: localizeArabicCurrencySymbol(isArabic),
                     })}
                   </Label>
                   <Input

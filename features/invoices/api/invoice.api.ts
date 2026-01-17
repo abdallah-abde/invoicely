@@ -1,6 +1,7 @@
 import { Invoice } from "@/app/generated/prisma/client";
+import { InvoiceType } from "../invoice.types";
 
-export async function fetchInvoices(): Promise<Invoice[]> {
+export async function fetchInvoices(): Promise<InvoiceType[]> {
   const res = await fetch("/api/invoices");
   if (!res.ok) throw new Error("Failed to fetch invoices");
   return res.json();

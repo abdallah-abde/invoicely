@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { getInvoices } from "@/features/invoices/db/invoice.query";
+import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
 
 export async function GET() {
   try {
-    const data = await prisma.invoice.findMany();
+    const data = await getInvoices();
+    const normalized = mapInvoicesToDTO(data);
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(normalized, { status: 200 });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
@@ -28,19 +31,18 @@ export async function POST(request: Request) {
       total,
       notes,
       createdById,
+      products = [],
     } = body;
 
-    // If products are provided, create InvoiceProducts along with the invoice
-    const products = Array.isArray(body.products) ? body.products : [];
+    // const products = Array.isArray(body.products) ? body.products : [];
 
-    // Use a transaction to create invoice and related invoice products atomically
-    const newInvoice = await prisma.$transaction(async (tx) => {
+    const invoice = await prisma.$transaction(async (tx) => {
       const inv = await tx.invoice.create({
         data: {
           number,
           customerId,
-          issuedAt: new Date(body.issuedAt),
-          dueAt: new Date(body.dueAt),
+          issuedAt: new Date(issuedAt),
+          dueAt: new Date(dueAt),
           status,
           total: Number(total),
           notes,
@@ -48,27 +50,45 @@ export async function POST(request: Request) {
         },
       });
 
-      if (products.length > 0) {
-        const createData = products.map((p: any) => ({
-          invoiceId: inv.id,
-          productId: p.productId,
-          quantity: Number(p.quantity),
-          unitPrice: Number(p.unitPrice),
-          totalPrice: Number(p.totalPrice),
-        }));
-
-        await tx.invoiceProduct.createMany({ data: createData });
+      if (products.length) {
+        await tx.invoiceProduct.createMany({
+          data: products.map((p: any) => ({
+            invoiceId: inv.id,
+            productId: p.productId,
+            quantity: Number(p.quantity),
+            unitPrice: Number(p.unitPrice),
+            totalPrice: Number(p.totalPrice),
+          })),
+        });
       }
 
-      // return invoice with its products
-      const result = await tx.invoice.findUnique({
+      return tx.invoice.findUnique({
         where: { id: inv.id },
-        include: { products: true },
+        include: {
+          customer: true,
+          createdBy: true,
+          products: {
+            include: {
+              product: true,
+            },
+          },
+          _count: {
+            select: { products: true },
+          },
+        },
       });
-      return result;
     });
 
-    return NextResponse.json(newInvoice, { status: 201 });
+    if (!invoice) {
+      return NextResponse.json(
+        { error: "Invoice not found after creation" },
+        { status: 500 }
+      );
+    }
+
+    const normalized = mapInvoicesToDTO([invoice])[0];
+
+    return NextResponse.json(normalized, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json(

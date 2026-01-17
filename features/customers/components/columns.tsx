@@ -1,26 +1,15 @@
 "use client";
 
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import DataTableActions from "@/features/shared/components/table/data-table-actions";
 import { ColumnDef } from "@tanstack/react-table";
-import { useCustomers } from "@/features/customers/hooks/use-customers";
-import { useRouter } from "next/navigation";
-import CustomerCU from "./customer-cu";
-import { toast } from "sonner";
-import { arDigitsNoGrouping, caseInsensitiveSort } from "@/lib/utils";
+import { formatNumbers } from "@/lib/utils/number.utils";
 import { CustomerType } from "../customer.types";
 import { Badge } from "@/components/ui/badge";
-import { hasPermission } from "@/features/auth/services/access";
-import {
-  DeletingLoader,
-  selectColumn,
-} from "@/features/shared/components/table/data-table-columns";
-import { useRole } from "@/hooks/use-role";
-import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
+import { caseInsensitiveSort } from "@/features/shared/utils/table.utils";
+import { CustomerRowActions } from "@/features/customers/components/customer-row-actions";
 
 export const columns: ColumnDef<CustomerType>[] = [
-  // selectColumn<CustomerType>(),
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -47,17 +36,12 @@ export const columns: ColumnDef<CustomerType>[] = [
       return <DataTableHeaderSort column={column} title="phone" justTitle />;
     },
     cell: ({ row }) => {
-      const value = Number(row.original.phone);
-      // .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
-      const isArabic = useArabic();
-
       return (
         <div className="text-xs xs:text-sm">
-          {isArabic
-            ? arDigitsNoGrouping
-                .format(value)
-                .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
-            : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")}
+          {row.original.phone.replace(
+            /(\d{5})(\d{2})(\d{3})(\d{4})/,
+            "$1-$2-$3-$4"
+          )}
         </div>
       );
     },
@@ -91,15 +75,7 @@ export const columns: ColumnDef<CustomerType>[] = [
     },
     enableSorting: false,
     cell: ({ row }) => {
-      const isArabic = useArabic();
-
-      return (
-        <div className="text-xs xs:text-sm">
-          {isArabic
-            ? arDigitsNoGrouping.format(Number(row.original.taxNumber))
-            : row.original.taxNumber}
-        </div>
-      );
+      return <div className="text-xs xs:text-sm">{row.original.taxNumber}</div>;
     },
   },
   {
@@ -118,9 +94,10 @@ export const columns: ColumnDef<CustomerType>[] = [
             variant="secondary"
             className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
           >
-            {isArabic
-              ? arDigitsNoGrouping.format(row.original._count.invoices)
-              : row.original._count.invoices}
+            {formatNumbers({
+              isArabic,
+              value: row.original._count.invoices,
+            })}
           </Badge>
         </div>
       );
@@ -129,39 +106,6 @@ export const columns: ColumnDef<CustomerType>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const customer = row.original;
-      const { deleteCustomer, isLoading } = useCustomers();
-      const router = useRouter();
-      const t = useTranslations();
-
-      const { isRoleUser, isRoleModerator, isRoleSuperAdmin } = useRole();
-
-      if (isRoleUser || isRoleModerator) return null;
-
-      if (isLoading) return <DeletingLoader />;
-
-      return (
-        <DataTableActions
-          editTrigger={<CustomerCU mode="edit" customer={customer} />}
-          onDelete={async () => {
-            const hasDeletePermission = await hasPermission({
-              resource: "customer",
-              permission: ["delete"],
-            });
-
-            if (hasDeletePermission)
-              deleteCustomer.mutate(customer.id, {
-                onSuccess: () => {
-                  router.refresh();
-                  toast.success(t("customers.messages.success.delete"));
-                },
-              });
-            else toast.error(t("customers.messages.error.delete"));
-          }}
-          showDelete={isRoleSuperAdmin}
-        />
-      );
-    },
+    cell: ({ row }) => <CustomerRowActions customer={row.original} />,
   },
 ];

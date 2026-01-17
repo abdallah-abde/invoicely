@@ -13,7 +13,7 @@ import {
   ADMIN_ROLE,
   MODERATOR_ROLE,
   USER_ROLE,
-} from "@/features/users/lib/constants";
+} from "@/features/users/lib/user.constants";
 
 export const metadata: Metadata = {
   title: "Users",

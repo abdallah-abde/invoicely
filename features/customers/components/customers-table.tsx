@@ -14,11 +14,11 @@ import {
 import { Table } from "@/components/ui/table";
 import { DataTablePagination } from "@/features/shared/components/table/data-table-pagination";
 import { columns } from "./columns";
+import { CustomerType } from "@/features/customers/customer.types";
 import DataTableSearchInput from "@/features/shared/components/table/data-table-search-input";
 import DataTableColumnsVisibility from "@/features/shared/components/table/data-table-columns-visibility";
 import DataTableHeader from "@/features/shared/components/table/data-table-header";
 import DataTableBody from "@/features/shared/components/table/data-table-body";
-import { CustomerType } from "@/features/customers/customer.types";
 
 export function CustomersTable({ data }: { data: CustomerType[] }) {
   const [sorting, setSorting] = React.useState<SortingState>([

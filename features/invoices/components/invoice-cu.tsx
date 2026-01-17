@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, SquarePen } from "lucide-react";
+import { Loader, Plus, SquarePen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -15,6 +14,7 @@ import { useState } from "react";
 import { InvoiceType } from "@/features/invoices/invoice.types";
 import { useCustomers } from "@/features/customers/hooks/use-customers";
 import { useTranslations } from "next-intl";
+import { useIsMutating } from "@tanstack/react-query";
 
 export default function InvoiceCU({
   invoice = undefined,
@@ -24,16 +24,25 @@ export default function InvoiceCU({
   mode?: "create" | "edit";
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { customersQuery } = useCustomers();
   const t = useTranslations();
+  const { customersQuery } = useCustomers();
+  const isMutating =
+    useIsMutating({
+      mutationKey: ["invoices"],
+    }) > 0;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={() => {
+        if (!isMutating) setIsOpen(!isOpen);
+      }}
+    >
       <DialogTrigger asChild>
         {mode === "edit" ? (
           <Button
             className="cursor-pointer text-xs sm:text-sm p-2 w-full justify-start group"
-            variant="outline"
+            variant="secondary"
           >
             <SquarePen className="group-hover:text-primary transition-colors duration-300" />
             {t("Labels.edit")}
@@ -45,27 +54,37 @@ export default function InvoiceCU({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px]">
-        <DialogHeader>
-          <DialogTitle>
-            {" "}
-            {mode === "create"
-              ? t("invoices.add-description")
-              : t("invoices.edit")}
-          </DialogTitle>
-          {/* <DialogDescription>
-            {mode === "create"
-              ? t("invoices.add-description")
-              : t("invoices.edit-description")}
-          </DialogDescription> */}
-        </DialogHeader>
-        <InvoiceForm
-          setIsOpen={setIsOpen}
-          invoice={invoice}
-          mode={mode}
-          customers={customersQuery.data || []}
-          customersIsLoading={customersQuery.isLoading}
-        />
+      <DialogContent
+        className="sm:max-w-[625px]"
+        onInteractOutside={(e) => {
+          if (!isMutating) e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          if (!isMutating) e.preventDefault();
+        }}
+      >
+        <>
+          {isMutating && (
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-50 flex items-center justify-center">
+              <Loader className="animate-spin" />
+            </div>
+          )}
+
+          <DialogHeader>
+            <DialogTitle>
+              {mode === "create"
+                ? t("invoices.add-description")
+                : t("invoices.edit")}
+            </DialogTitle>
+          </DialogHeader>
+          <InvoiceForm
+            setIsOpen={setIsOpen}
+            invoice={invoice}
+            mode={mode}
+            customers={customersQuery.data || []}
+            customersIsLoading={customersQuery.isLoading}
+          />
+        </>
       </DialogContent>
     </Dialog>
   );

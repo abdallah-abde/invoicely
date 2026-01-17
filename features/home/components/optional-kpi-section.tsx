@@ -2,8 +2,9 @@ import Link from "next/link";
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { getHomeKPIs } from "@/features/charts/services/chart.services";
-import { cn, isLocaleArabic } from "@/lib/utils";
+import { getHomeKPIs } from "@/features/dashboard/services/chart.services";
+import { cn } from "@/lib/utils";
+import { isLocaleArabic } from "@/lib/utils/locale.utils";
 
 import OptionalKPISkeleton from "@/features/home/components/optional-kpi-skeleton";
 import OptionalKPIContent from "@/features/home/components/optional-kpi-content";

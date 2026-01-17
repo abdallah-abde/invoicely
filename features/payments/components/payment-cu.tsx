@@ -5,7 +5,6 @@ import { Plus, SquarePen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -43,19 +42,18 @@ export default function PaymentCU({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent
+        className="sm:max-w-[425px]"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>
-            {" "}
             {mode === "create"
               ? t("payments.add-description")
               : t("payments.edit")}
           </DialogTitle>
-          {/* <DialogDescription>
-            {mode === "create"
-              ? t("payments.add-description")
-              : t("payments.edit-description")}
-          </DialogDescription> */}
         </DialogHeader>
         <PaymentForm setIsOpen={setIsOpen} payment={payment} mode={mode} />
       </DialogContent>

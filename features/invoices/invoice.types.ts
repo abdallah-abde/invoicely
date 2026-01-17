@@ -30,7 +30,8 @@ export interface InvoicePDFData {
     name: string;
     quantity: number;
     unitPrice: number;
+    unit: string;
   }[];
   total: number;
-  currency: string;
+  lang: string;
 }

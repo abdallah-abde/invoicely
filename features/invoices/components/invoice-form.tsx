@@ -9,27 +9,28 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { invoiceSchema } from "@/features/invoices/schemas/invoice.schema";
 import z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useInvoices } from "@/features/invoices/hooks/use-invoices";
-import { useRouter } from "next/navigation";
-import { CalendarIcon, Loader } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import { InvoiceType } from "@/features/invoices/invoice.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn, getInvoiceStatusList } from "@/lib/utils";
-import { format } from "date-fns";
+import { hasPermission } from "@/features/auth/services/access";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
+import { localizeArabicCurrencySymbol } from "@/lib/utils/number.utils";
+import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
+import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
+import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
+import { useArabic } from "@/hooks/use-arabic";
+
+import { useRouter } from "next/navigation";
+import { Loader } from "lucide-react";
+import { getInvoiceStatusList } from "@/features/shared/utils/lists.utils";
 import {
   Select,
   SelectContent,
@@ -44,10 +45,7 @@ import InvoiceProductForm, {
 import { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/features/auth/lib/auth-client";
-import { hasPermission } from "@/features/auth/services/access";
-import { useTranslations } from "next-intl";
-import { useDirection } from "@/hooks/use-direction";
-import { useArabic } from "@/hooks/use-arabic";
+import { FormDateFieldPopOver } from "@/features/shared/components/form/form-date-field-popover";
 
 export default function InvoiceForm({
   setIsOpen,
@@ -62,12 +60,11 @@ export default function InvoiceForm({
   customers: Customer[];
   customersIsLoading: boolean;
 }) {
-  const {
-    createInvoiceWithRevalidate,
-    updateInvoiceWithRevalidate,
-    isLoading,
-  } = useInvoices();
-  const router = useRouter();
+  const [checkingPermission, setCheckingPermission] = useState(false);
+  const { createInvoice, updateInvoice, isCreating, isUpdating } =
+    useInvoices();
+
+  const isSubmitting = checkingPermission || isCreating || isUpdating;
 
   const t = useTranslations();
   const dir = useDirection();
@@ -77,84 +74,63 @@ export default function InvoiceForm({
   const statusList = getInvoiceStatusList();
 
   const form = useForm<z.infer<typeof invoiceSchema>>({
-    resolver: zodResolver(invoiceSchema),
+    resolver: useIntlZodResolver(invoiceSchema),
     defaultValues: {
       number: invoice?.number || "",
       notes: invoice?.notes || "",
       customerId: invoice?.customerId || "",
       createdById: invoice?.createdById || session?.user.id,
-      issuedAt: invoice?.issuedAt || new Date(),
-      dueAt: invoice?.dueAt || new Date(),
+      issuedAt: invoice?.issuedAt ? new Date(invoice?.issuedAt) : new Date(),
+      dueAt: invoice?.dueAt ? new Date(invoice?.dueAt) : new Date(),
       total: invoice?.totalAsNumber.toString() || "",
       status: invoice?.status || undefined,
     },
   });
 
   async function onSubmit(values: z.infer<typeof invoiceSchema>) {
-    const payload: any = {
-      ...values,
-      products: items.map((it) => ({
-        productId: (it.product as any).id,
-        quantity: it.quantity,
-        unit: it.unit,
-        unitPrice: it.price,
-        totalPrice: it.price * it.quantity,
-      })),
-    };
+    setCheckingPermission(true);
 
-    if (mode === "create") {
-      const hasCreatePermission = await hasPermission({
+    try {
+      const payload: any = {
+        ...values,
+        products: items.map((it) => ({
+          productId: (it.product as any).id,
+          quantity: it.quantity,
+          unit: it.unit,
+          unitPrice: it.price,
+          totalPrice: it.price * it.quantity,
+        })),
+      };
+
+      const allowed = await hasPermission({
         resource: "invoice",
-        permission: ["create"],
+        permission: [mode === "create" ? "create" : "update"],
       });
 
-      if (hasCreatePermission) {
-        const promise = createInvoiceWithRevalidate(payload);
-        toast.promise(promise, {
-          loading: t("invoices.messages.loading.add"),
-          success: t("invoices.messages.success.add"),
-          error: t("invoices.messages.error.add-failure"),
-        });
+      if (!allowed) {
+        toast.error(
+          t(
+            mode === "create"
+              ? "invoices.messages.error.add"
+              : "invoices.messages.error.edit"
+          )
+        );
+        return;
+      }
 
-        try {
-          await promise;
-          form.reset();
-          router.refresh();
-          setIsOpen(false);
-        } catch (err) {
-          console.log(err);
-        }
+      if (mode === "create") {
+        await createInvoice.mutateAsync(payload);
+        toast.success(t("invoices.messages.success.add"));
       } else {
-        toast.error(t("invoices.messages.error.add"));
+        if (invoice)
+          await updateInvoice.mutateAsync({ id: invoice.id, data: payload });
+        toast.success(t("invoices.messages.success.edit"));
       }
-    } else {
-      if (invoice) {
-        const hasUpdatePermission = await hasPermission({
-          resource: "invoice",
-          permission: ["update"],
-        });
-
-        if (hasUpdatePermission) {
-          const promise = updateInvoiceWithRevalidate({
-            id: invoice?.id,
-            data: payload,
-          });
-          toast.promise(promise, {
-            loading: t("invoices.messages.loading.edit"),
-            success: t("invoices.messages.success.edit"),
-            error: t("invoices.messages.error.edit-failure"),
-          });
-
-          try {
-            await promise;
-            form.reset();
-            router.refresh();
-            setIsOpen(false);
-          } catch (err) {}
-        } else {
-          toast.error(t("invoices.messages.error.edit"));
-        }
-      }
+      form.reset();
+      setIsOpen(false);
+    } catch {
+    } finally {
+      setCheckingPermission(false);
     }
   }
 
@@ -213,10 +189,14 @@ export default function InvoiceForm({
             name="number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.invoicenumber.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.invoicenumber.label")}
+                  isRequired={true}
+                />
                 <FormControl>
                   <Input
                     placeholder={t("Fields.invoicenumber.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -229,11 +209,12 @@ export default function InvoiceForm({
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.notes.label")}</FormLabel>
+                <CustomFormLabel label={t("Fields.notes.label")} />
                 <FormControl>
                   <Textarea
                     className="resize-none h-20"
                     placeholder={t("Fields.notes.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -246,39 +227,16 @@ export default function InvoiceForm({
             name="issuedAt"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>{t("Fields.issuedat.label")}</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full ps-3 text-start font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        <>
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>{t("Fields.issuedat.pick")}</span>
-                          )}
-                        </>
-                        <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        field.value ? new Date(field.value) : new Date()
-                      }
-                      onSelect={field.onChange}
-                      autoFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <CustomFormLabel
+                  label={t("Fields.issuedat.label")}
+                  isRequired={true}
+                />
+                <FormDateFieldPopOver
+                  value={field.value}
+                  label="issuedat"
+                  onChange={field.onChange}
+                  disabled={isSubmitting}
+                />
                 <FormMessage />
               </FormItem>
             )}
@@ -288,37 +246,16 @@ export default function InvoiceForm({
             name="dueAt"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>{t("Fields.dueat.label")}</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full ps-3 text-start font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>{t("Fields.dueat.pick")}</span>
-                        )}
-                        <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        field.value ? new Date(field.value) : new Date()
-                      }
-                      onSelect={field.onChange}
-                      autoFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <CustomFormLabel
+                  label={t("Fields.dueat.label")}
+                  isRequired={true}
+                />
+                <FormDateFieldPopOver
+                  value={field.value}
+                  label="dueat"
+                  onChange={field.onChange}
+                  disabled={isSubmitting}
+                />
                 <FormMessage />
               </FormItem>
             )}
@@ -329,11 +266,15 @@ export default function InvoiceForm({
               name="customerId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("Fields.customer.label")}</FormLabel>
+                  <CustomFormLabel
+                    label={t("Fields.customer.label")}
+                    isRequired={true}
+                  />
                   <Select
                     dir={dir}
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    disabled={isSubmitting}
                   >
                     <FormControl className="w-full">
                       <SelectTrigger>
@@ -362,11 +303,15 @@ export default function InvoiceForm({
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.status.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.status.label")}
+                  isRequired={true}
+                />
                 <Select
                   dir={dir}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={isSubmitting}
                 >
                   <FormControl className="w-full">
                     <SelectTrigger>
@@ -388,27 +333,28 @@ export default function InvoiceForm({
             )}
           />
           <div className="space-y-1">
+            <CustomFormLabel label={t("products.label")} isRequired={true} />
             <Label>{t("products.label")}</Label>
             <InvoiceProductForm initialItems={items} onChange={setItems} />
           </div>
-          {/* <div className="w-1/2"> */}
           <FormField
             control={form.control}
             name="total"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  {t("Fields.total.label", {
-                    currency: isArabic ? "ل.س." : "$",
+                <CustomFormLabel
+                  label={t("Fields.total.label", {
+                    currency: localizeArabicCurrencySymbol(isArabic),
                   })}
-                </FormLabel>
+                />
+
                 <FormControl>
                   <Input
-                    disabled
                     type="number"
                     step={10}
                     placeholder={t("Fields.total.placeholder")}
                     className="w-1/2"
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -416,21 +362,11 @@ export default function InvoiceForm({
               </FormItem>
             )}
           />
-          {/* </div> */}
-          {/* </div> */}
 
-          <Button
-            type="submit"
-            disabled={isLoading || !customers}
-            size="lg"
-            className="w-fit cursor-pointer ms-auto "
-          >
-            {isLoading || !customers ? (
-              <Loader className="animate-spin" />
-            ) : (
-              <>{t("Labels.save")}</>
-            )}
-          </Button>
+          <CustomFormSubmitButton
+            isLoading={isSubmitting}
+            label={t("Labels.save")}
+          />
         </form>
       </Form>
     </ScrollArea>

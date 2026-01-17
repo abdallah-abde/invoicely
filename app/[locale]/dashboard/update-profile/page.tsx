@@ -12,6 +12,7 @@ import { UpdateProfileForm } from "@/features/auth/components/update-profile-for
 
 import type { Metadata } from "next";
 import { UpdateImageForm } from "@/features/auth/components/update-image-form";
+import { getDirection } from "@/lib/utils/direction.utils";
 
 export const metadata: Metadata = {
   title: "Update Profile",
@@ -19,13 +20,14 @@ export const metadata: Metadata = {
 
 export default async function DashboardUpdateProfilePage() {
   await authIsRequired();
+  const dir = await getDirection();
 
   const user = await getUserProfile();
 
   if (!user) redirect("/sign-in");
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 py-4 items-start pe-6">
+    <div className="flex flex-col lg:flex-row gap-6 py-4 items-start">
       <div className="w-full flex flex-col gap-6">
         <UpdateImageForm image={user?.image ?? ""} />
         <UpdateProfileForm email={user?.email ?? ""} name={user?.name ?? ""} />

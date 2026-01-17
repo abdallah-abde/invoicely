@@ -5,28 +5,22 @@ import { ColumnDef } from "@tanstack/react-table";
 import { usePayments } from "@/features/payments/hooks/use-payments";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import {
-  arToLocaleDate,
-  caseInsensitiveSort,
-  cn,
-  dateAsStringSort,
-  enToLocaleDate,
-  syPound,
-  usDollar,
-} from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils/number.utils";
 import PaymentCU from "@/features/payments/components/payment-cu";
 import { Badge } from "@/components/ui/badge";
 import { hasPermission } from "@/features/auth/services/access";
-import {
-  DeletingLoader,
-  selectColumn,
-} from "@/features/shared/components/table/data-table-columns";
+import { DeletingLoader } from "@/features/shared/components/table/data-table-columns";
 import { useRole } from "@/hooks/use-role";
 import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
+import {
+  caseInsensitiveSort,
+  dateAsStringSort,
+} from "@/features/shared/utils/table.utils";
+import { formatDates } from "@/lib/utils/date.utils";
 
 export const columns: ColumnDef<PaymentType>[] = [
-  // selectColumn<PaymentType>(),
   {
     accessorKey: "invoice.number",
     header: ({ column }) => {
@@ -63,9 +57,10 @@ export const columns: ColumnDef<PaymentType>[] = [
 
       return (
         <div className="text-xs xs:text-sm">
-          {isArabic
-            ? arToLocaleDate.format(row.original.date)
-            : enToLocaleDate.format(row.original.date)}
+          {formatDates({
+            isArabic,
+            value: row.original.date,
+          })}
         </div>
       );
     },
@@ -81,13 +76,12 @@ export const columns: ColumnDef<PaymentType>[] = [
 
       const amount = parseFloat(row.getValue("amountAsNumber"));
 
-      const formatted = isArabic
-        ? syPound.format(amount)
-        : usDollar.format(amount);
-
       return (
         <div className="font-medium text-primary text-xs xs:text-sm">
-          {formatted}
+          {formatCurrency({
+            isArabic,
+            value: amount,
+          })}
         </div>
       );
     },
@@ -106,8 +100,8 @@ export const columns: ColumnDef<PaymentType>[] = [
           <Badge
             variant="secondary"
             className={cn(
-              "select-none text-xs xs:text-[13px]",
-              isArabic ? "text-[11px] xs:text-[13px]" : ""
+              "select-none",
+              isArabic ? "text-[11px] xs:text-[13px]" : "text-xs xs:text-[13px]"
             )}
           >
             {t(`Labels.${row.original.method.toLowerCase()}`)}

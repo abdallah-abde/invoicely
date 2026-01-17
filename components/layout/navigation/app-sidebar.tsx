@@ -24,7 +24,7 @@ import ActiveLink from "./active-link";
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-import { isLocaleArabic } from "@/lib/utils";
+import { isLocaleArabic } from "@/lib/utils/locale.utils";
 
 export interface ItemProps {
   title: string;
@@ -84,13 +84,13 @@ export async function AppSidebar() {
   const session = await authSession();
 
   const t = await getTranslations();
-  const isLocalArabic = await isLocaleArabic();
+  const isArabic = await isLocaleArabic();
 
   const role = session?.user.role;
 
   return (
     <Sidebar
-      side={isLocalArabic ? "right" : "left"}
+      side={isArabic ? "right" : "left"}
       variant="floating"
       collapsible="icon"
     >
@@ -117,9 +117,7 @@ export async function AppSidebar() {
                       url={item.url}
                     >
                       <Link href={item.url}>
-                        <item.Icon
-                          className={isLocalArabic ? "rotate-y-180" : ""}
-                        />
+                        <item.Icon className={isArabic ? "rotate-y-180" : ""} />
                         <span>
                           {t(
                             `${item.title === "dashboard" ? "dashboard" : `${item.title}.label`}`

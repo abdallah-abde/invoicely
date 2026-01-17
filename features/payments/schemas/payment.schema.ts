@@ -10,18 +10,15 @@ export const optionSchema = z.object({
 export const paymentSchema = z.object({
   invoiceId: z
     .array(optionSchema)
-    .min(1, {
-      error: "Invoice is required",
-    })
-    .max(1, {
-      error: "You can enter one invoice only",
-    }),
-  amount: z.string().trim().min(1, {
-    message: "Amount is required",
-  }),
-  date: z.date({
-    error: "Invoice date is required",
-  }),
+    .nonempty({ error: "required" })
+    .min(1, { error: "min" })
+    .max(1, { error: "max" }),
+  amount: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(1, { error: "min" }),
+  date: z.date().nonoptional({ error: "required" }),
   method: z.enum(PaymentMethod, {
     error: "Payment method is required",
   }),

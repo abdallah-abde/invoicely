@@ -9,6 +9,8 @@ import AuthenticationToggle from "@/features/auth/components/authentication-togg
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import LanguageSwitcher from "@/components/layout/languages/language-switcher";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { getDirection } from "@/lib/utils/direction.utils";
 
 export const metadata: Metadata = {
   title: {
@@ -27,6 +29,7 @@ export default async function DashboardLayout({
   breadcrumb: React.ReactNode;
 }>) {
   await authIsRequired();
+  const dir = await getDirection();
 
   return (
     <SidebarProvider>
@@ -47,7 +50,14 @@ export default async function DashboardLayout({
             </div>
           </div>
         </div>
-        <div className="px-6">{children}</div>
+        <div className="px-6">
+          <ScrollArea
+            className="h-[calc(100vh-75px)] pe-6 overflow-hidden"
+            dir={dir}
+          >
+            {children}
+          </ScrollArea>
+        </div>
       </div>
     </SidebarProvider>
   );

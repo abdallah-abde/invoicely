@@ -5,27 +5,26 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema } from "@/features/products/schemas/product.schema";
 import z from "zod";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useProducts } from "@/features/products/hooks/use-products";
-import { useRouter } from "next/navigation";
-import { Loader } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { toast } from "sonner";
 import { ProductType } from "@/features/products/product.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { hasPermission } from "@/features/auth/services/access";
 import { useTranslations } from "next-intl";
-import { useArabic } from "@/hooks/use-arabic";
 import { useDirection } from "@/hooks/use-direction";
+import { localizeArabicCurrencySymbol } from "@/lib/utils/number.utils";
+import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
+import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
+import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
+import { useArabic } from "@/hooks/use-arabic";
 
 export default function ProductForm({
   setIsOpen,
@@ -36,15 +35,18 @@ export default function ProductForm({
   product?: ProductType | undefined;
   mode: "create" | "edit";
 }) {
-  const { createProduct, updateProduct, isLoading } = useProducts();
-  const router = useRouter();
+  const [checkingPermission, setCheckingPermission] = useState(false);
+  const { createProduct, updateProduct, isCreating, isUpdating } =
+    useProducts();
+
+  const isSubmitting = checkingPermission || isCreating || isUpdating;
 
   const t = useTranslations();
   const dir = useDirection();
   const isArabic = useArabic();
 
   const form = useForm<z.infer<typeof productSchema>>({
-    resolver: zodResolver(productSchema),
+    resolver: useIntlZodResolver(productSchema),
     defaultValues: {
       name: product?.name || "",
       description: product?.description || "",
@@ -54,47 +56,38 @@ export default function ProductForm({
   });
 
   async function onSubmit(values: z.infer<typeof productSchema>) {
-    if (mode === "create") {
-      const hasCreatePermission = await hasPermission({
+    setCheckingPermission(true);
+
+    try {
+      const allowed = await hasPermission({
         resource: "product",
-        permission: ["create"],
+        permission: [mode === "create" ? "create" : "update"],
       });
 
-      if (hasCreatePermission) {
-        createProduct.mutate(values, {
-          onSuccess: () => {
-            form.reset();
-            router.refresh();
-            setIsOpen(false);
-            toast.success(t("products.messages.success.add"));
-          },
-        });
-      } else {
-        toast.error(t("products.messages.error.add"));
+      if (!allowed) {
+        toast.error(
+          t(
+            mode === "create"
+              ? "products.messages.error.add"
+              : "products.messages.error.edit"
+          )
+        );
+        return;
       }
-    } else {
-      if (product) {
-        const hasUpdatePermission = await hasPermission({
-          resource: "product",
-          permission: ["update"],
-        });
 
-        if (hasUpdatePermission) {
-          updateProduct.mutate(
-            { id: product?.id, data: values },
-            {
-              onSuccess: () => {
-                form.reset();
-                router.refresh();
-                toast.success(t("products.messages.success.edit"));
-                setIsOpen(false);
-              },
-            }
-          );
-        } else {
-          toast.error(t("products.messages.error.edit"));
-        }
+      if (mode === "create") {
+        await createProduct.mutateAsync(values);
+        toast.success(t("products.messages.success.add"));
+      } else {
+        if (product)
+          await updateProduct.mutateAsync({ id: product.id, data: values });
+        toast.success(t("products.messages.success.edit"));
       }
+      form.reset();
+      setIsOpen(false);
+    } catch {
+    } finally {
+      setCheckingPermission(false);
     }
   }
 
@@ -110,10 +103,14 @@ export default function ProductForm({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.name.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.name.label")}
+                  isRequired={true}
+                />
                 <FormControl>
                   <Input
                     placeholder={t("Fields.name.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -126,11 +123,12 @@ export default function ProductForm({
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.description.label")}</FormLabel>
+                <CustomFormLabel label={t("Fields.description.label")} />
                 <FormControl>
                   <Textarea
                     className="resize-none h-20"
                     placeholder={t("Fields.description.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -143,10 +141,14 @@ export default function ProductForm({
             name="unit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.unit.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.unit.label")}
+                  isRequired={true}
+                />
                 <FormControl>
                   <Input
                     placeholder={t("Fields.unit.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -159,18 +161,18 @@ export default function ProductForm({
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  {t("Fields.price.label", {
-                    currency: isArabic ? "ل.س." : "$",
+                <CustomFormLabel
+                  label={t("Fields.price.label", {
+                    currency: localizeArabicCurrencySymbol(isArabic),
                   })}
-                </FormLabel>
+                  isRequired={true}
+                />
                 <FormControl>
                   <Input
                     type="number"
                     step={10}
-                    placeholder={t("Fields.price.placeholder", {
-                      product: isArabic ? "المنتج" : "product",
-                    })}
+                    placeholder={t("Fields.price.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -178,18 +180,10 @@ export default function ProductForm({
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            disabled={isLoading}
-            size="lg"
-            className="w-fit cursor-pointer ms-auto"
-          >
-            {isLoading ? (
-              <Loader className="animate-spin" />
-            ) : (
-              <>{t("Labels.save")}</>
-            )}
-          </Button>
+          <CustomFormSubmitButton
+            isLoading={isSubmitting}
+            label={t("Labels.save")}
+          />
         </form>
       </Form>
     </ScrollArea>

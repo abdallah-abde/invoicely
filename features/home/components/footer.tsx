@@ -1,6 +1,7 @@
 import { buttonVariants } from "@/components/ui/button";
 import { useArabic } from "@/hooks/use-arabic";
-import { arDigitsNoGrouping, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatNumbers } from "@/lib/utils/number.utils";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 
@@ -56,7 +57,10 @@ export default function Footer() {
 
         <div className="mt-8 border-t pt-6 text-center text-xs text-muted-foreground">
           {t("Footer.copy", {
-            year: isArabic ? arDigitsNoGrouping.format(year) : year,
+            year: formatNumbers({
+              isArabic,
+              value: year,
+            }),
           })}
         </div>
       </div>

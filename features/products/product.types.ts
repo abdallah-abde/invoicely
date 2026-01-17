@@ -5,5 +5,5 @@ export interface ProductType extends Omit<Omit<Product, "price">, "createdAt"> {
     invoices: number;
   };
   priceAsNumber: number;
-  // createdAt: string;
+  price: undefined;
 }

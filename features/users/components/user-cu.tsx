@@ -33,8 +33,8 @@ import { z } from "zod";
 import { Loader, Plus } from "lucide-react";
 import { userSchema } from "@/features/users/schemas/user.schema";
 import { Role, ROLE_OPTIONS } from "@/features/users/role.types";
-import { hasPermission, isRoleAdmin } from "@/features/auth/services/access";
-import { SUPERADMIN_ROLE } from "../lib/constants";
+import { hasPermission } from "@/features/auth/services/access";
+import { SUPERADMIN_ROLE } from "../lib/user.constants";
 import { useTranslations } from "next-intl";
 import { useRole } from "@/hooks/use-role";
 import { useDirection } from "@/hooks/use-direction";
@@ -157,7 +157,11 @@ export default function UserCU({ users }: { users: UserProps[] }) {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent
+          onInteractOutside={(e) => {
+            e.preventDefault();
+          }}
+        >
           <DialogHeader>
             <DialogTitle>
               {" "}

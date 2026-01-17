@@ -5,7 +5,7 @@ import {
   MODERATOR_ROLE,
   SUPERADMIN_ROLE,
   USER_ROLE,
-} from "@/features/users/lib/constants";
+} from "@/features/users/lib/user.constants";
 import { authClient } from "@/features/auth/lib/auth-client";
 
 export const isRoleSuperAdmin = () => {

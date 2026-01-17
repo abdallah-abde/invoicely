@@ -2,26 +2,34 @@ import z from "zod";
 import { InvoiceStatus } from "@/app/generated/prisma/enums";
 
 export const invoiceSchema = z.object({
-  number: z.string().trim().min(1, {
-    error: "Invoice number is required",
+  number: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(1, { error: "min" }),
+  customerId: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(1, { error: "min" }),
+  issuedAt: z.coerce.date({
+    error: "required",
   }),
-  customerId: z.string().trim().min(1, {
-    error: "Customer is required",
-  }),
-  issuedAt: z.date({
-    error: "Issued date is required",
-  }),
-  dueAt: z.date({
-    error: "Due date is required",
+  dueAt: z.coerce.date({
+    error: "required",
   }),
   status: z.enum(InvoiceStatus, {
-    error: "Invoice Status is required",
+    error: "required",
   }),
-  total: z.string().trim().min(1, {
-    error: "Invoice total is required",
-  }),
-  notes: z.string().optional(),
-  createdById: z.string().trim().min(1, {
-    error: "Created by is required",
-  }),
+  total: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(1, { error: "min" }),
+  notes: z.string().trim().optional(),
+  createdById: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(1, { error: "min" }),
 });

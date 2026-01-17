@@ -388,6 +388,14 @@
       "label": "العميل",
       "placeholder": "اختر عميل"
     },
+    "product": {
+      "label": "المنتج",
+      "placeholder": "اختر منتج"
+    },
+    "invoice": {
+      "label": "الفاتورة",
+      "placeholder": "اختر فاتورة"
+    },
     "createdby": {
       "label": "أنشأ بواسطة"
     },
@@ -419,6 +427,56 @@
   },
   "Table": {
     "columns": "الحقول"
+  },
+  "month": {
+    "jan": "كانون الثاني",
+    "feb": "شباط",
+    "mar": "آذار",
+    "apr": "نيسان",
+    "may": "أيار",
+    "june": "حزيران",
+    "july": "تموز",
+    "aug": "آب",
+    "sep": "أيلول",
+    "oct": "تشرين الأول",
+    "nov": "تشرين الثاني",
+    "dec": "كانون الأول"
+  },
+  "week": {
+    "su": "أحد",
+    "mo": "اثنين",
+    "tu": "ثلاثاء",
+    "we": "أربعاء",
+    "th": "خميس",
+    "fr": "جمعة",
+    "sa": "سبت"
+  },
+  "charts": {
+    "revenue-by-date": "الإيرادات حسب التاريخ",
+    "revenue-by-date-footer": "عرض إجمالي الإيرادات",
+    "invoices-by-status": "الفواتير حسب الحالة",
+    "invoices-by-status-footer": "عرض عدد الفواتير حسب الحالة",
+    "top-customers": "كبار العملاء",
+    "top-customers-footer": "عرض كبار العملاء",
+    "top-products": "أفضل المنتجات",
+    "top-products-footer": "عرض أفضل المنتجات",
+    "new-customers": "العملاء الجدد",
+    "new-customers-footer": "عرض العملاء الجدد",
+    "monthly-revenue": "الإيرادات الشهرية",
+    "monthly-revenue-footer": "عرض الإيرادات الشهرية لمدة عام واحد",
+    "total-revenue": "إجمالي الإيرادات",
+    "paid-invoices": "الفواتير المدفوعة",
+    "overdue-invoices": "الفواتير المتأخرة",
+    "customers": "العملاء",
+    "total": "الإجمالي",
+    "price": "السعر",
+    "quantity": "الكمية",
+    "no-invoices": "لا يوجد فواتير بهذه الفترة",
+    "no-new-customers": "لا يوجد عملاء جدد بهذه الفترة",
+    "no-revenue-data": "لا يوجد إيرادات بهذه الفترة",
+    "no-top-customers": "لا يوجد معلومات عن كبار العملاء بهذه الفترة",
+    "no-top-products": "لا يوجد معلومات عن أفضل المنتجات بهذه الفترة",
+    "no-monthly-revenue": "لا يوجد معلومات عن الإيرادات الشهرية"
   },
   "Labels": {
     "deleting": "جاري الحذف...",
@@ -463,6 +521,22 @@
     "enabled": "تفعيل",
     "disabled": "تعطيل",
     "enable": "تفعيل",
-    "disable": "تعطيل"
+    "disable": "تعطيل",
+    "last-days": "آخر {days} {daysLabel}",
+    "revenue": "الإيراد",
+    "invoices": "الفواتير",
+    "rows-count": "عدد السجلات ({count})",
+    "count": "العدد",
+    "confirm-alert": "هل أنت متأكد تماماً؟",
+    "confirm-alert-body": "هذا الإجراء لا يمكن الرجوع عنه. سيتم حذف {resource} نهائياً.",
+    "cancel": "إلغاء"
+  },
+  "validation": {
+    "min": "يجب أن يكون الحقل على الأقل {min} محارف",
+    "max": "يجب أن يكون الحقل على الأكثر {max} محارف",
+    "invalid_type": "هذا الحقل مطلوب",
+    "required": "هذا الحقل مطلوب",
+    "email": "ايميل غير صالح",
+    "default": "إدخال غير صحيح"
   }
 }

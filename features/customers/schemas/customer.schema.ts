@@ -1,20 +1,28 @@
 import z from "zod";
 
 export const customerSchema = z.object({
-  name: z.string().trim().min(2, {
-    message: "Name is required",
+  name: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(2, { error: "min" }),
+  email: z.string().nonempty({ error: "required" }).email({
+    error: "email",
   }),
-  email: z.email({
-    message: "Email is required",
-  }),
-  phone: z.string().trim().min(9, {
-    message: "Phone is required",
-  }),
-  address: z.string().trim().min(2, {
-    message: "Address is required",
-  }),
-  companyName: z.string().optional(),
-  taxNumber: z.string().trim().min(2, {
-    message: "Tax Number is required",
-  }),
+  phone: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(9, { error: "min" }),
+  address: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(2, { error: "min" }),
+  companyName: z.string(),
+  taxNumber: z
+    .string()
+    .trim()
+    .nonempty({ error: "required" })
+    .min(2, { error: "min" }),
 });

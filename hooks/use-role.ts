@@ -4,7 +4,7 @@ import {
   MODERATOR_ROLE,
   SUPERADMIN_ROLE,
   USER_ROLE,
-} from "@/features/users/lib/constants";
+} from "@/features/users/lib/user.constants";
 
 export function useRole() {
   const { data: session } = authClient.useSession();

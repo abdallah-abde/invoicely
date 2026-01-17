@@ -12,7 +12,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import { getDirection, isLocaleArabic } from "@/lib/utils";
+import { getDirection } from "@/lib/utils/direction.utils";
+import { isLocaleArabic } from "@/lib/utils/locale.utils";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -113,6 +114,9 @@ export default async function RootLayout({
 }>) {
   const { locale } = await params;
 
+  const dir = await getDirection();
+  const isArabic = await isLocaleArabic();
+
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
@@ -120,7 +124,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      dir={await getDirection()}
+      dir={dir}
       className={`${montserrat.variable} antialiased scroll-smooth!`}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
@@ -137,11 +141,7 @@ export default async function RootLayout({
               <div className="w-full">
                 <NextIntlClientProvider>{children}</NextIntlClientProvider>
               </div>
-              <Toaster
-                position={
-                  (await isLocaleArabic()) ? "bottom-left" : "bottom-right"
-                }
-              />
+              <Toaster position={isArabic ? "bottom-left" : "bottom-right"} />
             </ThemeDataProvider>
           </NextThemeProvider>
         </QueryProvider>

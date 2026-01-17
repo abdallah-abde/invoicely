@@ -3,7 +3,7 @@ import {
   MODERATOR_ROLE,
   ADMIN_ROLE,
   SUPERADMIN_ROLE,
-} from "@/features/users/lib/constants";
+} from "@/features/users/lib/user.constants";
 
 export const ROLE_OPTIONS = [
   USER_ROLE,

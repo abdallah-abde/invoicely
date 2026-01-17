@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { getProducts } from "@/features/products/db/product.query";
+import { mapProductsToDTO } from "@/features/products/lib/product.normalize";
 
 export async function GET() {
   try {
-    const data = await prisma.product.findMany();
+    const data = await getProducts();
+    const normalized = mapProductsToDTO(data);
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(normalized, { status: 200 });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
@@ -19,18 +22,19 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const { name, description, price, unit } = body;
-
     const newProduct = await prisma.product.create({
       data: {
-        name,
-        description,
-        unit,
-        price: Number(price),
+        ...body,
+        price: Number(body.price),
       },
     });
 
-    return NextResponse.json(newProduct, { status: 201 });
+    const { price, ...rest } = newProduct;
+
+    return NextResponse.json(
+      { ...rest, priceAsNumber: Number(price) },
+      { status: 201 }
+    );
   } catch (err) {
     console.error(err);
     return NextResponse.json(

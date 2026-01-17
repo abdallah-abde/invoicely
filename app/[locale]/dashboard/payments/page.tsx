@@ -12,7 +12,7 @@ import {
   ADMIN_ROLE,
   SUPERADMIN_ROLE,
   USER_ROLE,
-} from "@/features/users/lib/constants";
+} from "@/features/users/lib/user.constants";
 import { getTranslations } from "next-intl/server";
 
 export const metadata: Metadata = {

@@ -17,13 +17,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  arDigits,
-  arDigitsNoGrouping,
-  cn,
-  syPound,
-  usDollar,
-} from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { formatNumbers, formatCurrency } from "@/lib/utils/number.utils";
 import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
@@ -139,12 +134,14 @@ function KPI({
               suffix={suffix}
               formattingFn={(n) =>
                 isCurrency
-                  ? isArabic
-                    ? syPound.format(n)
-                    : usDollar.format(n)
-                  : isArabic
-                    ? arDigitsNoGrouping.format(n)
-                    : n.toString()
+                  ? formatCurrency({
+                      isArabic,
+                      value: n,
+                    })
+                  : formatNumbers({
+                      isArabic,
+                      value: n,
+                    }).toString()
               }
               startOnMount={false}
             />
@@ -153,23 +150,18 @@ function KPI({
 
         {/* Delta */}
         {delta ? (
-          <div
-            className={cn(
-              "mt-8 text-sm font-medium flex items-center justify-center gap-2",
-              `${delta > 0 ? "text-primary" : "text-destructive"}`
-            )}
-          >
+          <div className="mt-8 text-sm font-medium flex items-center justify-center gap-2">
             {delta > 0 ? (
               <TrendingUp
                 className={cn(
-                  "size-4 self-start",
+                  "size-4 self-start text-primary",
                   isArabic ? "rotate-y-180" : ""
                 )}
               />
             ) : (
               <TrendingDown
                 className={cn(
-                  "size-4 self-start",
+                  "size-4 self-start text-destructive",
                   isArabic ? "rotate-y-180" : ""
                 )}
               />
@@ -178,13 +170,16 @@ function KPI({
               variant={delta > 0 ? "default" : "destructive"}
               className="text-sm"
             >
-              {`${
-                isArabic
-                  ? arDigits.format(Math.abs(Number(delta.toFixed(1))))
-                  : Math.abs(Number(delta.toFixed(1)))
-              }%`}
+              {`${formatNumbers({
+                isArabic,
+                value: Math.abs(Number(delta.toFixed(1))),
+              })}%`}
             </Badge>
-            {t("vs-last-month")}
+            <span
+              className={cn(delta > 0 ? "text-primary" : "text-destructive")}
+            >
+              {t("vs-last-month")}
+            </span>
           </div>
         ) : null}
       </div>

@@ -33,9 +33,14 @@ export async function PUT(
         ...body,
         price: Number(body.price),
       },
+      include: {
+        _count: { select: { invoices: true } },
+      },
     });
 
-    return NextResponse.json(product);
+    const { price, ...rest } = product;
+
+    return NextResponse.json({ ...rest, priceAsNumber: Number(price) });
   } catch (error) {
     return NextResponse.json(
       { error: "Error updating product" },

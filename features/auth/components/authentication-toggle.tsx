@@ -70,7 +70,7 @@ export default function AuthenticationToggle() {
                 {renderIcon({
                   Icon: LayoutDashboard,
                   text: t("dashboard"),
-                  isArabic: isArabic,
+                  isArabic,
                 })}
               </Link>
             </DropdownMenuItem>
@@ -82,7 +82,7 @@ export default function AuthenticationToggle() {
                 {renderIcon({
                   Icon: UserPen,
                   text: t("update-profile.label"),
-                  isArabic: isArabic,
+                  isArabic,
                 })}
               </Link>
             </DropdownMenuItem>
@@ -100,7 +100,7 @@ export default function AuthenticationToggle() {
                 {renderIcon({
                   Icon: LogOut,
                   text: t("Auth.sign-out"),
-                  isArabic: isArabic,
+                  isArabic,
                 })}
               </Button>
             </DropdownMenuItem>
@@ -116,7 +116,7 @@ export default function AuthenticationToggle() {
         >
           {renderIcon({
             Icon: LogIn,
-            isArabic: isArabic,
+            isArabic,
             className:
               "h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all",
           })}

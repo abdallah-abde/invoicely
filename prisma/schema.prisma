@@ -45,6 +45,8 @@ model Customer {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   invoices    Invoice[]
+
+  @@index([createdAt])
 }
 
 model Product {
@@ -74,6 +76,8 @@ model Invoice {
   updatedAt   DateTime         @updatedAt
   products    InvoiceProduct[]
   payments    Payment[]
+
+  @@index([issuedAt, status, customerId])
 }
 
 model InvoiceProduct {
@@ -85,6 +89,8 @@ model InvoiceProduct {
   quantity   Decimal
   unitPrice  Decimal
   totalPrice Decimal
+
+  @@index([invoiceId, productId])
 }
 
 model Payment {

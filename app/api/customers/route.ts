@@ -1,15 +1,11 @@
+import { getCustomers } from "@/features/customers/db/customer.query";
 import prisma from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const customers = await prisma.customer.findMany({
-      include: {
-        _count: {
-          select: { invoices: true },
-        },
-      },
-    });
+    const customers = await getCustomers();
+
     return NextResponse.json(customers);
   } catch (err) {
     console.error(err);
@@ -24,10 +20,10 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const customer = await prisma.customer.create({
+    const newCustomer = await prisma.customer.create({
       data: { ...body, email: body.email.toLowerCase() },
     });
-    return NextResponse.json(customer);
+    return NextResponse.json(newCustomer, { status: 201 });
   } catch (err) {
     console.error(err);
     return NextResponse.json(

@@ -5,19 +5,16 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { paymentSchema } from "@/features/payments/schemas/payment.schema";
 import z from "zod";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { usePayments } from "@/features/payments/hooks/use-payments";
 import { useRouter } from "next/navigation";
-import { CalendarIcon, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PaymentType } from "@/features/payments/payment.types";
@@ -31,19 +28,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { cn, getPaymentMethodList, syPound, usDollar } from "@/lib/utils";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+  formatCurrency,
+  localizeArabicCurrencySymbol,
+} from "@/lib/utils/number.utils";
+import { getPaymentMethodList } from "@/features/shared/utils/lists.utils";
 import { Badge } from "@/components/ui/badge";
 import { hasPermission } from "@/features/auth/services/access";
 import { useTranslations } from "next-intl";
 import { useDirection } from "@/hooks/use-direction";
 import { useArabic } from "@/hooks/use-arabic";
+import { FormDateFieldPopOver } from "@/features/shared/components/form/form-date-field-popover";
+import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
+import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
+import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
 
 export type SelectedItem = {
   invoice: Invoice;
@@ -68,7 +66,7 @@ export default function PaymentForm({
   const methodList = getPaymentMethodList();
 
   const form = useForm<z.infer<typeof paymentSchema>>({
-    resolver: zodResolver(paymentSchema),
+    resolver: useIntlZodResolver(paymentSchema),
     defaultValues: {
       invoiceId: [
         {
@@ -253,7 +251,11 @@ export default function PaymentForm({
             name="invoiceId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.invoicenumber.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.invoicenumber.label")}
+                  isRequired={true}
+                />
+
                 <FormControl>
                   <MultipleSelector
                     {...field}
@@ -291,7 +293,7 @@ export default function PaymentForm({
             name="notes"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.notes.label")}</FormLabel>
+                <CustomFormLabel label={t("Fields.notes.label")} />
                 <FormControl>
                   <Textarea
                     className="resize-none h-20"
@@ -308,7 +310,10 @@ export default function PaymentForm({
             name="method"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>{t("Fields.method.label")}</FormLabel>
+                <CustomFormLabel
+                  label={t("Fields.method.label")}
+                  isRequired={true}
+                />
                 <Select
                   dir={dir}
                   onValueChange={field.onChange}
@@ -341,19 +346,19 @@ export default function PaymentForm({
                   variant="secondary"
                   className="text-[15px] ms-1 bg-primary"
                 >
-                  {isArabic
-                    ? syPound.format(invoiceTotal ?? 0)
-                    : usDollar.format(invoiceTotal ?? 0)}
+                  {formatCurrency({
+                    isArabic,
+                    value: invoiceTotal ?? 0,
+                  })}
                 </Badge>
               </p>
               <p className="text-center">
                 {t("Labels.rest")}
                 <Badge variant="destructive" className="text-[15px] ms-1">
-                  {isArabic
-                    ? syPound.format((invoiceTotal ?? 0) - (prevPayments ?? 0))
-                    : usDollar.format(
-                        (invoiceTotal ?? 0) - (prevPayments ?? 0)
-                      )}
+                  {formatCurrency({
+                    isArabic,
+                    value: (invoiceTotal ?? 0) - (prevPayments ?? 0),
+                  })}
                 </Badge>
               </p>
             </div>
@@ -370,11 +375,13 @@ export default function PaymentForm({
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  {t("Fields.amount.label", {
-                    currency: isArabic ? "ل.س." : "$",
+                <CustomFormLabel
+                  label={t("Fields.amount.label", {
+                    currency: localizeArabicCurrencySymbol(isArabic),
                   })}
-                </FormLabel>
+                  isRequired={true}
+                />
+
                 <FormControl>
                   <Input
                     type="number"
@@ -392,53 +399,23 @@ export default function PaymentForm({
             name="date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>{t("Fields.invoicedate.label")}</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full ps-3 text-start font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, "PPP")
-                        ) : (
-                          <span>{t("Fields.invoicedate.pick")}</span>
-                        )}
-                        <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        field.value ? new Date(field.value) : new Date()
-                      }
-                      onSelect={field.onChange}
-                      autoFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <CustomFormLabel
+                  label={t("Fields.invoicedate.label")}
+                  isRequired={true}
+                />
+                <FormDateFieldPopOver
+                  value={field.value}
+                  label="date"
+                  onChange={field.onChange}
+                />
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            disabled={isLoading || isTriggered || isNumbersLoading}
-            size="lg"
-            className="w-fit cursor-pointer ms-auto"
-          >
-            {isLoading ? (
-              <Loader className="animate-spin" />
-            ) : (
-              <>{t("Labels.save")}</>
-            )}
-          </Button>
+          <CustomFormSubmitButton
+            isLoading={isLoading || isTriggered || isNumbersLoading}
+            label={t("Labels.save")}
+          />
         </form>
       </Form>
     </ScrollArea>
