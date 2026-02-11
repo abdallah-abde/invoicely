@@ -94,7 +94,7 @@ export function getWeekTranslationKey(value: string) {
 
 export function mergeDateWithLocalTime(
   newDate: Date,
-  previousDate?: Date | string
+  previousDate?: Date | string,
 ) {
   const base =
     previousDate instanceof Date
@@ -110,7 +110,7 @@ export function mergeDateWithLocalTime(
     base.getHours(),
     base.getMinutes(),
     base.getSeconds(),
-    base.getMilliseconds()
+    base.getMilliseconds(),
   );
 }
 
@@ -122,7 +122,7 @@ export function getDateBeginningOfDay(date: Date) {
     0,
     0,
     0,
-    0
+    0,
   );
 }
 
@@ -176,4 +176,21 @@ export function formatArabicDate(value: string) {
   const day = arr.shift()?.split("").reverse().join("");
 
   return `${day} ${arr.join(" ")} ${year}`;
+}
+
+export function toDateOnlyUTC(d: Date | string) {
+  const date = new Date(d);
+  return new Date(
+    Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+  );
+}
+
+export function parseLocalDateOnly(value: Date) {
+  console.log(value instanceof Date, "is date");
+  return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+}
+
+export function todayLocalDateOnly() {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }

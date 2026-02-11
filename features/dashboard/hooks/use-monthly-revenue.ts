@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { DASHBOARD_GC_TIME } from "../charts.constants";
+import { GC_TIME } from "../charts.constants";
 
 export function useMonthlyRevenue() {
   return useQuery({
@@ -11,6 +11,6 @@ export function useMonthlyRevenue() {
     },
     staleTime: 30 * 60 * 1000, // 30 minutes
     placeholderData: (prev) => prev,
-    gcTime: DASHBOARD_GC_TIME,
+    gcTime: GC_TIME,
   });
 }

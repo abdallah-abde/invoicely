@@ -13,14 +13,24 @@ import z from "zod";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { usePayments } from "@/features/payments/hooks/use-payments";
-import { useRouter } from "next/navigation";
-import { Loader } from "lucide-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { PaymentType } from "@/features/payments/payment.types";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
-import { Invoice, Payment } from "@/app/generated/prisma/client";
+import { hasPermission } from "@/features/auth/services/access";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
+import {
+  formatCurrency,
+  localizeArabicCurrencySymbol,
+} from "@/lib/utils/number.utils";
+import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
+import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
+import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
+import { useArabic } from "@/hooks/use-arabic";
+
+import { Loader } from "lucide-react";
+import { getPaymentMethodList } from "@/features/shared/utils/lists.utils";
 import {
   Select,
   SelectContent,
@@ -28,20 +38,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  formatCurrency,
-  localizeArabicCurrencySymbol,
-} from "@/lib/utils/number.utils";
-import { getPaymentMethodList } from "@/features/shared/utils/lists.utils";
+import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
+import { Invoice, Payment } from "@/app/generated/prisma/client";
 import { Badge } from "@/components/ui/badge";
-import { hasPermission } from "@/features/auth/services/access";
-import { useTranslations } from "next-intl";
-import { useDirection } from "@/hooks/use-direction";
-import { useArabic } from "@/hooks/use-arabic";
 import { FormDateFieldPopOver } from "@/features/shared/components/form/form-date-field-popover";
-import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
-import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
-import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
+import { OperationMode } from "@/features/shared/shared.types";
+import { parseApiError } from "@/lib/api/parse-api-error";
 
 export type SelectedItem = {
   invoice: Invoice;
@@ -54,10 +56,14 @@ export default function PaymentForm({
 }: {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   payment?: PaymentType | undefined;
-  mode: "create" | "edit";
+  mode: OperationMode;
 }) {
-  const { createPayment, updatePayment, isLoading } = usePayments();
-  const router = useRouter();
+  const isOperationCreate = mode === OperationMode.CREATE;
+  const [checkingPermission, setCheckingPermission] = useState(false);
+  const { createPayment, updatePayment, isCreating, isUpdating } =
+    usePayments();
+
+  const isSubmitting = checkingPermission || isCreating || isUpdating;
 
   const t = useTranslations();
   const dir = useDirection();
@@ -76,66 +82,72 @@ export default function PaymentForm({
         },
       ],
       amount: payment?.amountAsNumber.toString() || "",
-      date: payment?.date || new Date(),
+      date: payment?.date ? new Date(payment?.date) : new Date(),
       method: payment?.method || undefined,
       notes: payment?.notes || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof paymentSchema>) {
-    if (mode === "create") {
-      const hasCreatePermission = await hasPermission({
+    setCheckingPermission(true);
+
+    try {
+      const allowed = await hasPermission({
         resource: "payment",
-        permission: ["create"],
+        permission: [
+          isOperationCreate ? OperationMode.CREATE : OperationMode.UPDATE,
+        ],
       });
 
-      if (hasCreatePermission) {
-        createPayment.mutate(values, {
-          onSuccess: () => {
-            form.reset();
-            router.refresh();
-            setIsOpen(false);
-            toast.success(t("payments.messages.success.add"));
-          },
-        });
-      } else {
-        toast.error(t("payments.messages.error.add"));
+      if (!allowed) {
+        toast.error(
+          t(
+            isOperationCreate
+              ? "payments.messages.error.add"
+              : "payments.messages.error.edit",
+          ),
+        );
+        return;
       }
-    } else {
-      if (payment) {
-        const hasUpdatePermission = await hasPermission({
-          resource: "payment",
-          permission: ["update"],
-        });
 
-        if (hasUpdatePermission) {
-          updatePayment.mutate(
-            { id: payment?.id, data: values },
-            {
-              onSuccess: () => {
-                form.reset();
-                router.refresh();
-                toast.success(t("payments.messages.success.edit"));
-                setIsOpen(false);
-              },
-            }
-          );
-        } else {
-          toast.error(t("payments.messages.error.edit"));
-        }
+      if (isOperationCreate) {
+        await createPayment.mutateAsync(values);
+        toast.success(t("payments.messages.success.add"));
+      } else {
+        if (payment)
+          await updatePayment.mutateAsync({ id: payment.id, data: values });
+        toast.success(t("payments.messages.success.edit"));
       }
+      setIsOpen(false);
+      form.reset();
+    } catch (err: unknown) {
+      const parsed = parseApiError(err, t);
+
+      if (parsed.type === "validation") {
+        parsed.fields.forEach(({ path, message }) => {
+          form.setError(path as any, {
+            type: "server",
+            message,
+          });
+        });
+        return;
+      }
+
+      toast.error(parsed.message);
+    } finally {
+      setCheckingPermission(false);
     }
   }
 
   const [selectedOptions, setSelectedOptions] = useState<Option[]>(
-    mode === "edit"
+    !isOperationCreate
       ? [
           {
             label: payment?.invoice.number || "",
             value: payment?.invoiceId || "",
           },
         ]
-      : []
+      : [],
   );
   const [options, setOptions] = useState<Option[]>();
   const [isTriggered, setIsTriggered] = useState(false);
@@ -162,7 +174,7 @@ export default function PaymentForm({
         const [invoiceRes, paymentsRes] = await Promise.all([
           fetch(`/api/invoices/${encodeURIComponent(invoiceId[0].value)}`),
           fetch(
-            `/api/payments/invoice/${encodeURIComponent(invoiceId[0].value)}`
+            `/api/payments/invoice/${encodeURIComponent(invoiceId[0].value)}`,
           ),
         ]);
 
@@ -176,7 +188,7 @@ export default function PaymentForm({
         if (paymentsRes.ok) {
           const paymentsData = (await paymentsRes.json()) as Payment[];
           setPrevPayments(
-            paymentsData.reduce((acc, item) => Number(item.amount) + acc, 0)
+            paymentsData.reduce((acc, item) => Number(item.amount) + acc, 0),
           );
         }
       } catch (e) {
@@ -192,7 +204,7 @@ export default function PaymentForm({
   }, [invoiceId]);
 
   useEffect(() => {
-    if (mode === "edit" && selectedOptions && selectedOptions.length > 0)
+    if (!isOperationCreate && selectedOptions && selectedOptions.length > 0)
       onselectionchange(selectedOptions);
   }, []);
 
@@ -200,7 +212,7 @@ export default function PaymentForm({
     setIsTriggered(true);
     try {
       const res = await fetch(
-        `/api/invoices/search/${encodeURIComponent(value)}`
+        `/api/invoices/search/${encodeURIComponent(value)}`,
       );
       if (!res.ok) return [] as Option[];
       const data = (await res.json()) as Option[];
@@ -231,12 +243,12 @@ export default function PaymentForm({
       setPrevPayments(
         (paymentsData as Payment[]).reduce(
           (acc, item) => Number(item.amount) + acc,
-          0
-        )
+          0,
+        ),
       );
       setInvoiceTotal(Number((invoiceData as Invoice).total));
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsNumbersLoading(false);
     }
@@ -264,7 +276,7 @@ export default function PaymentForm({
                     options={options}
                     hidePlaceholderWhenSelected
                     hideClearAllButton
-                    disabled={mode === "edit"}
+                    disabled={isSubmitting}
                     onSearch={async (value) => {
                       return await handleSearch(value);
                     }}
@@ -298,6 +310,7 @@ export default function PaymentForm({
                   <Textarea
                     className="resize-none h-20"
                     placeholder={t("Fields.notes.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -318,6 +331,7 @@ export default function PaymentForm({
                   dir={dir}
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={isSubmitting}
                 >
                   <FormControl className="w-full">
                     <SelectTrigger>
@@ -387,6 +401,7 @@ export default function PaymentForm({
                     type="number"
                     step={10}
                     placeholder={t("Fields.amount.placeholder")}
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -407,13 +422,14 @@ export default function PaymentForm({
                   value={field.value}
                   label="date"
                   onChange={field.onChange}
+                  disabled={isSubmitting}
                 />
                 <FormMessage />
               </FormItem>
             )}
           />
           <CustomFormSubmitButton
-            isLoading={isLoading || isTriggered || isNumbersLoading}
+            isLoading={isSubmitting}
             label={t("Labels.save")}
           />
         </form>

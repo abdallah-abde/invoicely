@@ -13,4 +13,4 @@ export const RANGES = [
 ];
 
 export const DASHBOARD_STALE_TIME = 30_000; // 30 seconds
-export const DASHBOARD_GC_TIME = 5 * 60 * 1000; // 5 minutes
+export const GC_TIME = 5 * 60 * 1000; // 5 minutes

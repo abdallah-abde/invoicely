@@ -1,11 +1,12 @@
 import prisma from "@/lib/db/prisma";
+import {
+  customerFullInclude,
+  customerOrderBy,
+} from "@/features/customers/db/customer.includes";
 
 export async function getCustomers() {
   return await prisma.customer.findMany({
-    include: {
-      _count: {
-        select: { invoices: true },
-      },
-    },
+    include: customerFullInclude,
+    orderBy: customerOrderBy,
   });
 }

@@ -25,7 +25,7 @@ export function ProductsTable({ data }: { data: ProductType[] }) {
     { id: "name", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -55,7 +55,7 @@ export function ProductsTable({ data }: { data: ProductType[] }) {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-[calc(100vw-var(--sidebar-width)*1.3)] ">
       <div className="flex flex-row items-start justify-between gap-2 py-4">
         <DataTableSearchInput
           globalFilter={globalFilter}
@@ -64,7 +64,7 @@ export function ProductsTable({ data }: { data: ProductType[] }) {
         <DataTableColumnsVisibility table={table} />
       </div>
       <div className="overflow-hidden rounded-md border">
-        <Table>
+        <Table className="max-w-[calc(100vw-var(--sidebar-width))] ">
           <DataTableHeader table={table} />
           <DataTableBody table={table} columnsLength={columns.length} />
         </Table>

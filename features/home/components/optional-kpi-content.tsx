@@ -24,9 +24,15 @@ import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
 import { Badge } from "@/components/ui/badge";
 import { KPIProps, OptionalKPIProps } from "../kpi.types";
+import { useRole } from "@/hooks/use-role";
+import { USER_ROLE } from "@/features/users/lib/user.constants";
+import { authClient } from "@/features/auth/lib/auth-client";
 
 export default function OptionalKPIContent({ data }: OptionalKPIProps) {
   // const t = useTranslations("KPI");
+  const { data: session } = authClient.useSession();
+
+  if (!session || !session.user || session.user.role === USER_ROLE) return null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -155,14 +161,14 @@ function KPI({
               <TrendingUp
                 className={cn(
                   "size-4 self-start text-primary",
-                  isArabic ? "rotate-y-180" : ""
+                  isArabic ? "rotate-y-180" : "",
                 )}
               />
             ) : (
               <TrendingDown
                 className={cn(
                   "size-4 self-start text-destructive",
-                  isArabic ? "rotate-y-180" : ""
+                  isArabic ? "rotate-y-180" : "",
                 )}
               />
             )}

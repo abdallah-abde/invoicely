@@ -3,9 +3,12 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ZodError } from "zod";
 import { translateZodError } from "@/lib/utils/zod-intl";
+import { fetchJson } from "@/lib/api/fetch-json";
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 
 export function useProducts() {
   const queryClient = useQueryClient();
+
   const t = useTranslations();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
@@ -15,16 +18,10 @@ export function useProducts() {
     mutationFn: async (data: any) => {
       setFieldErrors({});
 
-      const res = await fetch("/api/products", {
+      return fetchJson("/api/products", {
         method: "POST",
         body: JSON.stringify(data),
       });
-
-      const json = await res.json();
-
-      if (!res.ok) throw json;
-
-      return json;
     },
 
     onMutate: async (newProduct) => {
@@ -38,7 +35,7 @@ export function useProducts() {
           {
             ...newProduct,
             id: "temp-id",
-            priceAsNumber: Number(newProduct.price),
+            priceAsNumber: normalizeDecimal(newProduct.price),
             _count: { invoices: 0 },
           },
         ];
@@ -55,7 +52,7 @@ export function useProducts() {
       if (error?.error === "VALIDATION_ERROR") {
         const translated = translateZodError(
           { issues: error.issues } as ZodError,
-          t
+          t,
         );
 
         setFieldErrors(
@@ -64,8 +61,8 @@ export function useProducts() {
               acc[curr.path] = curr.message;
               return acc;
             },
-            {} as Record<string, string>
-          )
+            {} as Record<string, string>,
+          ),
         );
       }
     },
@@ -82,19 +79,10 @@ export function useProducts() {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       setFieldErrors({});
 
-      const res = await fetch(`/api/products/${id}`, {
+      return fetchJson(`/api/products/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       });
-
-      const json = await res.json();
-
-      if (!res.ok) throw json;
-
-      return json;
     },
 
     onMutate: async ({ id, data }) => {
@@ -108,10 +96,10 @@ export function useProducts() {
             ? {
                 ...product,
                 ...data,
-                priceAsNumber: Number(data.price),
+                priceAsNumber: normalizeDecimal(data.price),
               }
-            : product
-        )
+            : product,
+        ),
       );
 
       return { previous };
@@ -124,7 +112,7 @@ export function useProducts() {
       if (error?.error === "VALIDATION_ERROR") {
         const translated = translateZodError(
           { issues: error.issues } as ZodError,
-          t
+          t,
         );
 
         setFieldErrors(
@@ -133,15 +121,15 @@ export function useProducts() {
               acc[curr.path] = curr.message;
               return acc;
             },
-            {} as Record<string, string>
-          )
+            {} as Record<string, string>,
+          ),
         );
       }
     },
 
     onSuccess: (updatedProduct) => {
       queryClient.setQueryData<any[]>(["products"], (old = []) =>
-        old.map((c) => (c.id === updatedProduct.id ? updatedProduct : c))
+        old.map((c) => (c.id === updatedProduct.id ? updatedProduct : c)),
       );
 
       queryClient.invalidateQueries({
@@ -153,14 +141,12 @@ export function useProducts() {
   });
 
   const deleteProduct = useMutation({
-    mutationKey: ["customers", "delete"],
+    mutationKey: ["products"],
 
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
-
-      const json = await res.json();
-
-      if (!res.ok) throw json;
+      await fetchJson(`/api/products/${id}`, {
+        method: "DELETE",
+      });
 
       return { id };
     },
@@ -171,7 +157,7 @@ export function useProducts() {
       const previous = queryClient.getQueryData<any[]>(["products"]);
 
       queryClient.setQueryData<any[]>(["products"], (old = []) =>
-        old.filter((product) => product.id !== id)
+        old.filter((product) => product.id !== id),
       );
 
       return { previous };
@@ -194,15 +180,18 @@ export function useProducts() {
   });
 
   return {
-    // productsQuery,
     createProduct,
     updateProduct,
     deleteProduct,
+
     fieldErrors,
+
     isCreating: createProduct.isPending,
     createError: createProduct.error,
+
     isUpdating: updateProduct.isPending,
     updateError: updateProduct.error,
+
     isDeleting: deleteProduct.isPending,
     deleteError: deleteProduct.error,
   };

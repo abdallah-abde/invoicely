@@ -43,7 +43,7 @@ export default async function OptionalKPISection() {
             buttonVariants({ variant: "outline", size: "lg" }),
             "text-sm lg:text-[17px]",
             "group transition duration-300",
-            isArabic ? "flex-row-reverse" : ""
+            isArabic ? "flex-row-reverse" : "",
           )}
         >
           {isArabic && (

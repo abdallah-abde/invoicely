@@ -40,11 +40,10 @@ export default function DataTableColumnsVisibility<TData>({
 
             let value = column.id;
             if (columnId) value = labels[columnId as ObjectKey];
-
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                className="capitalize text-sm sm:text-[16px]"
+                className="text-sm sm:text-[16px]"
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >

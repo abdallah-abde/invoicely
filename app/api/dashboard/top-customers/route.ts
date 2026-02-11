@@ -1,5 +1,5 @@
 import { cached } from "@/features/dashboard/cached";
-import { DASHBOARD_GC_TIME } from "@/features/dashboard/charts.constants";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 import prisma from "@/lib/db/prisma";
 import { getFromDate } from "@/lib/utils/date.utils";
 import { NextResponse } from "next/server";
@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const from = getFromDate(range);
 
   return NextResponse.json(
-    await cached(`top-customers-${range}`, DASHBOARD_GC_TIME, async () => {
+    await cached(`top-customers-${range}`, GC_TIME, async () => {
       const data = await prisma.invoice.groupBy({
         by: ["customerId"],
         where: {
@@ -42,7 +42,7 @@ export async function GET(req: Request) {
               name: true,
             },
           })
-        ).map((c) => [c.id, c.name])
+        ).map((c) => [c.id, c.name]),
       );
 
       return data.map((item) => ({
@@ -50,6 +50,6 @@ export async function GET(req: Request) {
         name: customerMap.get(item.customerId) ?? "Unknown",
         total: item._sum.total?.toNumber() ?? 0,
       }));
-    })
+    }),
   );
 }

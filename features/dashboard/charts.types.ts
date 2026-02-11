@@ -60,4 +60,5 @@ export const STATUS_COLOR_MAP: Record<InvoiceStatus, string> = {
   PAID: "var(--chart-3)",
   OVERDUE: "var(--chart-4)",
   CANCELED: "var(--chart-5)",
+  PARTIAL_PAID: "var(--primary)",
 };

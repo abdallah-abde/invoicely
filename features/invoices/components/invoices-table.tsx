@@ -13,19 +13,46 @@ import {
 } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import { DataTablePagination } from "@/features/shared/components/table/data-table-pagination";
-import { columns } from "./columns";
-import { InvoiceType } from "@/features/invoices/invoice.types";
+import { getInvoiceColumns } from "@/features/invoices/components/columns";
+import {
+  InvoiceCategory,
+  InvoiceType,
+} from "@/features/invoices/invoice.types";
 import DataTableSearchInput from "@/features/shared/components/table/data-table-search-input";
 import DataTableColumnsVisibility from "@/features/shared/components/table/data-table-columns-visibility";
 import DataTableHeader from "@/features/shared/components/table/data-table-header";
 import DataTableBody from "@/features/shared/components/table/data-table-body";
+import { useQuery } from "@tanstack/react-query";
+import { fetchWorkingInvoices } from "../api/invoice.api";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 
-export function InvoicesTable({ data }: { data: InvoiceType[] }) {
+export function InvoicesTable({
+  data,
+  type = InvoiceCategory.WORKING,
+}: {
+  data: InvoiceType[];
+  type?: InvoiceCategory;
+}) {
+  const invoicesQuery = useQuery({
+    queryKey: ["invoices", type],
+    queryFn: fetchWorkingInvoices,
+    initialData: data,
+    staleTime: GC_TIME,
+  });
+
+  const columns = React.useMemo(
+    () =>
+      getInvoiceColumns({
+        withActions: type !== InvoiceCategory.CANCELED,
+      }),
+    [type],
+  );
+
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "number", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({ notes: false });
@@ -33,7 +60,7 @@ export function InvoicesTable({ data }: { data: InvoiceType[] }) {
   const [globalFilter, setGlobalFilter] = React.useState<string>("");
 
   const table = useReactTable({
-    data,
+    data: invoicesQuery.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -62,7 +89,7 @@ export function InvoicesTable({ data }: { data: InvoiceType[] }) {
         />
         <DataTableColumnsVisibility table={table} />
       </div>
-      <div className="overflow-hidden rounded-md border">
+      <div className="w-full rounded-md border">
         <Table>
           <DataTableHeader table={table} />
           <DataTableBody table={table} columnsLength={columns.length} />

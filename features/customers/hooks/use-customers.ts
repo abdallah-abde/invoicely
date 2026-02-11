@@ -3,17 +3,20 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ZodError } from "zod";
 import { translateZodError } from "@/lib/utils/zod-intl";
-import { fetchCustomers } from "../api/customer.api";
+import { fetchCustomers } from "@/features/customers/api/customer.api";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
+import { fetchJson } from "@/lib/api/fetch-json";
 
 export function useCustomers() {
   const queryClient = useQueryClient();
+
   const t = useTranslations();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const customersQuery = useQuery({
     queryKey: ["customers"],
     queryFn: fetchCustomers,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: GC_TIME,
   });
 
   const createCustomer = useMutation({
@@ -22,16 +25,10 @@ export function useCustomers() {
     mutationFn: async (data: any) => {
       setFieldErrors({});
 
-      const res = await fetch("/api/customers", {
+      return fetchJson("/api/customers", {
         method: "POST",
         body: JSON.stringify(data),
       });
-
-      const json = await res.json();
-
-      if (!res.ok) throw json;
-
-      return json;
     },
 
     onMutate: async (newCustomer) => {
@@ -55,7 +52,7 @@ export function useCustomers() {
       if (error?.error === "VALIDATION_ERROR") {
         const translated = translateZodError(
           { issues: error.issues } as ZodError,
-          t
+          t,
         );
 
         setFieldErrors(
@@ -64,8 +61,8 @@ export function useCustomers() {
               acc[curr.path] = curr.message;
               return acc;
             },
-            {} as Record<string, string>
-          )
+            {} as Record<string, string>,
+          ),
         );
       }
     },
@@ -87,19 +84,10 @@ export function useCustomers() {
     mutationFn: async ({ id, data }: { id: string; data: any }) => {
       setFieldErrors({});
 
-      const res = await fetch(`/api/customers/${id}`, {
+      return fetchJson(`/api/customers/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       });
-
-      const json = await res.json();
-
-      if (!res.ok) throw json;
-
-      return json;
     },
 
     onMutate: async ({ id, data }) => {
@@ -114,8 +102,8 @@ export function useCustomers() {
                 ...customer,
                 ...data,
               }
-            : customer
-        )
+            : customer,
+        ),
       );
 
       return { previous };
@@ -128,7 +116,7 @@ export function useCustomers() {
       if (error?.error === "VALIDATION_ERROR") {
         const translated = translateZodError(
           { issues: error.issues } as ZodError,
-          t
+          t,
         );
 
         setFieldErrors(
@@ -137,15 +125,15 @@ export function useCustomers() {
               acc[curr.path] = curr.message;
               return acc;
             },
-            {} as Record<string, string>
-          )
+            {} as Record<string, string>,
+          ),
         );
       }
     },
 
     onSuccess: (updatedCustomer) => {
       queryClient.setQueryData<any[]>(["customers"], (old = []) =>
-        old.map((c) => (c.id === updatedCustomer.id ? updatedCustomer : c))
+        old.map((c) => (c.id === updatedCustomer.id ? updatedCustomer : c)),
       );
       queryClient.invalidateQueries({
         queryKey: ["dashboard", "top-customers"],
@@ -156,14 +144,10 @@ export function useCustomers() {
   });
 
   const deleteCustomer = useMutation({
-    mutationKey: ["customers", "delete"],
+    mutationKey: ["customers"],
 
     mutationFn: async (id: string) => {
-      const res = await fetch(`/api/customers/${id}`, { method: "DELETE" });
-
-      const json = await res.json();
-
-      if (!res.ok) throw json;
+      await fetchJson(`/api/customers/${id}`, { method: "DELETE" });
 
       return { id };
     },
@@ -174,7 +158,7 @@ export function useCustomers() {
       const previous = queryClient.getQueryData<any[]>(["customers"]);
 
       queryClient.setQueryData<any[]>(["customers"], (old = []) =>
-        old.filter((customer) => customer.id !== id)
+        old.filter((customer) => customer.id !== id),
       );
 
       return { previous };
@@ -199,14 +183,19 @@ export function useCustomers() {
 
   return {
     customersQuery,
+
     createCustomer,
     updateCustomer,
     deleteCustomer,
+
     fieldErrors,
+
     isCreating: createCustomer.isPending,
     createError: createCustomer.error,
+
     isUpdating: updateCustomer.isPending,
     updateError: updateCustomer.error,
+
     isDeleting: deleteCustomer.isPending,
     deleteError: deleteCustomer.error,
   };

@@ -1,8 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { SidebarMenuButton, SidebarMenuItem } from "../../ui/sidebar";
+import {
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSubItem,
+} from "../../ui/sidebar";
 import { cn } from "@/lib/utils";
+import { useLocale } from "next-intl";
 
 export default function ActiveLink({
   title,
@@ -16,7 +21,10 @@ export default function ActiveLink({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isActive = pathname === url;
+  const locale = useLocale();
+  const fullPath = `/${locale}${url}`;
+
+  const isActive = pathname === fullPath;
 
   return (
     <SidebarMenuItem key={title} title={title}>
@@ -27,7 +35,7 @@ export default function ActiveLink({
           "transition",
           "duration-300",
           isActive ? "bg-primary/30 hover:bg-primary/20" : "",
-          className
+          className,
         )}
       >
         {children}

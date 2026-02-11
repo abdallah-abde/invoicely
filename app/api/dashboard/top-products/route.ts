@@ -1,5 +1,5 @@
 import { cached } from "@/features/dashboard/cached";
-import { DASHBOARD_GC_TIME } from "@/features/dashboard/charts.constants";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 import prisma from "@/lib/db/prisma";
 import { getFromDate } from "@/lib/utils/date.utils";
 import { Item } from "@radix-ui/react-select";
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const from = getFromDate(range);
 
   return NextResponse.json(
-    await cached(`top-products-${range}`, DASHBOARD_GC_TIME, async () => {
+    await cached(`top-products-${range}`, GC_TIME, async () => {
       const data = await prisma.invoiceProduct.groupBy({
         by: ["productId"],
         where: { invoice: { status: "PAID", issuedAt: { gte: from } } },
@@ -29,7 +29,7 @@ export async function GET(req: Request) {
             where: { id: { in: data.map((d) => d.productId) } },
             select: { id: true, name: true, unit: true },
           })
-        ).map((p) => [p.id, { name: p.name, unit: p.unit }])
+        ).map((p) => [p.id, { name: p.name, unit: p.unit }]),
       );
 
       return data.map((d) => ({
@@ -39,6 +39,6 @@ export async function GET(req: Request) {
         total: Number(d._sum.totalPrice),
         unit: productMap.get(d.productId)?.unit ?? "Unknown",
       }));
-    })
+    }),
   );
 }

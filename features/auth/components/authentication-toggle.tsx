@@ -69,7 +69,7 @@ export default function AuthenticationToggle() {
               <Link href="/dashboard" className="flex items-center gap-2">
                 {renderIcon({
                   Icon: LayoutDashboard,
-                  text: t("dashboard"),
+                  text: t("dashboard.label"),
                   isArabic,
                 })}
               </Link>

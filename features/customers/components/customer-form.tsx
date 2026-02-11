@@ -29,6 +29,8 @@ import {
 import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
 import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
 import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
+import { OperationMode } from "@/features/shared/shared.types";
+import { parseApiError } from "@/lib/api/parse-api-error";
 
 export default function CustomerForm({
   setIsOpen,
@@ -37,8 +39,10 @@ export default function CustomerForm({
 }: {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   customer?: Customer | undefined;
-  mode: "create" | "edit";
+  mode: OperationMode;
 }) {
+  const isOperationCreate = mode === OperationMode.CREATE;
+
   const [checkingPermission, setCheckingPermission] = useState(false);
   const { createCustomer, updateCustomer, isCreating, isUpdating } =
     useCustomers();
@@ -66,20 +70,22 @@ export default function CustomerForm({
     try {
       const allowed = await hasPermission({
         resource: "customer",
-        permission: [mode === "create" ? "create" : "update"],
+        permission: [
+          isOperationCreate ? OperationMode.CREATE : OperationMode.UPDATE,
+        ],
       });
 
       if (!allowed) {
         toast.error(
           t(
-            mode === "create"
+            isOperationCreate
               ? "customers.messages.error.add"
-              : "customers.messages.error.edit"
-          )
+              : "customers.messages.error.edit",
+          ),
         );
         return;
       }
-      if (mode === "create") {
+      if (isOperationCreate) {
         await createCustomer.mutateAsync(values);
         toast.success(t("customers.messages.success.add"));
       } else {
@@ -87,9 +93,22 @@ export default function CustomerForm({
           await updateCustomer.mutateAsync({ id: customer.id, data: values });
         toast.success(t("customers.messages.success.edit"));
       }
-      form.reset();
       setIsOpen(false);
-    } catch {
+      form.reset();
+    } catch (err: unknown) {
+      const parsed = parseApiError(err, t);
+
+      if (parsed.type === "validation") {
+        parsed.fields.forEach(({ path, message }) => {
+          form.setError(path as any, {
+            type: "server",
+            message,
+          });
+        });
+        return;
+      }
+
+      toast.error(parsed.message);
     } finally {
       setCheckingPermission(false);
     }

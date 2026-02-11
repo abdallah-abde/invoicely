@@ -1,10 +1,10 @@
-import { Product } from "@/app/generated/prisma/client";
-import { ProductType } from "@/features/products/product.types";
-
-type ProductPrismaPayload = Product & { _count: { invoices: number } };
+import {
+  ProductPrismaPayload,
+  ProductType,
+} from "@/features/products/product.types";
 
 export function mapProductsToDTO(
-  products: ProductPrismaPayload[]
+  products: ProductPrismaPayload[],
 ): ProductType[] {
   const result = products.map((product) => {
     const { price, ...restOfProduct } = product;

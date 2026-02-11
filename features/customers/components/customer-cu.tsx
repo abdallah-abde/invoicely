@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Loader, Plus, SquarePen } from "lucide-react";
+import { Plus, SquarePen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,19 +14,21 @@ import { useState } from "react";
 import type { Customer } from "@/app/generated/prisma/client";
 import { useTranslations } from "next-intl";
 import { useIsMutating } from "@tanstack/react-query";
+import { OperationMode } from "@/features/shared/shared.types";
 
 export default function CustomerCU({
   customer = undefined,
-  mode = "create",
+  mode = OperationMode.CREATE,
 }: {
   customer?: Customer | undefined;
-  mode?: "create" | "edit";
+  mode?: OperationMode;
 }) {
+  const isOperationCreate = mode === OperationMode.CREATE;
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations();
   const isMutating =
     useIsMutating({
-      mutationKey: ["cusomters"],
+      mutationKey: ["customers"],
     }) > 0;
 
   return (
@@ -37,7 +39,7 @@ export default function CustomerCU({
       }}
     >
       <DialogTrigger asChild>
-        {mode === "edit" ? (
+        {!isOperationCreate ? (
           <Button
             className="cursor-pointer text-xs sm:text-sm p-2 w-full justify-start group"
             variant="secondary"
@@ -62,15 +64,15 @@ export default function CustomerCU({
         }}
       >
         <>
-          {isMutating && (
+          {/* {isMutating && (
             <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-50 flex items-center justify-center">
               <Loader className="animate-spin" />
             </div>
-          )}
+          )} */}
 
           <DialogHeader>
             <DialogTitle>
-              {mode === "create"
+              {isOperationCreate
                 ? t("customers.add-description")
                 : t("customers.edit")}
             </DialogTitle>

@@ -1,9 +1,14 @@
 import {
+  Ban,
   Banknote,
   Barcode,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   LayoutDashboard,
   LucideProps,
   Receipt,
+  TriangleAlert,
   User,
   UserPen,
   Users,
@@ -16,6 +21,10 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
 import { authSession } from "@/features/auth/lib/auth-utils";
@@ -25,14 +34,22 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { isLocaleArabic } from "@/lib/utils/locale.utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 export interface ItemProps {
   title: string;
-  url: string;
+  url?: string | null;
   Icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;
-  deniedRoles: string[];
+  deniedRoles?: string[] | null;
+  group?: boolean | null;
+  content?: Array<ItemProps> | null;
 }
 
 const items: ItemProps[] = [
@@ -56,9 +73,28 @@ const items: ItemProps[] = [
   },
   {
     title: "invoices",
-    url: "/dashboard/invoices",
+    group: true,
     Icon: Receipt,
-    deniedRoles: ["user"],
+    content: [
+      {
+        title: "working",
+        url: "/dashboard/invoices",
+        Icon: Receipt,
+        deniedRoles: ["user"],
+      },
+      {
+        title: "canceled",
+        url: "/dashboard/invoices/canceled",
+        Icon: Ban,
+        deniedRoles: ["user"],
+      },
+      {
+        title: "candidates",
+        url: "/dashboard/invoices/overdue-candidates",
+        Icon: TriangleAlert,
+        deniedRoles: ["user"],
+      },
+    ],
   },
   {
     title: "payments",
@@ -109,26 +145,103 @@ export async function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => {
-                if (item.deniedRoles.findIndex((a) => a === role) === -1) {
+                if (item.group && item.content) {
                   return (
-                    <ActiveLink
+                    <Collapsible
                       key={item.title}
-                      title={item.title}
-                      url={item.url}
+                      defaultOpen
+                      className="group/collapsible"
                     >
-                      <Link href={item.url}>
-                        <item.Icon className={isArabic ? "rotate-y-180" : ""} />
-                        <span>
-                          {t(
-                            `${item.title === "dashboard" ? "dashboard" : `${item.title}.label`}`
-                          )}
-                        </span>
-                      </Link>
-                    </ActiveLink>
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton className="cursor-pointer flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <item.Icon
+                                className={cn(
+                                  "size-4",
+                                  isArabic ? "rotate-y-180" : "",
+                                )}
+                              />
+                              <span>{t(`${item.title}.label`)}</span>
+                            </div>
+
+                            <span className="ms-auto">
+                              <span className="group-data-[state=closed]/collapsible:block group-data-[state=open]/collapsible:hidden">
+                                {isArabic ? (
+                                  <ChevronLeft className="h-4 w-4 opacity-70" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 opacity-70" />
+                                )}
+                              </span>
+                            </span>
+
+                            {/* Open */}
+                            <span className="group-data-[state=open]/collapsible:block hidden">
+                              <ChevronDown className="h-4 w-4 opacity-70" />
+                            </span>
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.content?.map((c) => {
+                              if (c.deniedRoles?.includes(role as string)) {
+                                return null;
+                              }
+
+                              return (
+                                // <SidebarMenuSubItem key={c.title}>
+                                <ActiveLink
+                                  key={c.title}
+                                  title={t(`${c.title}.label`)}
+                                  url={c.url || ""}
+                                >
+                                  <Link
+                                    href={c.url || ""}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <c.Icon
+                                      className={isArabic ? "rotate-y-180" : ""}
+                                    />
+                                    <span>
+                                      {t(
+                                        `${c.title === "dashboard" ? "dashboard" : `${c.title}.label`}`,
+                                      )}
+                                    </span>
+                                  </Link>
+                                </ActiveLink>
+                                // </SidebarMenuSubItem>
+                              );
+                            })}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
                   );
-                } else {
+                }
+
+                if (item.deniedRoles?.includes(role as string)) {
                   return null;
                 }
+
+                return (
+                  <ActiveLink
+                    key={item.title}
+                    title={t(`${item.title}.label`)}
+                    url={item.url || ""}
+                  >
+                    <Link
+                      href={item.url || ""}
+                      className="flex items-center gap-2"
+                    >
+                      <item.Icon className={isArabic ? "rotate-y-180" : ""} />
+                      <span>
+                        {t(
+                          `${item.title === "dashboard" ? "dashboard.label" : `${item.title}.label`}`,
+                        )}
+                      </span>
+                    </Link>
+                  </ActiveLink>
+                );
               })}
             </SidebarMenu>
           </SidebarGroupContent>

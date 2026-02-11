@@ -58,6 +58,10 @@ const chartConfig = {
     label: "Canceled",
     color: STATUS_COLOR_MAP[InvoiceStatus.CANCELED],
   },
+  partial_paid: {
+    label: "Partial Paid",
+    color: STATUS_COLOR_MAP[InvoiceStatus.PARTIAL_PAID],
+  },
 } satisfies ChartConfig;
 
 export function InvoiceStatusChart({ data }: { data: InvoiceByStatusProps[] }) {
@@ -69,7 +73,7 @@ export function InvoiceStatusChart({ data }: { data: InvoiceByStatusProps[] }) {
 
   const desc = t(
     "Labels.last-days",
-    getRangeTranslationObjOptions(range, isArabic)
+    getRangeTranslationObjOptions(range, isArabic),
   );
 
   const totalInvoices = React.useMemo(() => {
@@ -112,7 +116,7 @@ export function InvoiceStatusChart({ data }: { data: InvoiceByStatusProps[] }) {
         </div>
       );
     },
-    [isArabic, t]
+    [isArabic, t],
   );
 
   return (

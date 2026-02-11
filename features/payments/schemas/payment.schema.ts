@@ -13,14 +13,30 @@ export const paymentSchema = z.object({
     .nonempty({ error: "required" })
     .min(1, { error: "min" })
     .max(1, { error: "max" }),
-  amount: z
+  amount: z.coerce
+    .number()
+    .positive({ error: "required" })
+    .min(1, { error: "min" }),
+  date: z.date().nonoptional({ error: "required" }),
+  method: z.enum(PaymentMethod, {
+    error: "required",
+  }),
+  notes: z.string().trim().optional(),
+});
+
+export const recordPaymentSchema = z.object({
+  invoiceId: z
     .string()
     .trim()
     .nonempty({ error: "required" })
     .min(1, { error: "min" }),
-  date: z.date().nonoptional({ error: "required" }),
+  amount: z.coerce
+    .number()
+    .positive({ error: "required" })
+    .min(1, { error: "min" }),
   method: z.enum(PaymentMethod, {
-    error: "Payment method is required",
+    error: "required",
   }),
   notes: z.string().trim().optional(),
+  dueAt: z.coerce.date().optional(),
 });

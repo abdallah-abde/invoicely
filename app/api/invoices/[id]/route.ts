@@ -1,115 +1,72 @@
-import prisma from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
 import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
+import {
+  deleteInvoice,
+  updateInvoice,
+} from "@/features/invoices/db/invoice.mutation";
+import { badRequest, notFound, serverError } from "@/lib/api/api-response";
+import { getInvoiceById } from "@/features/invoices/db/invoice.query";
+import { DomainError } from "@/lib/errors/domain-error";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const resolvedParams = await params;
-    await prisma.invoice.delete({
-      where: { id: resolvedParams.id },
-    });
+    const { id } = await params;
 
-    return NextResponse.json({ message: "Invoice deleted" });
+    await deleteInvoice(id);
+
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Error deleting invoice" },
-      { status: 500 }
-    );
+    console.log(error);
+    return serverError("validation.failed-to-delete-invoice");
   }
 }
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
+
     const body = await req.json();
 
-    const { products, ...rest } = body as any;
+    const invoiceId = await updateInvoice(id, body);
 
-    const invoice = await prisma.$transaction(async (tx) => {
-      await tx.invoice.update({
-        where: { id },
-        data: {
-          ...rest,
-          issuedAt: new Date(rest.issuedAt),
-          dueAt: new Date(rest.dueAt),
-          total: Number(rest.total),
-        },
-      });
-
-      if (Array.isArray(body.products)) {
-        await tx.invoiceProduct.deleteMany({ where: { invoiceId: id } });
-
-        if (products.length > 0) {
-          await tx.invoiceProduct.createMany({
-            data: body.products.map((p: any) => ({
-              invoiceId: id,
-              productId: p.productId,
-              quantity: Number(p.quantity),
-              unitPrice: Number(p.unitPrice),
-              totalPrice: Number(p.totalPrice),
-            })),
-          });
-        }
-      }
-
-      return tx.invoice.findUnique({
-        where: { id },
-        include: {
-          customer: true,
-          createdBy: true,
-          products: {
-            include: {
-              product: true,
-            },
-          },
-          _count: {
-            select: { products: true },
-          },
-        },
-      });
-    });
+    const invoice = await getInvoiceById(invoiceId);
 
     if (!invoice) {
-      return NextResponse.json(
-        { error: "Invoice not found after update" },
-        { status: 404 }
-      );
+      return notFound("validation.invoice-not-found");
     }
 
-    const normalized = mapInvoicesToDTO([invoice])[0];
-
-    return NextResponse.json(normalized, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Error updating invoice" },
-      { status: 500 }
-    );
+    return NextResponse.json(mapInvoicesToDTO([invoice])[0], { status: 201 });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
+    return serverError("validation.failed-to-update-invoice");
   }
 }
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const invoice = await prisma.invoice.findUnique({ where: { id } });
+
+    const invoice = await getInvoiceById(id);
+
     if (!invoice) {
-      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+      return serverError("validation.invoice-not-found");
     }
+
     return NextResponse.json(invoice, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { error: "Error fetching invoice" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-get-invoice");
   }
 }

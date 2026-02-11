@@ -1,42 +1,34 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+import { getPayments } from "@/features/payments/db/payment.query";
+import { mapPaymentsToDTO } from "@/features/payments/lib/payment.normalize";
+import { createPayment } from "@/features/payments/db/payment.mutation";
+import { DomainError } from "@/lib/errors/domain-error";
+import { badRequest, serverError } from "@/lib/api/api-response";
 
 export async function GET() {
   try {
-    const data = await prisma.payment.findMany();
+    const data = await getPayments();
+    const normalized = mapPaymentsToDTO(data);
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json(normalized, { status: 200 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to get payments" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-get-payments");
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
+    const body = await req.json();
 
-    const { invoiceId, amount, date, notes, method } = body;
+    const payment = await createPayment(body);
 
-    const newPayment = await prisma.payment.create({
-      data: {
-        invoiceId: invoiceId[0].value,
-        notes,
-        method,
-        date,
-        amount: Number(amount),
-      },
-    });
-
-    return NextResponse.json(newPayment, { status: 201 });
+    return NextResponse.json(mapPaymentsToDTO([payment])[0], { status: 201 });
   } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to create payment" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-create-payment");
   }
 }

@@ -16,30 +16,37 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { useArabic } from "@/hooks/use-arabic";
-import { localizeArabicCurrencySymbol } from "@/lib/utils/number.utils";
-
-export type SelectedItem = {
-  product: Product;
-  price: number;
-  quantity: number;
-  unit: string;
-};
+import {
+  formatCurrencyWithoutSymbols,
+  localizeArabicCurrencySymbol,
+} from "@/lib/utils/number.utils";
+import {
+  InvoiceFormProduct,
+  InvoiceFormValues,
+} from "@/features/invoices/invoice.types";
+import { FieldError, FormState } from "react-hook-form";
+import { cn } from "@/lib/utils";
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 
 interface InvoiceProductFormProps {
-  initialItems?: SelectedItem[];
-  onChange?: (items: SelectedItem[]) => void;
+  initialItems?: InvoiceFormProduct[];
+  onChange?: (items: InvoiceFormProduct[]) => void;
+  disabled: boolean;
+  error: FieldError | undefined;
 }
 
 export default function InvoiceProductForm({
   initialItems = [],
   onChange,
+  disabled,
+  error,
 }: InvoiceProductFormProps) {
   const [isTriggered, setIsTriggered] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
   const [productsMap, setProductsMap] = useState<Record<string, Product>>({});
 
   const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
-  const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
+  const [selectedItems, setSelectedItems] = useState<InvoiceFormProduct[]>([]);
 
   const t = useTranslations();
   const isArabic = useArabic();
@@ -47,13 +54,13 @@ export default function InvoiceProductForm({
   useEffect(() => {
     if (initialItems && initialItems.length > 0) {
       const initialOpts: Option[] = initialItems.map((it) => ({
-        value: String((it.product as any).id),
-        label: it.product.name || String((it.product as any).id),
+        value: it.product.id,
+        label: it.product.name || it.product.id,
       }));
 
       const map: Record<string, Product> = {};
       initialItems.forEach((it) => {
-        map[String((it.product as any).id)] = it.product;
+        map[it.product.id] = it.product;
       });
 
       setProductsMap((prev) => ({ ...prev, ...map }));
@@ -61,10 +68,10 @@ export default function InvoiceProductForm({
       setSelectedItems(
         initialItems.map((it) => ({
           product: it.product,
-          price: it.price ?? (it.product as any).price ?? 0,
+          price: it.price ?? it.product.price ?? 0,
           quantity: it.quantity ?? 1,
           unit: it.unit ?? "",
-        }))
+        })),
       );
     }
   }, []);
@@ -77,7 +84,7 @@ export default function InvoiceProductForm({
     setIsTriggered(true);
     try {
       const res = await fetch(
-        `/api/products/search/${encodeURIComponent(value)}`
+        `/api/products/search/${encodeURIComponent(value)}`,
       );
       if (!res.ok) return [] as Option[];
       const data = (await res.json()) as Option[];
@@ -97,16 +104,14 @@ export default function InvoiceProductForm({
   const handleSelectionChange = async (opts: Option[]) => {
     setSelectedOptions(opts);
 
-    const ids = opts.map((o) => String(o.value));
+    const ids = opts.map((o) => o.value);
 
-    const kept = selectedItems.filter((it) =>
-      ids.includes(String((it.product as any).id))
-    );
+    const kept = selectedItems.filter((it) => ids.includes(it.product.id));
 
-    const keptIds = new Set(kept.map((it) => String((it.product as any).id)));
+    const keptIds = new Set(kept.map((it) => it.product.id));
     const addedIds = ids.filter((id) => !keptIds.has(id));
 
-    const addedItems: SelectedItem[] = [];
+    const addedItems: InvoiceFormProduct[] = [];
 
     for (const id of addedIds) {
       let prod = productsMap[id];
@@ -120,7 +125,7 @@ export default function InvoiceProductForm({
       }
       addedItems.push({
         product: prod,
-        price: (prod as any).price ?? 0,
+        price: normalizeDecimal(prod.price) ?? 0,
         quantity: 1,
         unit: "",
       });
@@ -132,11 +137,11 @@ export default function InvoiceProductForm({
 
   const updateItem = (
     index: number,
-    data: Partial<{ price: number; quantity: number }>
+    data: Partial<{ price: number; quantity: number }>,
   ) => {
     setSelectedItems((prev) => {
       const copy = [...prev];
-      copy[index] = { ...copy[index], ...data } as SelectedItem;
+      copy[index] = { ...copy[index], ...data } as InvoiceFormProduct;
       return copy;
     });
   };
@@ -146,7 +151,7 @@ export default function InvoiceProductForm({
       const copy = [...prev];
       const removed = copy.splice(index, 1)[0];
       setSelectedOptions((prevOpts) =>
-        prevOpts.filter((o) => o.value !== String((removed.product as any).id))
+        prevOpts.filter((o) => o.value !== removed.product.id),
       );
       return copy;
     });
@@ -155,11 +160,12 @@ export default function InvoiceProductForm({
   return (
     <>
       <MultipleSelector
-        className="w-full"
+        className={cn("w-full", error ? "border-destructive" : "")}
         value={selectedOptions}
         options={options}
         hidePlaceholderWhenSelected
         hideClearAllButton
+        disabled={disabled}
         onSearch={async (value) => {
           return await handleSearch(value);
         }}
@@ -180,6 +186,10 @@ export default function InvoiceProductForm({
         }}
       />
 
+      {error && (
+        <div className="text-destructive text-sm mt-2">{error.message}</div>
+      )}
+
       {selectedItems.length > 0 && (
         <div className="mt-4 space-y-2">
           {selectedItems.length > 0 && (
@@ -190,8 +200,13 @@ export default function InvoiceProductForm({
                   currency: localizeArabicCurrencySymbol(isArabic),
                 })}
               </div>
-              <div className="w-28 text-center me-2">
+              <div className="w-28 text-center">
                 {t("Fields.quantity.label")}
+              </div>
+              <div className="w-28 text-center me-2">
+                {t("Fields.total.label", {
+                  currency: localizeArabicCurrencySymbol(isArabic),
+                })}
               </div>
               <div>
                 <Button
@@ -223,12 +238,13 @@ export default function InvoiceProductForm({
                     className="input"
                     value={it.price}
                     step={10}
+                    disabled={disabled}
                     onChange={(e) =>
                       updateItem(idx, { price: Number(e.target.value) })
                     }
                   />
                 </div>
-                <div className="w-28 flex items-center gap-2 me-2">
+                <div className="w-28 flex items-center gap-2">
                   <Label className="sr-only">
                     {t("Fields.quantity.label")}
                   </Label>
@@ -236,6 +252,7 @@ export default function InvoiceProductForm({
                     type="number"
                     className="input"
                     value={it.quantity}
+                    disabled={disabled}
                     onChange={(e) =>
                       updateItem(idx, { quantity: Number(e.target.value) })
                     }
@@ -244,6 +261,12 @@ export default function InvoiceProductForm({
                     {it.product.unit}
                   </Badge>
                 </div>
+                <div className="w-28 text-center">
+                  {formatCurrencyWithoutSymbols({
+                    isArabic,
+                    value: it.quantity * it.price,
+                  })}
+                </div>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -251,6 +274,7 @@ export default function InvoiceProductForm({
                       onClick={() => removeItem(idx)}
                       size="icon"
                       className="cursor-pointer"
+                      disabled={disabled}
                     >
                       <Trash2 />
                     </Button>

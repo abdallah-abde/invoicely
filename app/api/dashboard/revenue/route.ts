@@ -22,6 +22,6 @@ export async function GET(req: Request) {
     result.map((row) => ({
       date: row.date, // YYYY-MM-DD
       revenue: Number(row.revenue), // normalize bigint
-    }))
+    })),
   );
 }

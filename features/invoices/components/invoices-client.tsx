@@ -2,9 +2,16 @@
 
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/layout/page-header";
-import { fetchInvoices } from "@/features/invoices/api/invoice.api";
+import {
+  fetchCanceledInvoices,
+  fetchOverdueCandidatesInvoices,
+  fetchWorkingInvoices,
+} from "@/features/invoices/api/invoice.api";
 import { InvoicesTable } from "@/features/invoices/components/invoices-table";
-import { InvoiceType } from "@/features/invoices/invoice.types";
+import {
+  InvoiceCategory,
+  InvoiceType,
+} from "@/features/invoices/invoice.types";
 import {
   ADMIN_ROLE,
   SUPERADMIN_ROLE,
@@ -12,35 +19,54 @@ import {
 import { useIsMutating, useQuery } from "@tanstack/react-query";
 import InvoiceCU from "@/features/invoices/components/invoice-cu";
 import TableSkeleton from "@/features/shared/components/table/table-skeleton";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 
 export default function InvoicesClient({
   data,
   role,
+  type = InvoiceCategory.WORKING,
 }: {
   data: InvoiceType[];
   role: string | undefined | null;
+  type?: InvoiceCategory;
 }) {
   const t = useTranslations();
   const isMutating =
     useIsMutating({
-      mutationKey: ["invoices"],
+      mutationKey: ["invoices", type],
     }) > 0;
 
   const invoicesQuery = useQuery({
-    queryKey: ["invoices"],
-    queryFn: fetchInvoices,
+    queryKey: ["invoices", type],
+    queryFn: () => {
+      switch (type) {
+        case InvoiceCategory.CANCELED:
+          return fetchCanceledInvoices();
+        case InvoiceCategory.CANDIDATES:
+          return fetchOverdueCandidatesInvoices();
+        case InvoiceCategory.WORKING:
+        default:
+          return fetchWorkingInvoices();
+      }
+    },
     initialData: data,
-    staleTime: 1000 * 60 * 5,
+    staleTime: GC_TIME,
   });
 
-  return isMutating ? (
-    <TableSkeleton />
-  ) : (
-    <div>
-      <PageHeader title={t("invoices.label")}>
-        {role === ADMIN_ROLE || role === SUPERADMIN_ROLE ? <InvoiceCU /> : null}
+  if (invoicesQuery.isLoading) return <TableSkeleton />;
+
+  return (
+    <>
+      <PageHeader title={t(`${type}.label`)}>
+        {role === ADMIN_ROLE || role === SUPERADMIN_ROLE ? (
+          type === InvoiceCategory.WORKING ? (
+            <InvoiceCU type={type} />
+          ) : (
+            <></>
+          )
+        ) : null}
       </PageHeader>
-      <InvoicesTable data={invoicesQuery.data ?? []} />
-    </div>
+      <InvoicesTable data={invoicesQuery.data ?? []} type={type} />
+    </>
   );
 }

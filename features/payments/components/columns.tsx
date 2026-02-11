@@ -1,17 +1,9 @@
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import DataTableActions from "@/features/shared/components/table/data-table-actions";
 import { PaymentType } from "@/features/payments/payment.types";
 import { ColumnDef } from "@tanstack/react-table";
-import { usePayments } from "@/features/payments/hooks/use-payments";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils/number.utils";
-import PaymentCU from "@/features/payments/components/payment-cu";
 import { Badge } from "@/components/ui/badge";
-import { hasPermission } from "@/features/auth/services/access";
-import { DeletingLoader } from "@/features/shared/components/table/data-table-columns";
-import { useRole } from "@/hooks/use-role";
 import { useTranslations } from "next-intl";
 import { useArabic } from "@/hooks/use-arabic";
 import {
@@ -19,6 +11,7 @@ import {
   dateAsStringSort,
 } from "@/features/shared/utils/table.utils";
 import { formatDates } from "@/lib/utils/date.utils";
+import { PaymentRowActions } from "@/features/payments/components/payment-row-actions";
 
 export const columns: ColumnDef<PaymentType>[] = [
   {
@@ -29,7 +22,9 @@ export const columns: ColumnDef<PaymentType>[] = [
     sortingFn: caseInsensitiveSort,
     enableHiding: false,
     cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">{row.original.invoice.number}</div>
+      <div className="text-xs xs:text-sm">
+        {row.original.invoice?.number ?? "---"}
+      </div>
     ),
   },
   {
@@ -41,7 +36,7 @@ export const columns: ColumnDef<PaymentType>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="text-xs xs:text-sm">
-        {row.original.invoice.customer.name}
+        {row.original.invoice?.customer?.name ?? "---"}
       </div>
     ),
   },
@@ -101,7 +96,9 @@ export const columns: ColumnDef<PaymentType>[] = [
             variant="secondary"
             className={cn(
               "select-none",
-              isArabic ? "text-[11px] xs:text-[13px]" : "text-xs xs:text-[13px]"
+              isArabic
+                ? "text-[11px] xs:text-[13px]"
+                : "text-xs xs:text-[13px]",
             )}
           >
             {t(`Labels.${row.original.method.toLowerCase()}`)}
@@ -123,39 +120,6 @@ export const columns: ColumnDef<PaymentType>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-      const { deletePayment, isLoading } = usePayments();
-      const router = useRouter();
-      const t = useTranslations();
-
-      const { isRoleUser, isRoleModerator, isRoleSuperAdmin } = useRole();
-
-      if (isRoleUser || isRoleModerator) return null;
-
-      if (isLoading) return <DeletingLoader />;
-
-      return (
-        <DataTableActions
-          editTrigger={<PaymentCU mode="edit" payment={payment} />}
-          onDelete={async () => {
-            const hasDeletePermission = await hasPermission({
-              resource: "payment",
-              permission: ["delete"],
-            });
-
-            if (hasDeletePermission)
-              deletePayment.mutate(payment.id, {
-                onSuccess: () => {
-                  router.refresh();
-                  toast.success(t("payments.messages.success.delete"));
-                },
-              });
-            else toast.error(t("payments.messages.error.delete"));
-          }}
-          showDelete={isRoleSuperAdmin}
-        />
-      );
-    },
+    cell: ({ row }) => <PaymentRowActions payment={row.original} />,
   },
 ];

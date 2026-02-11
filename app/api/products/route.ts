@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { getProducts } from "@/features/products/db/product.query";
 import { mapProductsToDTO } from "@/features/products/lib/product.normalize";
+import { serverError } from "@/lib/api/api-response";
+import { productSchema } from "@/features/products/schemas/product.schema";
+import { createProduct } from "@/features/products/db/product.mutation";
 
 export async function GET() {
   try {
@@ -11,35 +14,19 @@ export async function GET() {
     return NextResponse.json(normalized, { status: 200 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to get products" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-get-products");
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = productSchema.parse(await request.json());
 
-    const newProduct = await prisma.product.create({
-      data: {
-        ...body,
-        price: Number(body.price),
-      },
-    });
+    const product = await createProduct(body);
 
-    const { price, ...rest } = newProduct;
-
-    return NextResponse.json(
-      { ...rest, priceAsNumber: Number(price) },
-      { status: 201 }
-    );
+    return NextResponse.json(product, { status: 201 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to create product" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-create-product");
   }
 }

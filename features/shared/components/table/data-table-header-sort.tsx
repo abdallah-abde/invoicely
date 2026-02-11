@@ -16,15 +16,17 @@ export default function DataTableHeaderSort<TData>({
 }) {
   const t = useTranslations();
   const isArabic = useArabic();
+  const monetoryColumns = ["price", "total", "amount", "paidamount", "rest"];
+  const isTitleMonetory = monetoryColumns.includes(title);
 
   if (justTitle)
     return (
       <span className="text-center text-xs xs:text-sm">
         {t(
           `Fields.${title}.label`,
-          title === "price" || title === "total" || title === "amount"
+          isTitleMonetory
             ? { currency: localizeArabicCurrencySymbol(isArabic) }
-            : {}
+            : {},
         )}
       </span>
     );
@@ -37,19 +39,19 @@ export default function DataTableHeaderSort<TData>({
       <span className="text-center text-xs xs:text-sm">
         {t(
           `Fields.${title}.label`,
-          title === "price" || title === "total" || title === "amount"
+          isTitleMonetory
             ? { currency: localizeArabicCurrencySymbol(isArabic) }
-            : {}
+            : {},
         )}
       </span>
       {column.getIsSorted() ? (
         column.getIsSorted() === "asc" ? (
-          <ChevronDown className="inline-block" />
+          <ChevronDown className="inline-block size-3.5" />
         ) : (
-          <ChevronUp className="inline-block" />
+          <ChevronUp className="inline-block  size-3.5" />
         )
       ) : (
-        <ArrowUpDown />
+        <ArrowUpDown className=" size-3.5" />
       )}
     </Button>
   );

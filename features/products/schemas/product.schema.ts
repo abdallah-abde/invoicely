@@ -6,7 +6,7 @@ export const productSchema = z.object({
     .trim()
     .nonempty({ error: "required" })
     .min(2, { error: "min" }),
-  description: z.string().trim().optional(),
+  description: z.string(),
   unit: z
     .string()
     .trim()

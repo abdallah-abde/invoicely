@@ -42,7 +42,7 @@ export function FormDateFieldPopOver({
             variant="outline"
             className={cn(
               "w-full ps-3 text-start font-normal",
-              !value && "text-muted-foreground"
+              !value && "text-muted-foreground",
             )}
             disabled={disabled}
           >
@@ -77,7 +77,7 @@ export function FormDateFieldPopOver({
                   formatDay: (x) => arNumbers.format(x.getDate()),
                   formatCaption: (x) => {
                     const monthTranslationKey = getMonthTranslationKey(
-                      (x.getMonth() + 1).toString()
+                      (x.getMonth() + 1).toString(),
                     );
 
                     return `${t(`month.${monthTranslationKey}`)} ${arNumbers.format(x.getFullYear())}`;

@@ -47,6 +47,7 @@ const enNumbersWithCommas = new Intl.NumberFormat("en-US", {
 const syPound = new Intl.NumberFormat("ar-SY", {
   style: "currency",
   currency: "SYP",
+  maximumFractionDigits: 5,
 });
 
 const arNumbersWithCommas = new Intl.NumberFormat("ar-SY", {

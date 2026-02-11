@@ -25,7 +25,7 @@ export default async function BreadcrumbSlot() {
               width="20"
               height="20"
             />
-            {t("dashboard")}
+            {t("dashboard.label")}
           </BreadcrumbPage>
         </BreadcrumbItem>
       </BreadcrumbList>

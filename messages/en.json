@@ -1,7 +1,7 @@
 {
   "app-name": "Invoicely",
   "app-name-dashboard": "Invoicely Dashboard",
-  "dashboard": "Dashboard",
+  "dashboard": { "label": "Dashboard" },
   "update-profile": {
     "label": "Update profile",
     "update-label": "Update your details",
@@ -100,6 +100,18 @@
         "edit-failure": "Failed to edit invoice"
       }
     }
+  },
+  "working": {
+    "label": "Working invoices"
+  },
+  "canceled": {
+    "label": "Canceled invoices"
+  },
+  "candidates": {
+    "label": "Candidates overdue invoices"
+  },
+  "overdue-candidates": {
+    "label": "Candidate overdue invoices"
   },
   "payments": {
     "label": "Payments",
@@ -338,6 +350,15 @@
     "invoicescount": {
       "label": "Invoices Count"
     },
+    "paymentscount": {
+      "label": "Payments Count"
+    },
+    "paidamount": {
+      "label": "Paid ({currency})"
+    },
+    "rest": {
+      "label": "Rest ({currency})"
+    },
     "unit": {
       "label": "Unit",
       "placeholder": "Enter unit"
@@ -395,6 +416,10 @@
     "invoice": {
       "label": "Invoice",
       "placeholder": "Select invoice"
+    },
+    "payment": {
+      "label": "Payment",
+      "placeholder": "Select payment"
     },
     "createdby": {
       "label": "Created by"
@@ -483,6 +508,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "actions": "Actions",
+    "record_payment": "Record payment",
     "loading": "Loading...",
     "rows-selected": "({selected}) of ({total}) row(s) selected.",
     "rows-per-page": "Rows per page",
@@ -495,6 +521,7 @@
     "overdue": "OVERDUE",
     "draft": "DRAFT",
     "canceled": "CANCELED",
+    "partial_paid": "PARTIAL PAID",
     "total": "Invoice Total:",
     "rest": "Invoice Rest:",
     "loading-total-rest": "Loading invoice total & rest",
@@ -528,7 +555,8 @@
     "count": "Count",
     "confirm-alert": "Are you absolutely sure?",
     "confirm-alert-body": "This action cannot be undone. This {resource} will be permanently deleted.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "not-exist": "Not exist"
   },
   "validation": {
     "min": "Field Must be at least {min} characters",
@@ -536,6 +564,38 @@
     "invalid_type": "Invalid type",
     "required": "This field is required",
     "email": "Invalid email address",
-    "default": "Invalid value"
+    "default": "Invalid value",
+    "invoice-date-less-than-today": "Issued date cannot be before today",
+    "due-date-less-than-invoice-date": "Due date must be on or after invoice date",
+    "amount-not-excced-total": "Paid amount must be between 0 and invoice total",
+    "products-required": "Invoice must contain at least one product",
+    "paid-exceeds-total": "Paid amount exceeds invoice total",
+    "payments-not-allowed-unless-paid": "Payments are not allowed unless invoice status is PAID",
+    "payment-amount-required": "Paid invoice must include a payment amount",
+    "invoice-not-found": "Invoice not found",
+    "paid-invoice-downgrade-not-allowed": "Paid invoices cannot be downgraded",
+    "failed-to-get-working-invoice": "Failed to get working invoices",
+    "failed-to-get-invoice": "Failed to get invoice",
+    "failed-to-create-invoice": "Failed to create invoice",
+    "failed-to-delete-invoice": "Failed to delete invoice",
+    "failed-to-update-invoice": "Failed to update invoice",
+    "failed-to-get-customers": "Failed to get customers",
+    "failed-to-create-customer": "Failed to create customer",
+    "failed-to-delete-customer": "Failed to delete customer",
+    "failed-to-update-customer": "Failed to update customer",
+    "customer-not-found-after-update": "Customer not found after update",
+    "failed-to-get-products": "Failed to get products",
+    "failed-to-get-product": "Failed to get product",
+    "failed-to-create-product": "Failed to create product",
+    "failed-to-delete-product": "Failed to delete product",
+    "failed-to-update-product": "Failed to update product",
+    "product-not-found-after-update": "Product not found after update",
+    "product-not-found": "Product not found",
+    "notes-cannot-be-updated": "Notes cannot be updated for this invoice",
+    "customer-cannot-be-updated": "Customer cannot be updated for this invoice",
+    "products-cannot-be-updated": "Products cannot be updated for this invoice",
+    "failed-to-get-payments": "Failed to get payments",
+    "failed-to-create-payment": "Failed to create payment",
+    "failed-to-record-payment": "Failed to record payment"
   }
 }

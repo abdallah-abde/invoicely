@@ -1,128 +1,208 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ZodError } from "zod";
 import { translateZodError } from "@/lib/utils/zod-intl";
-// import { toast } from "sonner";
+import { PaymentType } from "@/features/payments/payment.types";
+import { fetchJson } from "@/lib/api/fetch-json";
 
 export function usePayments() {
   const queryClient = useQueryClient();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const t = useTranslations();
-
-  const paymentsQuery = useQuery({
-    queryKey: ["payments"],
-    queryFn: async () => {
-      const res = await fetch("/api/payments");
-      return res.json();
-    },
-  });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const createPayment = useMutation({
-    mutationFn: async (data: any) => {
-      setIsLoading(true);
+    mutationKey: ["payments"],
 
-      console.log(data);
-      const res = await fetch("/api/payments", {
+    mutationFn: async (data: any) => {
+      setFieldErrors({});
+
+      return fetchJson("/api/payments", {
         method: "POST",
         body: JSON.stringify(data),
       });
-      return res.json();
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payments"] });
+    onMutate: async (newPayment) => {
+      await queryClient.cancelQueries({ queryKey: ["payments"] });
+
+      const previous = queryClient.getQueryData<PaymentType[]>(["payments"]);
+
+      queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) => {
+        return [
+          ...old,
+          {
+            ...newPayment,
+            id: "temp-id",
+            dateAsString: "",
+            amountAsNumber: Number(newPayment.amount),
+            invoice: {
+              number: "",
+              customer: {
+                name: "",
+              },
+            },
+          },
+        ];
+      });
+
+      return { previous };
     },
 
-    onSettled: () => {
-      setIsLoading(false);
-    },
-
-    onError: (error: any) => {
-      if (error?.name === "ZodError") {
-        const zodError = new ZodError(error.issues);
-
-        const translated = translateZodError(zodError, t);
-
-        // translated.forEach((err) => {
-        //   toast.error(err.message);
-        // });
-
-        return;
+    onError: (error: any, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["payments"], context.previous);
       }
 
-      // toast.error("error");
+      if (error?.error === "VALIDATION_ERROR") {
+        const translated = translateZodError(
+          { issues: error.issues } as ZodError,
+          t,
+        );
+
+        setFieldErrors(
+          translated.reduce(
+            (acc, curr) => {
+              acc[curr.path] = curr.message;
+              return acc;
+            },
+            {} as Record<string, string>,
+          ),
+        );
+      }
     },
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["payments"] });
+      // await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+
+    retry: false,
   });
 
   const updatePayment = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      setIsLoading(true);
+    mutationKey: ["payments"],
 
-      const res = await fetch(`/api/payments/${id}`, {
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      setFieldErrors({});
+
+      return fetchJson("/api/payments", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       });
-
-      if (!res.ok) throw new Error("Update failed");
-
-      return res.json();
     },
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["payments"] });
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["payments"] });
+
+      const previous = queryClient.getQueryData<PaymentType[]>(["payments"]);
+
+      queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
+        old.map((payment) =>
+          payment.id === id
+            ? {
+                ...payment,
+                ...data,
+                dateAsString: "",
+                amountAsNumber: Number(data.amount),
+                invoice: {
+                  number: "",
+                  customer: {
+                    name: "",
+                  },
+                },
+              }
+            : payment,
+        ),
+      );
+
+      return { previous };
     },
 
-    onSettled: () => {
-      setIsLoading(false);
-    },
-
-    onError: (error: any) => {
-      if (error?.name === "ZodError") {
-        const zodError = new ZodError(error.issues);
-
-        const translated = translateZodError(zodError, t);
-
-        // translated.forEach((err) => {
-        //   toast.error(err.message);
-        // });
-
-        return;
+    onError: (error: any, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["payments"], context.previous);
       }
+      if (error?.error === "VALIDATION_ERROR") {
+        const translated = translateZodError(
+          { issues: error.issues } as ZodError,
+          t,
+        );
 
-      // toast.error("error");
+        setFieldErrors(
+          translated.reduce(
+            (acc, curr) => {
+              acc[curr.path] = curr.message;
+              return acc;
+            },
+            {} as Record<string, string>,
+          ),
+        );
+      }
     },
+
+    onSuccess: (updatePayment) => {
+      queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
+        old.map((c) => (c.id === updatePayment.id ? updatePayment : c)),
+      );
+
+      // queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+
+    retry: false,
   });
 
   const deletePayment = useMutation({
-    mutationFn: async (id: string) => {
-      setIsLoading(true);
+    mutationKey: ["payments"],
 
-      await fetch(`/api/payments/${id}`, { method: "DELETE" });
+    mutationFn: async (id: string) => {
+      await fetchJson(`/api/payments/${id}`, {
+        method: "DELETE",
+      });
+
+      return { id };
+    },
+
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: ["payments"] });
+
+      const previous = queryClient.getQueryData<PaymentType[]>(["payments"]);
+
+      queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
+        old.filter((payment) => payment.id !== id),
+      );
+
+      return { previous };
+    },
+
+    onError: (error, id, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["payments"], context.previous);
+      }
     },
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["payments"] });
+      // queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
 
-    onSettled: () => {
-      setIsLoading(false);
-    },
-
-    onError: (error) => {
-      console.error(error);
-    },
+    retry: false,
   });
 
   return {
-    paymentsQuery,
     createPayment,
     updatePayment,
     deletePayment,
-    isLoading,
+
+    fieldErrors,
+
+    isCreating: createPayment.isPending,
+    createError: createPayment.error,
+
+    isUpdating: updatePayment.isPending,
+    updateError: updatePayment.error,
+
+    isDeleting: deletePayment.isPending,
+    deleteError: deletePayment.error,
   };
 }

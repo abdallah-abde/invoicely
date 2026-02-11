@@ -1,99 +1,43 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
-import { getInvoices } from "@/features/invoices/db/invoice.query";
 import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
+import {
+  getInvoiceById,
+  getWorkingInvoices,
+} from "@/features/invoices/db/invoice.query";
+import { badRequest, serverError } from "@/lib/api/api-response";
+import { createInvoice } from "@/features/invoices/db/invoice.mutation";
+import { DomainError } from "@/lib/errors/domain-error";
 
 export async function GET() {
   try {
-    const data = await getInvoices();
+    const data = await getWorkingInvoices();
     const normalized = mapInvoicesToDTO(data);
 
     return NextResponse.json(normalized, { status: 200 });
   } catch (err) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to get invoices" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-get-working-invoice");
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const body = await request.json();
+    const body = await req.json();
 
-    const {
-      number,
-      customerId,
-      issuedAt,
-      dueAt,
-      status,
-      total,
-      notes,
-      createdById,
-      products = [],
-    } = body;
+    const invoiceId = await createInvoice(body);
 
-    // const products = Array.isArray(body.products) ? body.products : [];
-
-    const invoice = await prisma.$transaction(async (tx) => {
-      const inv = await tx.invoice.create({
-        data: {
-          number,
-          customerId,
-          issuedAt: new Date(issuedAt),
-          dueAt: new Date(dueAt),
-          status,
-          total: Number(total),
-          notes,
-          createdById,
-        },
-      });
-
-      if (products.length) {
-        await tx.invoiceProduct.createMany({
-          data: products.map((p: any) => ({
-            invoiceId: inv.id,
-            productId: p.productId,
-            quantity: Number(p.quantity),
-            unitPrice: Number(p.unitPrice),
-            totalPrice: Number(p.totalPrice),
-          })),
-        });
-      }
-
-      return tx.invoice.findUnique({
-        where: { id: inv.id },
-        include: {
-          customer: true,
-          createdBy: true,
-          products: {
-            include: {
-              product: true,
-            },
-          },
-          _count: {
-            select: { products: true },
-          },
-        },
-      });
-    });
+    const invoice = await getInvoiceById(invoiceId);
 
     if (!invoice) {
-      return NextResponse.json(
-        { error: "Invoice not found after creation" },
-        { status: 500 }
-      );
+      return serverError("validation.invoice-not-found");
     }
 
-    const normalized = mapInvoicesToDTO([invoice])[0];
-
-    return NextResponse.json(normalized, { status: 201 });
+    return NextResponse.json(mapInvoicesToDTO([invoice])[0], { status: 201 });
   } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
     console.error(err);
-    return NextResponse.json(
-      { error: "Failed to create invoice" },
-      { status: 500 }
-    );
+    return serverError("validation.failed-to-create-invoice");
   }
 }

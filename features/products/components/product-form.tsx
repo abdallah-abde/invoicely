@@ -25,6 +25,8 @@ import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
 import { CustomFormLabel } from "@/features/shared/components/form/custom-form-label";
 import { CustomFormSubmitButton } from "@/features/shared/components/form/custom-form-submit-button";
 import { useArabic } from "@/hooks/use-arabic";
+import { OperationMode } from "@/features/shared/shared.types";
+import { parseApiError } from "@/lib/api/parse-api-error";
 
 export default function ProductForm({
   setIsOpen,
@@ -33,8 +35,10 @@ export default function ProductForm({
 }: {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   product?: ProductType | undefined;
-  mode: "create" | "edit";
+  mode: OperationMode;
 }) {
+  const isOperationCreate = mode === OperationMode.CREATE;
+
   const [checkingPermission, setCheckingPermission] = useState(false);
   const { createProduct, updateProduct, isCreating, isUpdating } =
     useProducts();
@@ -61,7 +65,9 @@ export default function ProductForm({
     try {
       const allowed = await hasPermission({
         resource: "product",
-        permission: [mode === "create" ? "create" : "update"],
+        permission: [
+          isOperationCreate ? OperationMode.CREATE : OperationMode.UPDATE,
+        ],
       });
 
       if (!allowed) {
@@ -69,13 +75,13 @@ export default function ProductForm({
           t(
             mode === "create"
               ? "products.messages.error.add"
-              : "products.messages.error.edit"
-          )
+              : "products.messages.error.edit",
+          ),
         );
         return;
       }
 
-      if (mode === "create") {
+      if (isOperationCreate) {
         await createProduct.mutateAsync(values);
         toast.success(t("products.messages.success.add"));
       } else {
@@ -83,9 +89,22 @@ export default function ProductForm({
           await updateProduct.mutateAsync({ id: product.id, data: values });
         toast.success(t("products.messages.success.edit"));
       }
-      form.reset();
       setIsOpen(false);
-    } catch {
+      form.reset();
+    } catch (err: unknown) {
+      const parsed = parseApiError(err, t);
+
+      if (parsed.type === "validation") {
+        parsed.fields.forEach(({ path, message }) => {
+          form.setError(path as any, {
+            type: "server",
+            message,
+          });
+        });
+        return;
+      }
+
+      toast.error(parsed.message);
     } finally {
       setCheckingPermission(false);
     }

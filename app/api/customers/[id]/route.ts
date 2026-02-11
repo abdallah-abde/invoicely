@@ -1,45 +1,45 @@
+import {
+  deleteCustomer,
+  updateCustomer,
+} from "@/features/customers/db/customer.mutation";
+import { customerSchema } from "@/features/customers/schemas/customer.schema";
+import { notFound, serverError } from "@/lib/api/api-response";
 import prisma from "@/lib/db/prisma";
 import { NextResponse } from "next/server";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const resolvedParams = await params;
-    await prisma.customer.delete({
-      where: { id: resolvedParams.id },
-    });
+    const { id } = await params;
+    await deleteCustomer(id);
 
-    return NextResponse.json({ message: "Customer deleted" });
+    return NextResponse.json({ success: true }, { status: 204 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Error deleting customer" },
-      { status: 500 }
-    );
+    console.error(error);
+    return serverError("validation.failed-to-delete-customer");
   }
 }
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-    const body = await req.json();
-    const customer = await prisma.customer.update({
-      where: { id },
-      data: { ...body, email: body.email.toLowerCase() },
-      include: {
-        _count: { select: { invoices: true } },
-      },
-    });
 
-    return NextResponse.json(customer);
+    const body = customerSchema.parse(await req.json());
+
+    const customer = await updateCustomer(id, body);
+
+    if (!customer) {
+      return notFound("validation.customer-not-found-after-update");
+    }
+
+    return NextResponse.json(customer, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { error: "Error updating customer" },
-      { status: 500 }
-    );
+    console.error(error);
+    return serverError("validation.failed-to-update-customer");
   }
 }

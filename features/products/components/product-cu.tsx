@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Loader, Plus, SquarePen } from "lucide-react";
+import { Plus, SquarePen } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,14 +14,16 @@ import { useState } from "react";
 import { ProductType } from "@/features/products/product.types";
 import { useTranslations } from "next-intl";
 import { useIsMutating } from "@tanstack/react-query";
+import { OperationMode } from "@/features/shared/shared.types";
 
 export default function ProductCU({
   product = undefined,
-  mode = "create",
+  mode = OperationMode.CREATE,
 }: {
   product?: ProductType | undefined;
-  mode?: "create" | "edit";
+  mode?: OperationMode;
 }) {
+  const isOperationCreate = mode === OperationMode.CREATE;
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations();
   const isMutating =
@@ -37,7 +39,7 @@ export default function ProductCU({
       }}
     >
       <DialogTrigger asChild>
-        {mode === "edit" ? (
+        {!isOperationCreate ? (
           <Button
             className="cursor-pointer text-xs sm:text-sm p-2 w-full justify-start group"
             variant="secondary"
@@ -62,15 +64,15 @@ export default function ProductCU({
         }}
       >
         <>
-          {isMutating && (
+          {/* {isMutating && (
             <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-50 flex items-center justify-center">
               <Loader className="animate-spin" />
             </div>
-          )}
+          )} */}
 
           <DialogHeader>
             <DialogTitle>
-              {mode === "create"
+              {isOperationCreate
                 ? t("products.add-description")
                 : t("products.edit")}
             </DialogTitle>

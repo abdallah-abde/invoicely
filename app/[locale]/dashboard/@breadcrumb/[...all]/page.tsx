@@ -53,7 +53,7 @@ export default async function BreadcrumbSlot({
           <BreadcrumbSeparator>
             {isArabic ? <ChevronLeft /> : <ChevronRight />}
           </BreadcrumbSeparator>
-        </React.Fragment>
+        </React.Fragment>,
       );
     }
   }
@@ -69,7 +69,7 @@ export default async function BreadcrumbSlot({
               width="20"
               height="20"
             />
-            {t("dashboard")}
+            {t("dashboard.label")}
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>

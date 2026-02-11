@@ -1,7 +1,7 @@
 {
   "app-name": "إنفويسلي",
   "app-name-dashboard": "لوحة تحكم إنفويسلي",
-  "dashboard": "لوحة التحكم",
+  "dashboard": { "label": "لوحة التحكم" },
   "update-profile": {
     "label": "تحديث الملف الشخصي",
     "update-label": "تحديث بياناتك",
@@ -100,6 +100,18 @@
         "edit-failure": "حدث خطأ أثناء تعديل الفاتورة"
       }
     }
+  },
+  "working": {
+    "label": "الفواتير النشطة"
+  },
+  "canceled": {
+    "label": "الفواتير الملغاة"
+  },
+  "candidates": {
+    "label": "الفواتير المتأخرة المرشحة"
+  },
+  "overdue-candidates": {
+    "label": "الفواتير المتأخرة المرشحة"
   },
   "payments": {
     "label": "الدفعات",
@@ -338,6 +350,15 @@
     "invoicescount": {
       "label": "عدد الفواتير"
     },
+    "paymentscount": {
+      "label": "عدد الدفعات"
+    },
+    "paidamount": {
+      "label": "المدفوع ({currency})"
+    },
+    "rest": {
+      "label": "الباقي ({currency})"
+    },
     "unit": {
       "label": "الوحدة",
       "placeholder": "أدخل الوحدة"
@@ -395,6 +416,10 @@
     "invoice": {
       "label": "الفاتورة",
       "placeholder": "اختر فاتورة"
+    },
+    "payment": {
+      "label": "الدفعة",
+      "placeholder": "اختر دفعة"
     },
     "createdby": {
       "label": "أنشأ بواسطة"
@@ -483,6 +508,7 @@
     "edit": "تعديل",
     "delete": "حذف",
     "actions": "إجراءات",
+    "record_payment": "تسجيل دفعة",
     "loading": "تحميل...",
     "of": "من",
     "rows-selected": "تم تحديد ({selected}) من ({total}) سجل",
@@ -496,6 +522,7 @@
     "overdue": "متأخرة",
     "draft": "مسودة",
     "canceled": "ملغاة",
+    "partial_paid": "مدفوعة جزئياً",
     "total": "إجمالي الفاتورة",
     "rest": "باقي الفاتورة",
     "loading-total-rest": "تحميل إجمالي وباقي الفاتورة",
@@ -529,7 +556,8 @@
     "count": "العدد",
     "confirm-alert": "هل أنت متأكد تماماً؟",
     "confirm-alert-body": "هذا الإجراء لا يمكن الرجوع عنه. سيتم حذف {resource} نهائياً.",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "not-exist": "غير موجود"
   },
   "validation": {
     "min": "يجب أن يكون الحقل على الأقل {min} محارف",
@@ -537,6 +565,38 @@
     "invalid_type": "هذا الحقل مطلوب",
     "required": "هذا الحقل مطلوب",
     "email": "ايميل غير صالح",
-    "default": "إدخال غير صحيح"
+    "default": "إدخال غير صحيح",
+    "invoice-date-less-than-today": "تاريخ الفاتورة لا يمكن أن يكون في الماضي",
+    "due-date-less-than-invoice-date": "تاريخ الاستحقاق يجب أن يكون مساوياً أو أكبر من تاريخ الفاتورة",
+    "amount-not-excced-total": "القيمة المدفوعة يجب ان تكون بين صفر والقيمة الإجمالية",
+    "products-required": "الفاتورة يجب أن تحتوي على منتج واحد على الأقل",
+    "paid-exceeds-total": "لا يجب لقيمة الدفعة أن تزيد على قيمة الفاتورة",
+    "payments-not-allowed-unless-paid": "الدفعات غير متاحة إلا للفواتير المدفوعة",
+    "payment-amount-required": "الفاتورة المدفوعة يجب أن تتضمن قيمة دفعة",
+    "invoice-not-found": "الفاتورة غير موجودة",
+    "paid-invoice-downgrade-not-allowed": "لا يمكن تخفيض حالة الفاتورة المدفوعة",
+    "failed-to-get-working-invoice": "فشل في إحضار الفواتير النشطة",
+    "failed-to-get-invoice": "فشل في إحضار الفاتورة",
+    "failed-to-create-invoice": "فشل في إنشاء فاتورة",
+    "failed-to-delete-invoice": "فشل في حذف الفاتورة",
+    "failed-to-update-invoice": "فشل في تعديل الفاتورة",
+    "failed-to-get-customers": "فشل في إحضار العملاء",
+    "failed-to-create-customer": "فشل في إنشاء العميل",
+    "failed-to-delete-customer": "فشل في حذف العميل",
+    "failed-to-update-customer": "فشل في تعديل العميل",
+    "customer-not-found-after-update": "العميل غير موجود بعد التعديل",
+    "failed-to-get-products": "فشل في إحضار المنتجات",
+    "failed-to-get-product": "فشل في إحضار المنتج",
+    "failed-to-create-product": "فشل في إنشاء المنتج",
+    "failed-to-delete-product": "فشل في حذف المنتج",
+    "failed-to-update-product": "فشل في تعديل المنتج",
+    "product-not-found-after-update": "المنتج غير موجود بعد التعديل",
+    "product-not-found": "المنتج غير موجود",
+    "notes-cannot-be-updated": "الملاحظات لهذه الفاتورة لا يمكن تعديلها",
+    "customer-cannot-be-updated": "العميل لهذه الفاتورة لا يمكن تعديله",
+    "products-cannot-be-updated": "منتجات هذه الفاتورة لا يمكن تعديلها",
+    "failed-to-get-payments": "فشل في إحضاء الدفعات",
+    "failed-to-create-payment": "فشل في إنشاء الدفعة",
+    "failed-to-record-payment": "فشل في تسجيل الدفعة"
   }
 }

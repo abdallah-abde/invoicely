@@ -12,6 +12,7 @@ import {
 import { useIsMutating, useQuery } from "@tanstack/react-query";
 import ProductCU from "@/features/products/components/product-cu";
 import TableSkeleton from "@/features/shared/components/table/table-skeleton";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 
 export default function ProductsClient({
   data,
@@ -30,7 +31,7 @@ export default function ProductsClient({
     queryKey: ["products"],
     queryFn: fetchProducts,
     initialData: data,
-    staleTime: 1000 * 60 * 5,
+    staleTime: GC_TIME,
   });
 
   return isMutating ? (

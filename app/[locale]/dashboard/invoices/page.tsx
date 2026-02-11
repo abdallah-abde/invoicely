@@ -4,12 +4,12 @@ import type { Metadata } from "next";
 import { APIError } from "better-auth";
 import { getUserRole } from "@/features/auth/lib/auth-utils";
 import { USER_ROLE } from "@/features/users/lib/user.constants";
-import { getInvoices } from "@/features/invoices/db/invoice.query";
+import { getWorkingInvoices } from "@/features/invoices/db/invoice.query";
 import InvoicesClient from "@/features/invoices/components/invoices-client";
 import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
 
 export const metadata: Metadata = {
-  title: "Invoices",
+  title: "Working invoices",
 };
 
 export default async function DashboardInvoicesPage() {
@@ -19,7 +19,7 @@ export default async function DashboardInvoicesPage() {
     throw new APIError("FORBIDDEN");
   }
 
-  const data = await getInvoices();
+  const data = await getWorkingInvoices();
 
   const result = mapInvoicesToDTO(data);
 
