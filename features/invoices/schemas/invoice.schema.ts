@@ -104,21 +104,3 @@ export const invoiceCreateSchema = z
 export const invoiceUpdateSchema = z.object({
   notes: z.string().trim().optional(),
 });
-
-export const invoiceDraftUpdateSchema = z.object({
-  customerId: z
-    .string()
-    .trim()
-    .nonempty({ error: "required" })
-    .min(1, { error: "min" }),
-  notes: z.string().trim().optional(),
-  products: z.array(
-    z.object({
-      productId: z.string(),
-      unitPrice: z.coerce.number(),
-      totalPrice: z.coerce.number(),
-      quantity: z.coerce.number(),
-      unit: z.string(),
-    }),
-  ),
-});

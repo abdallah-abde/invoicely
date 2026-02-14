@@ -8,6 +8,7 @@ import { fetchJson } from "@/lib/api/fetch-json";
 
 export function usePayments() {
   const queryClient = useQueryClient();
+
   const t = useTranslations();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 

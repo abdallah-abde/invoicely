@@ -12,114 +12,123 @@ import {
 } from "@/features/shared/utils/table.utils";
 import { formatDates } from "@/lib/utils/date.utils";
 import { PaymentRowActions } from "@/features/payments/components/payment-row-actions";
+import { StatusBadge } from "@/features/shared/components/table/status-badge";
 
-export const columns: ColumnDef<PaymentType>[] = [
-  {
-    accessorKey: "invoice.number",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="invoicenumber" />;
-    },
-    sortingFn: caseInsensitiveSort,
-    enableHiding: false,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">
-        {row.original.invoice?.number ?? "---"}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "invoice.customer.name",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="customer" />;
-    },
-    sortingFn: caseInsensitiveSort,
-    enableHiding: false,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">
-        {row.original.invoice?.customer?.name ?? "---"}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "dateAsString",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="paymentdate" />;
-    },
-    enableHiding: false,
-    sortingFn: dateAsStringSort,
-    cell: ({ row }) => {
-      const isArabic = useArabic();
-
-      return (
+export function getPaymentColumns(): ColumnDef<PaymentType>[] {
+  const columns: ColumnDef<PaymentType>[] = [
+    {
+      accessorKey: "invoice.number",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="invoicenumber" />;
+      },
+      enableHiding: false,
+      cell: ({ row }) => (
         <div className="text-xs xs:text-sm">
-          {formatDates({
-            isArabic,
-            value: row.original.date,
-          })}
+          {row.original.invoice?.number ?? "---"}
         </div>
-      );
+      ),
     },
-  },
-  {
-    accessorKey: "amountAsNumber",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="amount" />;
-    },
-    enableHiding: false,
-    cell: ({ row }) => {
-      const isArabic = useArabic();
-
-      const amount = parseFloat(row.getValue("amountAsNumber"));
-
-      return (
-        <div className="font-medium text-primary text-xs xs:text-sm">
-          {formatCurrency({
-            isArabic,
-            value: amount,
-          })}
+    {
+      accessorKey: "invoice.customer.name",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="customer" />;
+      },
+      sortingFn: caseInsensitiveSort,
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="text-xs xs:text-sm">
+          {row.original.invoice?.customer?.name ?? "---"}
         </div>
-      );
+      ),
     },
-  },
-  {
-    accessorKey: "method",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="method" />;
-    },
-    cell: ({ row }) => {
-      const t = useTranslations();
-      const isArabic = useArabic();
+    {
+      accessorKey: "dateAsString",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="paymentdate" />;
+      },
+      enableHiding: false,
+      sortingFn: dateAsStringSort,
+      cell: ({ row }) => {
+        const isArabic = useArabic();
 
-      return (
-        <div>
-          <Badge
-            variant="secondary"
-            className={cn(
-              "select-none",
-              isArabic
-                ? "text-[11px] xs:text-[13px]"
-                : "text-xs xs:text-[13px]",
-            )}
-          >
-            {t(`Labels.${row.original.method.toLowerCase()}`)}
-          </Badge>
-        </div>
-      );
+        return (
+          <div className="text-xs xs:text-sm">
+            {formatDates({
+              isArabic,
+              value: row.original.date,
+            })}
+          </div>
+        );
+      },
     },
-  },
-  {
-    accessorKey: "notes",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="notes" justTitle />;
+    {
+      accessorKey: "amountAsNumber",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="amount" />;
+      },
+      enableHiding: false,
+      cell: ({ row }) => {
+        const isArabic = useArabic();
+
+        return (
+          <div className="font-medium text-primary text-xs xs:text-sm">
+            {formatCurrency({
+              isArabic,
+              value: row.original.amountAsNumber,
+            })}
+          </div>
+        );
+      },
     },
-    enableSorting: false,
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">{row.getValue("notes")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => <PaymentRowActions payment={row.original} />,
-  },
-];
+    {
+      accessorKey: "method",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="method" />;
+      },
+      cell: ({ row }) => {
+        const t = useTranslations();
+        const isArabic = useArabic();
+
+        return (
+          <div>
+            <Badge
+              variant="secondary"
+              className={cn(
+                "select-none",
+                isArabic
+                  ? "text-[11px] xs:text-[13px]"
+                  : "text-xs xs:text-[13px]",
+              )}
+            >
+              {t(`Labels.${row.original.method.toLowerCase()}`)}
+            </Badge>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "notes",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="notes" justTitle />;
+      },
+      enableSorting: false,
+      cell: ({ row }) => (
+        <div className="text-xs xs:text-sm">{row.original.notes}</div>
+      ),
+    },
+    {
+      accessorKey: "invoice.status",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="status" />;
+      },
+      cell: ({ row }) => <StatusBadge status={row.original.invoice.status} />,
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => <PaymentRowActions payment={row.original} />,
+    },
+  ];
+
+  return columns;
+}

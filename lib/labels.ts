@@ -13,4 +13,5 @@ export const labels = {
   _count_products: "Products Count",
   _count_Payments: "Payments Count",
   emailVerified: "Email Verified",
+  invoice_status: "status",
 };

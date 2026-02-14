@@ -23,7 +23,7 @@ import DataTableColumnsVisibility from "@/features/shared/components/table/data-
 import DataTableHeader from "@/features/shared/components/table/data-table-header";
 import DataTableBody from "@/features/shared/components/table/data-table-body";
 import { useQuery } from "@tanstack/react-query";
-import { fetchWorkingInvoices } from "../api/invoice.api";
+import { fetchWorkingInvoices } from "@/features/invoices/api/invoice.api";
 import { GC_TIME } from "@/features/dashboard/charts.constants";
 
 export function InvoicesTable({

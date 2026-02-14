@@ -7,12 +7,7 @@ import { DomainError } from "@/lib/errors/domain-error";
 import { getInvoiceEditPolicy } from "@/features/invoices/lib/get-invoice-edit-policy";
 import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
 import { getInvoiceById } from "@/features/invoices/db/invoice.query";
-import {
-  parseLocalDateOnly,
-  toDateOnlyUTC,
-  todayLocalDateOnly,
-} from "@/lib/utils/date.utils";
-import { parse } from "path";
+import { parseLocalDateOnly, todayLocalDateOnly } from "@/lib/utils/date.utils";
 
 export async function createInvoice(data: InvoiceInput) {
   const totalNumber = normalizeDecimal(data.total);
@@ -67,7 +62,7 @@ export async function createInvoice(data: InvoiceInput) {
     new Date().getFullYear(),
   );
 
-  // issued = new Date(2026, 1, 6, 12, 0, 0); // TODO: remove after testing
+  // issued = new Date(2026, 1, 12, 12, 0, 0); // TODO: remove after testing
 
   return prisma.$transaction(async (tx) => {
     const inv = await tx.invoice.create({

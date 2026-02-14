@@ -77,9 +77,19 @@ export const InvoiceCategory = {
 export type InvoiceCategory =
   (typeof InvoiceCategory)[keyof typeof InvoiceCategory];
 
+export const DOWNLOADABLE_STATUSES = [
+  InvoiceStatus.SENT,
+  InvoiceStatus.PAID,
+  InvoiceStatus.PARTIAL_PAID,
+  InvoiceStatus.OVERDUE,
+] as const;
+
+export type DownloadableStatus = (typeof DOWNLOADABLE_STATUSES)[number];
+
 /*** INVOICE NORMALIZE TYPES ***/
 export interface InvoiceSelectedProps {
   number: string | null;
+  status: InvoiceStatus;
   customer: Pick<Customer, "name">;
 }
 

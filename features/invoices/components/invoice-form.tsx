@@ -10,7 +10,6 @@ import {
 import { useForm } from "react-hook-form";
 import {
   invoiceCreateSchema,
-  invoiceDraftUpdateSchema,
   invoiceUpdateSchema,
 } from "@/features/invoices/schemas/invoice.schema";
 import { Input } from "@/components/ui/input";
@@ -73,8 +72,8 @@ export default function InvoiceForm({
   customers: Customer[];
   customersIsLoading: boolean;
 }) {
-  const policy = getInvoiceEditPolicy(invoice);
-  const canEdit = (field: keyof InvoiceEditPolicy) => policy[field];
+  const invoiceEditPolicy = getInvoiceEditPolicy(invoice);
+  const canEdit = (field: keyof InvoiceEditPolicy) => invoiceEditPolicy[field];
 
   const isOperationCreate = mode === OperationMode.CREATE;
   const [checkingPermission, setCheckingPermission] = useState(false);
@@ -110,6 +109,8 @@ export default function InvoiceForm({
       products: invoice?.products || [],
     },
   });
+
+  console.log("ERRORS: ", form.formState.errors);
 
   const status = form.watch("status");
 

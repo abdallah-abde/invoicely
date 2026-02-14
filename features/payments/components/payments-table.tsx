@@ -13,19 +13,31 @@ import {
 } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import { DataTablePagination } from "@/features/shared/components/table/data-table-pagination";
-import { columns } from "@/features/payments/components/columns";
+import { getPaymentColumns } from "@/features/payments/components/columns";
 import { PaymentType } from "@/features/payments/payment.types";
 import DataTableSearchInput from "@/features/shared/components/table/data-table-search-input";
 import DataTableColumnsVisibility from "@/features/shared/components/table/data-table-columns-visibility";
 import DataTableHeader from "@/features/shared/components/table/data-table-header";
 import DataTableBody from "@/features/shared/components/table/data-table-body";
+import { useQuery } from "@tanstack/react-query";
+import { fetchPayments } from "@/features/payments/api/payment.api";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 
 export function PaymentsTable({ data }: { data: PaymentType[] }) {
+  const paymentsQuery = useQuery({
+    queryKey: ["payments"],
+    queryFn: fetchPayments,
+    initialData: data,
+    staleTime: GC_TIME,
+  });
+
+  const columns = React.useMemo(() => getPaymentColumns(), []);
+
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "dateAsString", desc: true },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({ notes: false });
@@ -33,7 +45,7 @@ export function PaymentsTable({ data }: { data: PaymentType[] }) {
   const [globalFilter, setGlobalFilter] = React.useState<string>("");
 
   const table = useReactTable({
-    data,
+    data: paymentsQuery.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

@@ -1,3 +1,4 @@
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 import {
   PaymentPrismaPayload,
   PaymentType,
@@ -9,12 +10,12 @@ export function mapPaymentsToDTO(
   const result = payments.map((payment) => {
     const { amount, ...restOfPayment } = payment;
 
-    const paymentDate = payment.date.toLocaleDateString();
+    const paymentDate = payment.date;
 
     return {
       ...restOfPayment,
-      dateAsString: paymentDate,
-      amountAsNumber: amount.toNumber(),
+      dateAsString: paymentDate.toString(),
+      amountAsNumber: normalizeDecimal(amount),
     };
   });
 

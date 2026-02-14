@@ -1,11 +1,9 @@
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
 import { InvoiceStatus, InvoiceType } from "@/features/invoices/invoice.types";
-import { cn } from "@/lib/utils";
 import { formatNumbers, formatCurrency } from "@/lib/utils/number.utils";
 import { ColumnDef, Row } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { useArabic } from "@/hooks/use-arabic";
-import { useTranslations } from "next-intl";
 import {
   caseInsensitiveSort,
   dateAsStringSort,
@@ -14,6 +12,7 @@ import { formatDates } from "@/lib/utils/date.utils";
 import { InvoiceRowActions } from "@/features/invoices/components/invoice-row-actions";
 import DropdownDownloadInvoice from "@/features/invoices/components/dropdown-download-invoice";
 import DropdownrecordPayment from "@/features/invoices/components/dropdown-record-payment";
+import { StatusBadge } from "@/features/shared/components/table/status-badge";
 
 export function getInvoiceColumns(options?: {
   withActions?: boolean;
@@ -28,7 +27,7 @@ export function getInvoiceColumns(options?: {
       },
       enableHiding: false,
       cell: ({ row }) => (
-        <div className="text-xs xs:text-sm">{row.getValue("number")}</div>
+        <div className="text-xs xs:text-sm">{row.original.number ?? "---"}</div>
       ),
     },
     {
@@ -70,7 +69,7 @@ export function getInvoiceColumns(options?: {
       header: ({ column }) => {
         return <DataTableHeaderSort column={column} title="status" />;
       },
-      cell: ({ row }) => renderStatus(row),
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
 
     {
@@ -101,13 +100,11 @@ export function getInvoiceColumns(options?: {
       cell: ({ row }) => {
         const isArabic = useArabic();
 
-        const total = row.original.totalAsNumber;
-
         return (
           <div className="font-medium text-primary text-xs xs:text-sm">
             {formatCurrency({
               isArabic,
-              value: total,
+              value: row.original.totalAsNumber,
             })}
           </div>
         );
@@ -216,11 +213,11 @@ export function getInvoiceColumns(options?: {
     {
       accessorKey: "notes",
       header: ({ column }) => {
-        return <DataTableHeaderSort column={column} title="notes" />;
+        return <DataTableHeaderSort column={column} title="notes" justTitle />;
       },
       enableSorting: false,
       cell: ({ row }) => (
-        <div className="text-xs xs:text-sm">{row.getValue("notes")}</div>
+        <div className="text-xs xs:text-sm">{row.original.notes}</div>
       ),
     },
   ];
@@ -234,61 +231,22 @@ export function getInvoiceColumns(options?: {
     {
       id: "actions",
       enableHiding: false,
-      cell: ({ row }) => (
-        <InvoiceRowActions invoice={row.original}>
-          <DropdownDownloadInvoice invoiceId={row.original.id} />
-          {(row.original.status === InvoiceStatus.DRAFT ||
-            row.original.status === InvoiceStatus.SENT ||
-            row.original.status === InvoiceStatus.PARTIAL_PAID) && (
-            <DropdownrecordPayment invoice={row.original} />
-          )}
-        </InvoiceRowActions>
-      ),
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+          <InvoiceRowActions invoice={row.original}>
+            {status !== InvoiceStatus.DRAFT &&
+              status !== InvoiceStatus.CANCELED && (
+                <DropdownDownloadInvoice invoiceId={row.original.id} />
+              )}
+            {(status === InvoiceStatus.DRAFT ||
+              status === InvoiceStatus.SENT ||
+              status === InvoiceStatus.PARTIAL_PAID) && (
+              <DropdownrecordPayment invoice={row.original} />
+            )}
+          </InvoiceRowActions>
+        );
+      },
     },
   ];
-}
-
-function renderStatus(row: Row<InvoiceType>) {
-  const paidClr = `bg-[oklch(0.488_0.243_264.376)]`;
-
-  const sentClr = `bg-[oklch(0.696_0.17_162.48)]`;
-
-  const overdueClr = `bg-[oklch(0.769_0.188_70.08)]`;
-
-  const draftClr = `bg-[oklch(0.627_0.265_303.9)]`;
-
-  const canceledClr = `bg-[oklch(0.645_0.246_16.439)]`;
-
-  const partialPaidClr = `bg-[oklch(0.772_0.205_149.54)]`;
-
-  const t = useTranslations();
-  const isArabic = useArabic();
-
-  return (
-    <div className="w-full flex items-center justify-center">
-      <div
-        className={cn(
-          `text-[8px] xs:text-[10px] border rounded-full p-1.5 px-3.5 w-fit tracking-widest select-none text-primary-foreground `,
-          `${
-            row.original.status === InvoiceStatus.PAID
-              ? paidClr //"text-chart-1" // text-purple-400
-              : row.original.status === InvoiceStatus.SENT
-                ? sentClr // text-red-400
-                : row.original.status === InvoiceStatus.DRAFT
-                  ? draftClr // text-sky-400
-                  : row.original.status === InvoiceStatus.OVERDUE
-                    ? overdueClr // text-gray-400
-                    : row.original.status === InvoiceStatus.CANCELED
-                      ? canceledClr // text-red-400
-                      : row.original.status === InvoiceStatus.PARTIAL_PAID
-                        ? partialPaidClr // text-green-400
-                        : ""
-          }`,
-          isArabic ? "text-[11px] xs:text-[13px]" : "",
-        )}
-      >
-        {t(`Labels.${row.original.status.toLowerCase()}`)}
-      </div>
-    </div>
-  );
 }

@@ -138,15 +138,18 @@ model InvoiceProduct {
 }
 
 model Payment {
-  id        String        @id @default(uuid())
-  invoiceId String
-  amount    Decimal
-  date      DateTime
-  method    PaymentMethod
-  notes     String
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  invoice   Invoice       @relation(fields: [invoiceId], references: [id])
+  id          String         @id @default(uuid())
+  invoiceId   String
+  amount      Decimal
+  date        DateTime
+  method      PaymentMethod
+  notes       String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  invoice     Invoice        @relation(fields: [invoiceId], references: [id])
+  referenceNo String?
+  status      PaymentStatus?
+  voidedAt    DateTime?
 }
 
 model Product {
@@ -180,4 +183,9 @@ enum PaymentMethod {
 enum UserRole {
   ADMIN
   USER
+}
+
+enum PaymentStatus {
+  ACTIVE
+  VOIDED
 }

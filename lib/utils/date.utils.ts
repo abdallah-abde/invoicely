@@ -186,7 +186,6 @@ export function toDateOnlyUTC(d: Date | string) {
 }
 
 export function parseLocalDateOnly(value: Date) {
-  console.log(value instanceof Date, "is date");
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
 }
 

@@ -16,7 +16,7 @@ import {
   ADMIN_ROLE,
   SUPERADMIN_ROLE,
 } from "@/features/users/lib/user.constants";
-import { useIsMutating, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import InvoiceCU from "@/features/invoices/components/invoice-cu";
 import TableSkeleton from "@/features/shared/components/table/table-skeleton";
 import { GC_TIME } from "@/features/dashboard/charts.constants";
@@ -31,10 +31,6 @@ export default function InvoicesClient({
   type?: InvoiceCategory;
 }) {
   const t = useTranslations();
-  const isMutating =
-    useIsMutating({
-      mutationKey: ["invoices", type],
-    }) > 0;
 
   const invoicesQuery = useQuery({
     queryKey: ["invoices", type],
@@ -61,9 +57,7 @@ export default function InvoicesClient({
         {role === ADMIN_ROLE || role === SUPERADMIN_ROLE ? (
           type === InvoiceCategory.WORKING ? (
             <InvoiceCU type={type} />
-          ) : (
-            <></>
-          )
+          ) : null
         ) : null}
       </PageHeader>
       <InvoicesTable data={invoicesQuery.data ?? []} type={type} />

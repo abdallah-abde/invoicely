@@ -4,6 +4,7 @@ export const paymentFullInclude = {
   invoice: {
     select: {
       number: true,
+      status: true,
       customer: {
         select: {
           name: true,

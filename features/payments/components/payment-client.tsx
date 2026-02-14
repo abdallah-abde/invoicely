@@ -9,7 +9,7 @@ import {
   ADMIN_ROLE,
   SUPERADMIN_ROLE,
 } from "@/features/users/lib/user.constants";
-import { useIsMutating, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import PaymentCU from "@/features/payments/components/payment-cu";
 import TableSkeleton from "@/features/shared/components/table/table-skeleton";
 import { GC_TIME } from "@/features/dashboard/charts.constants";
@@ -22,10 +22,6 @@ export default function PaymentsClient({
   role: string | undefined | null;
 }) {
   const t = useTranslations();
-  const isMutating =
-    useIsMutating({
-      mutationKey: ["payments"],
-    }) > 0;
 
   const paymentsQuery = useQuery({
     queryKey: ["payments"],
@@ -34,14 +30,14 @@ export default function PaymentsClient({
     staleTime: GC_TIME,
   });
 
-  return isMutating ? (
-    <TableSkeleton />
-  ) : (
-    <div>
+  if (paymentsQuery.isLoading) return <TableSkeleton />;
+
+  return (
+    <>
       <PageHeader title={t("payments.label")}>
         {role === ADMIN_ROLE || role === SUPERADMIN_ROLE ? <PaymentCU /> : null}
       </PageHeader>
       <PaymentsTable data={paymentsQuery.data ?? []} />
-    </div>
+    </>
   );
 }

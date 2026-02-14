@@ -5,10 +5,14 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { generateInvoicePDF } from "@/features/invoices/services/pdf.services";
 import { formatDates } from "@/lib/utils/date.utils";
+import {
+  DOWNLOADABLE_STATUSES,
+  DownloadableStatus,
+} from "@/features/invoices/invoice.types";
 
 export async function GET(
   _: Request,
-  { params }: { params: Promise<{ id: string; lang: string }> }
+  { params }: { params: Promise<{ id: string; lang: string }> },
 ) {
   const { id, lang } = await params;
 
@@ -26,8 +30,12 @@ export async function GET(
     return new NextResponse("Invoice not found", { status: 404 });
   }
 
+  if (!DOWNLOADABLE_STATUSES.includes(invoice.status as DownloadableStatus)) {
+    throw new Error("PDF not allowed for this invoice status");
+  }
+
   const pdf = await generateInvoicePDF({
-    invoiceNumber: invoice.number,
+    invoiceNumber: invoice.number || "",
     issueAt: formatDates({ isArabic: false, value: invoice.issuedAt }),
     dueAt: formatDates({ isArabic: false, value: invoice.dueAt }),
     customer: {

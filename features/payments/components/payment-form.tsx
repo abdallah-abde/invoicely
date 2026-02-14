@@ -81,7 +81,7 @@ export default function PaymentForm({
           disable: false,
         },
       ],
-      amount: payment?.amountAsNumber.toString() || "",
+      amount: payment?.amountAsNumber || undefined,
       date: payment?.date ? new Date(payment?.date) : new Date(),
       method: payment?.method || undefined,
       notes: payment?.notes || "",
@@ -89,9 +89,8 @@ export default function PaymentForm({
   });
 
   async function onSubmit(values: z.infer<typeof paymentSchema>) {
-    setCheckingPermission(true);
-
     try {
+      setCheckingPermission(true);
       const allowed = await hasPermission({
         resource: "payment",
         permission: [
@@ -114,8 +113,9 @@ export default function PaymentForm({
         await createPayment.mutateAsync(values);
         toast.success(t("payments.messages.success.add"));
       } else {
-        if (payment)
-          await updatePayment.mutateAsync({ id: payment.id, data: values });
+        if (!payment) return;
+
+        await updatePayment.mutateAsync({ id: payment.id, data: values });
         toast.success(t("payments.messages.success.edit"));
       }
       setIsOpen(false);
@@ -415,7 +415,7 @@ export default function PaymentForm({
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <CustomFormLabel
-                  label={t("Fields.invoicedate.label")}
+                  label={t("Fields.paymentdate.label")}
                   isRequired={true}
                 />
                 <FormDateFieldPopOver

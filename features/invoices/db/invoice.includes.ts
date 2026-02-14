@@ -9,6 +9,7 @@ export const invoiceFullInclude = {
       invoice: {
         select: {
           number: true,
+          status: true,
           customer: {
             select: {
               name: true,
