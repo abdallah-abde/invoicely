@@ -1,5 +1,6 @@
 import { Payment } from "@/app/generated/prisma/client";
 import {
+  InvoicePDFData,
   InvoiceSelectedProps,
   InvoiceStatus,
 } from "@/features/invoices/invoice.types";
@@ -21,6 +22,17 @@ export interface PaymentType extends Omit<
   };
 }
 
+/*** RECEIPT PDF DATA TYPE ***/
+export interface ReceiptPDFData {
+  referenceNo: string;
+  amount: number;
+  receiptDate: string;
+  method: string;
+  paymentStatus: string;
+  invoice: InvoicePDFData;
+  lang: string;
+}
+
 export const PaymentMethod = {
   CREDIT_CARD: "CREDIT_CARD",
   BANK_TRANSFER: "BANK_TRANSFER",
@@ -30,6 +42,13 @@ export const PaymentMethod = {
 } as const;
 
 export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
+
+export const PaymentStatus = {
+  ACTIVE: "ACTIVE",
+  VOIDED: "VOIDED",
+} as const;
+
+export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 
 export const ALLOWED_INVOICES_TO_MAKE_PAYMENTS = [
   InvoiceStatus.SENT,

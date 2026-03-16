@@ -81,84 +81,84 @@ export function usePayments() {
     retry: false,
   });
 
-  const updatePayment = useMutation({
-    mutationKey: ["payments"],
+  // const updatePayment = useMutation({
+  //   mutationKey: ["payments"],
 
-    mutationFn: async ({ id, data }: { id: string; data: any }) => {
-      setFieldErrors({});
+  //   mutationFn: async ({ id, data }: { id: string; data: any }) => {
+  //     setFieldErrors({});
 
-      return fetchJson("/api/payments", {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
-    },
+  //     return fetchJson("/api/payments", {
+  //       method: "PUT",
+  //       body: JSON.stringify(data),
+  //     });
+  //   },
 
-    onMutate: async ({ id, data }) => {
-      await queryClient.cancelQueries({ queryKey: ["payments"] });
+  //   onMutate: async ({ id, data }) => {
+  //     await queryClient.cancelQueries({ queryKey: ["payments"] });
 
-      const previous = queryClient.getQueryData<PaymentType[]>(["payments"]);
+  //     const previous = queryClient.getQueryData<PaymentType[]>(["payments"]);
 
-      queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
-        old.map((payment) =>
-          payment.id === id
-            ? {
-                ...payment,
-                ...data,
-                dateAsString: "",
-                amountAsNumber: Number(data.amount),
-                invoice: {
-                  number: "",
-                  customer: {
-                    name: "",
-                  },
-                },
-              }
-            : payment,
-        ),
-      );
+  //     queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
+  //       old.map((payment) =>
+  //         payment.id === id
+  //           ? {
+  //               ...payment,
+  //               ...data,
+  //               dateAsString: "",
+  //               amountAsNumber: Number(data.amount),
+  //               invoice: {
+  //                 number: "",
+  //                 customer: {
+  //                   name: "",
+  //                 },
+  //               },
+  //             }
+  //           : payment,
+  //       ),
+  //     );
 
-      return { previous };
-    },
+  //     return { previous };
+  //   },
 
-    onError: (error: any, _variables, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(["payments"], context.previous);
-      }
-      if (error?.error === "VALIDATION_ERROR") {
-        const translated = translateZodError(
-          { issues: error.issues } as ZodError,
-          t,
-        );
+  //   onError: (error: any, _variables, context) => {
+  //     if (context?.previous) {
+  //       queryClient.setQueryData(["payments"], context.previous);
+  //     }
+  //     if (error?.error === "VALIDATION_ERROR") {
+  //       const translated = translateZodError(
+  //         { issues: error.issues } as ZodError,
+  //         t,
+  //       );
 
-        setFieldErrors(
-          translated.reduce(
-            (acc, curr) => {
-              acc[curr.path] = curr.message;
-              return acc;
-            },
-            {} as Record<string, string>,
-          ),
-        );
-      }
-    },
+  //       setFieldErrors(
+  //         translated.reduce(
+  //           (acc, curr) => {
+  //             acc[curr.path] = curr.message;
+  //             return acc;
+  //           },
+  //           {} as Record<string, string>,
+  //         ),
+  //       );
+  //     }
+  //   },
 
-    onSuccess: (updatePayment) => {
-      queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
-        old.map((c) => (c.id === updatePayment.id ? updatePayment : c)),
-      );
+  //   onSuccess: (updatePayment) => {
+  //     queryClient.setQueryData<PaymentType[]>(["payments"], (old = []) =>
+  //       old.map((c) => (c.id === updatePayment.id ? updatePayment : c)),
+  //     );
 
-      // queryClient.invalidateQueries({ queryKey: ["dashboard"] });
-    },
+  //     // queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+  //   },
 
-    retry: false,
-  });
+  //   retry: false,
+  // });
 
-  const deletePayment = useMutation({
+  const voidPayment = useMutation({
     mutationKey: ["payments"],
 
     mutationFn: async (id: string) => {
-      await fetchJson(`/api/payments/${id}`, {
-        method: "DELETE",
+      await fetchJson(`/api/payments/${id}/void`, {
+        method: "PUT",
       });
 
       return { id };
@@ -192,18 +192,18 @@ export function usePayments() {
 
   return {
     createPayment,
-    updatePayment,
-    deletePayment,
+    // updatePayment,
+    voidPayment,
 
     fieldErrors,
 
     isCreating: createPayment.isPending,
     createError: createPayment.error,
 
-    isUpdating: updatePayment.isPending,
-    updateError: updatePayment.error,
+    // isUpdating: updatePayment.isPending,
+    // updateError: updatePayment.error,
 
-    isDeleting: deletePayment.isPending,
-    deleteError: deletePayment.error,
+    isVoiding: voidPayment.isPending,
+    voidError: voidPayment.error,
   };
 }

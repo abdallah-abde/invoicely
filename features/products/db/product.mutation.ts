@@ -7,17 +7,20 @@ export async function createProduct(data: ProductInput) {
   const product = await prisma.product.create({
     data: {
       ...data,
-      price: normalizeDecimal(Number(data.price)),
+      price: normalizeDecimal(data.price),
     },
     include: productFullInclude,
   });
 
-  const { price, ...rest } = product;
+  return product;
 
-  return {
-    ...rest,
-    priceAsNumber: normalizeDecimal(price),
-  };
+  // const { price, ...rest } = product;
+
+  // return {
+  //   ...rest,
+  //   // price: normalizeDecimal(price),
+  //   priceAsNumber: normalizeDecimal(price),
+  // };
 }
 
 export async function updateProduct(id: string, data: ProductInput) {
@@ -25,7 +28,7 @@ export async function updateProduct(id: string, data: ProductInput) {
     where: { id },
     data: {
       ...data,
-      price: normalizeDecimal(Number(data.price)),
+      price: normalizeDecimal(data.price),
     },
     include: productFullInclude,
   });
@@ -34,5 +37,6 @@ export async function updateProduct(id: string, data: ProductInput) {
 export async function deleteProduct(id: string) {
   return prisma.product.delete({
     where: { id },
+    include: productFullInclude,
   });
 }

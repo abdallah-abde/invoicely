@@ -27,6 +27,7 @@ import {
 import { FieldError, FormState } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { normalizeDecimal } from "@/lib/normalize/primitives";
+import { ProductType } from "@/features/products/product.types";
 
 interface InvoiceProductFormProps {
   initialItems?: InvoiceFormProduct[];
@@ -43,7 +44,9 @@ export default function InvoiceProductForm({
 }: InvoiceProductFormProps) {
   const [isTriggered, setIsTriggered] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
-  const [productsMap, setProductsMap] = useState<Record<string, Product>>({});
+  const [productsMap, setProductsMap] = useState<Record<string, ProductType>>(
+    {},
+  );
 
   const [selectedOptions, setSelectedOptions] = useState<Option[]>([]);
   const [selectedItems, setSelectedItems] = useState<InvoiceFormProduct[]>([]);
@@ -58,7 +61,7 @@ export default function InvoiceProductForm({
         label: it.product.name || it.product.id,
       }));
 
-      const map: Record<string, Product> = {};
+      const map: Record<string, ProductType> = {};
       initialItems.forEach((it) => {
         map[it.product.id] = it.product;
       });
@@ -68,7 +71,7 @@ export default function InvoiceProductForm({
       setSelectedItems(
         initialItems.map((it) => ({
           product: it.product,
-          price: it.price ?? it.product.price ?? 0,
+          price: it.price ?? it.product.priceAsNumber ?? 0,
           quantity: it.quantity ?? 1,
           unit: it.unit ?? "",
         })),
@@ -98,7 +101,7 @@ export default function InvoiceProductForm({
   const fetchProductById = async (id: string) => {
     const res = await fetch(`/api/products/${encodeURIComponent(id)}`);
     if (!res.ok) return null;
-    return (await res.json()) as Product;
+    return (await res.json()) as ProductType;
   };
 
   const handleSelectionChange = async (opts: Option[]) => {
@@ -125,7 +128,7 @@ export default function InvoiceProductForm({
       }
       addedItems.push({
         product: prod,
-        price: normalizeDecimal(prod.price) ?? 0,
+        price: normalizeDecimal(prod.priceAsNumber) ?? 0,
         quantity: 1,
         unit: "",
       });
@@ -226,6 +229,7 @@ export default function InvoiceProductForm({
                 key={String((it.product as any).id)}
                 className="flex items-center gap-2"
               >
+                {/* {JSON.stringify(it)} */}
                 <div className="flex-1">{it.product.name}</div>
                 <div className="w-28">
                   <Label className="sr-only">
@@ -237,7 +241,7 @@ export default function InvoiceProductForm({
                     type="number"
                     className="input"
                     value={it.price}
-                    step={10}
+                    step={0.01}
                     disabled={disabled}
                     onChange={(e) =>
                       updateItem(idx, { price: Number(e.target.value) })
@@ -275,6 +279,9 @@ export default function InvoiceProductForm({
                       size="icon"
                       className="cursor-pointer"
                       disabled={disabled}
+                      style={{
+                        opacity: `${disabled ? "0.35" : "1"}`,
+                      }}
                     >
                       <Trash2 />
                     </Button>

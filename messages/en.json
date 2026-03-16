@@ -119,6 +119,7 @@
     "add-description": "Add a new payment.",
     "edit": "Edit Payment",
     "edit-description": "Edit this payment and save your changes.",
+    "download-receipt": "Download receipt",
     "messages": {
       "success": {
         "delete": "Payment deleted successfully!",
@@ -389,6 +390,14 @@
       "label": "Amount ({currency})",
       "placeholder": "Enter amount"
     },
+    "paymentstatus": {
+      "label": "Payment status",
+      "placeholder": "Enter payment status"
+    },
+    "referenceno": {
+      "label": "Reference No.",
+      "placeholder": "Enter reference number"
+    },
     "issuedat": {
       "label": "Issued At",
       "pick": "Pick issued date"
@@ -504,9 +513,13 @@
     "no-monthly-revenue": "No monthly revenue"
   },
   "Labels": {
+    "customer-name": "Customer name",
+    "invoice-date": "Invoice date",
+    "invoice-status": "Invoice status",
     "deleting": "Deleting...",
     "edit": "Edit",
     "delete": "Delete",
+    "void": "Void payment",
     "actions": "Actions",
     "record_payment": "Record payment",
     "loading": "Loading...",
@@ -522,9 +535,11 @@
     "draft": "DRAFT",
     "canceled": "CANCELED",
     "partial_paid": "PARTIAL PAID",
+    "active": "ACTIVE",
+    "voided": "VOIDED",
     "total": "Invoice Total:",
     "rest": "Invoice Rest:",
-    "loading-total-rest": "Loading invoice total & rest",
+    "loading-invoice-data": "Loading invoice data",
     "credit_card": "Credit card",
     "bank_transfer": "Bank transfer",
     "cash": "Cash",
@@ -555,6 +570,7 @@
     "count": "Count",
     "confirm-alert": "Are you absolutely sure?",
     "confirm-alert-body": "This action cannot be undone. This {resource} will be permanently deleted.",
+    "confirm-alert-void-body": "This action cannot be undone. This payment will be voided.",
     "cancel": "Cancel",
     "not-exist": "Not exist"
   },
@@ -565,6 +581,8 @@
     "required": "This field is required",
     "email": "Invalid email address",
     "default": "Invalid value",
+    "internal-server-error": "Internal server error",
+    "resource-not-found": "Resource not found",
     "invoice-date-less-than-today": "Issued date cannot be before today",
     "payment-date-grater-than-today": "Payment date cannot be after today",
     "due-date-less-than-invoice-date": "Due date must be on or after invoice date",
@@ -577,17 +595,24 @@
     "payments-not-allowed-for-this-invoice": "Payments are not allowed for this invoice",
     "payment-amount-required": "Paid invoice must include a payment amount",
     "invoice-not-found": "Invoice not found",
+    "payment-not-found": "Payment not found",
+    "payments-not-found": "Payments not found",
     "paid-invoice-downgrade-not-allowed": "Paid invoices cannot be downgraded",
     "failed-to-get-working-invoice": "Failed to get working invoices",
+    "failed-to-get-overdue-invoices": "Failed to get overdue invoices",
+    "failed-to-get-canceled-invoices": "Failed to get canceled invoices",
     "failed-to-get-invoice": "Failed to get invoice",
+    "failed-to-get-invoices": "Failed to get invoices",
     "failed-to-create-invoice": "Failed to create invoice",
     "failed-to-delete-invoice": "Failed to delete invoice",
     "failed-to-update-invoice": "Failed to update invoice",
+    "download-bill-not-allowed-for-this-invoice": "Download bill is not allowed for this invoice",
     "failed-to-get-customers": "Failed to get customers",
     "failed-to-create-customer": "Failed to create customer",
     "failed-to-delete-customer": "Failed to delete customer",
     "failed-to-update-customer": "Failed to update customer",
     "customer-not-found-after-update": "Customer not found after update",
+    "customer-not-found": "Customer not found",
     "failed-to-get-products": "Failed to get products",
     "failed-to-get-product": "Failed to get product",
     "failed-to-create-product": "Failed to create product",
@@ -600,6 +625,13 @@
     "products-cannot-be-updated": "Products cannot be updated for this invoice",
     "failed-to-get-payments": "Failed to get payments",
     "failed-to-create-payment": "Failed to create payment",
-    "failed-to-record-payment": "Failed to record payment"
+    "failed-to-record-payment": "Failed to record payment",
+    "failed-to-delete-payment": "Failed to delete payment",
+    "cannot-void-payment-after-30-days": "Cannot void payment after 30 days of issue",
+    "failed-to-get-user": "Failed to get user",
+    "failed-to-get-users": "Failed to get users",
+    "failed-to-delete-user": "Failed to delete user",
+    "failed-to-update-user": "Failed to update user",
+    "user-not-found": "User not found"
   }
 }

@@ -11,12 +11,18 @@ import { toast } from "sonner";
 import { parseApiError } from "@/lib/api/parse-api-error";
 import { InvoiceStatus } from "@/features/invoices/invoice.types";
 
-export function PaymentRowActions({ payment }: { payment: PaymentType }) {
+export function PaymentRowActions({
+  payment,
+  children,
+}: {
+  payment: PaymentType;
+  children: React.ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const t = useTranslations();
   const router = useRouter();
 
-  const { deletePayment, isDeleting } = usePayments();
+  const { voidPayment, isVoiding: isDeleting } = usePayments();
   const { isRoleUser, isRoleModerator, isRoleSuperAdmin } = useRole();
 
   if (isRoleUser || isRoleModerator) return null;
@@ -35,7 +41,7 @@ export function PaymentRowActions({ payment }: { payment: PaymentType }) {
       onDelete={async () => {
         setIsOpen(false);
         try {
-          await deletePayment.mutateAsync(payment.id);
+          await voidPayment.mutateAsync(payment.id);
           router.refresh();
           toast.success(t("payments.messages.success.delete"));
         } catch (err: unknown) {
@@ -43,7 +49,10 @@ export function PaymentRowActions({ payment }: { payment: PaymentType }) {
           toast.error(parsed.message);
         }
       }}
+      deleteLabel="void"
       resource="payment"
-    />
+    >
+      {children}
+    </DataTableActions>
   );
 }

@@ -12,7 +12,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIntlZodResolver } from "@/hooks/use-intl-zod-resolver";
 import z from "zod";
 import { recordPaymentSchema } from "@/features/payments/schemas/payment.schema";
-import { PaymentMethod } from "@/features/payments/payment.types";
+import {
+  PaymentMethod,
+  PaymentStatus,
+} from "@/features/payments/payment.types";
 import { useTranslations } from "next-intl";
 import { useDirection } from "@/hooks/use-direction";
 import { useArabic } from "@/hooks/use-arabic";
@@ -207,7 +210,7 @@ export default function RecordPaymentForm({
                 {t("Labels.total")}
                 <Badge
                   variant="secondary"
-                  className="text-[15px] ms-1 bg-primary"
+                  className="text-[15px] ms-2 bg-primary"
                 >
                   {formatCurrency({
                     isArabic,
@@ -217,7 +220,7 @@ export default function RecordPaymentForm({
               </p>
               <p className="text-center">
                 {t("Labels.rest")}
-                <Badge variant="destructive" className="text-[15px] ms-1">
+                <Badge variant="destructive" className="text-[15px] ms-2">
                   {formatCurrency({
                     isArabic,
                     value: (invoiceTotal ?? 0) - (prevPayments ?? 0),
@@ -249,11 +252,10 @@ export default function RecordPaymentForm({
                   <Input
                     type="number"
                     inputMode="decimal"
-                    step={10}
+                    step={0.01}
                     placeholder={t("Fields.amount.placeholder")}
                     disabled={isCreating}
                     {...field}
-                    // {...field}
                   />
                 </FormControl>
                 <FormMessage />

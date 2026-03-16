@@ -1,14 +1,19 @@
-import type { Product } from "@/app/generated/prisma/client";
+import { badRequest, serverError } from "@/lib/api/api-response";
 import prisma from "@/lib/db/prisma";
+import { DomainError } from "@/lib/errors/domain-error";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ value: string }> }
+  _: Request,
+  { params }: { params: Promise<{ value: string }> },
 ) {
   try {
     const { value } = await params;
-    const products: Product[] = await prisma.product.findMany({
+    const products = await prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
       where: {
         name: {
           contains: value,
@@ -19,13 +24,13 @@ export async function GET(
 
     return NextResponse.json(
       products.map((pro) => ({ label: pro.name, value: pro.id })),
-      { status: 200 }
+      { status: 200 },
     );
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Failed to get products" },
-      { status: 500 }
-    );
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
+    return serverError("validation.failed-to-get-products");
   }
 }

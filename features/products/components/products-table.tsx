@@ -44,7 +44,6 @@ export function ProductsTable({ data }: { data: ProductType[] }) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-
     state: {
       sorting,
       columnFilters,
@@ -55,7 +54,7 @@ export function ProductsTable({ data }: { data: ProductType[] }) {
   });
 
   return (
-    <div className="w-[calc(100vw-var(--sidebar-width)*1.3)] ">
+    <div className="w-full">
       <div className="flex flex-row items-start justify-between gap-2 py-4">
         <DataTableSearchInput
           globalFilter={globalFilter}
@@ -63,8 +62,8 @@ export function ProductsTable({ data }: { data: ProductType[] }) {
         />
         <DataTableColumnsVisibility table={table} />
       </div>
-      <div className="overflow-hidden rounded-md border">
-        <Table className="max-w-[calc(100vw-var(--sidebar-width))] ">
+      <div className="w-full rounded-md border">
+        <Table>
           <DataTableHeader table={table} />
           <DataTableBody table={table} columnsLength={columns.length} />
         </Table>

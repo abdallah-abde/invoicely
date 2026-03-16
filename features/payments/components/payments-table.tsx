@@ -56,7 +56,6 @@ export function PaymentsTable({ data }: { data: PaymentType[] }) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-
     state: {
       sorting,
       columnFilters,
@@ -75,7 +74,7 @@ export function PaymentsTable({ data }: { data: PaymentType[] }) {
         />
         <DataTableColumnsVisibility table={table} />
       </div>
-      <div className="overflow-hidden rounded-md border">
+      <div className="w-full rounded-md border">
         <Table>
           <DataTableHeader table={table} />
           <DataTableBody table={table} columnsLength={columns.length} />

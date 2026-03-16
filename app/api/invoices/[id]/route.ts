@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
+import { mapSingleInvoiceToDTO } from "@/features/invoices/lib/invoice.normalize";
 import {
   deleteInvoice,
   updateInvoice,
@@ -9,7 +9,7 @@ import { getInvoiceById } from "@/features/invoices/db/invoice.query";
 import { DomainError } from "@/lib/errors/domain-error";
 
 export async function DELETE(
-  request: Request,
+  _: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -18,8 +18,11 @@ export async function DELETE(
     await deleteInvoice(id);
 
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
     return serverError("validation.failed-to-delete-invoice");
   }
 }
@@ -33,15 +36,13 @@ export async function PUT(
 
     const body = await req.json();
 
-    const invoiceId = await updateInvoice(id, body);
-
-    const invoice = await getInvoiceById(invoiceId);
+    const invoice = await updateInvoice(id, body);
 
     if (!invoice) {
       return notFound("validation.invoice-not-found");
     }
 
-    return NextResponse.json(mapInvoicesToDTO([invoice])[0], { status: 201 });
+    return NextResponse.json(mapSingleInvoiceToDTO(invoice), { status: 201 });
   } catch (err) {
     if (err instanceof DomainError) {
       return badRequest(err.code);
@@ -52,7 +53,7 @@ export async function PUT(
 }
 
 export async function GET(
-  request: Request,
+  _: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -61,12 +62,15 @@ export async function GET(
     const invoice = await getInvoiceById(id);
 
     if (!invoice) {
-      return serverError("validation.invoice-not-found");
+      return notFound("validation.invoice-not-found");
     }
 
-    return NextResponse.json(invoice, { status: 200 });
-  } catch (error) {
-    console.error(error);
+    return NextResponse.json(mapSingleInvoiceToDTO(invoice), { status: 200 });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
     return serverError("validation.failed-to-get-invoice");
   }
 }

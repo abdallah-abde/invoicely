@@ -26,5 +26,6 @@ export async function updateCustomer(id: string, data: CustomerInput) {
 export async function deleteCustomer(id: string) {
   return prisma.customer.delete({
     where: { id },
+    include: customerFullInclude,
   });
 }

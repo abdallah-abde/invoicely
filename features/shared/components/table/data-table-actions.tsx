@@ -72,10 +72,11 @@ export default function DataTableActions({
           {t("Labels.actions")}
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator />
-
         {showEdit && editTrigger && (
-          <DropdownMenuItem asChild>{editTrigger}</DropdownMenuItem>
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>{editTrigger}</DropdownMenuItem>
+          </>
         )}
 
         {showDelete && onDelete && (
@@ -103,9 +104,11 @@ export default function DataTableActions({
                       {t(`Labels.confirm-alert`)}
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      {t(`Labels.confirm-alert-body`, {
-                        resource: t(`Fields.${resource}.label`),
-                      })}
+                      {resource === "payment"
+                        ? t("Labels.confirm-alert-void-body")
+                        : t(`Labels.confirm-alert-body`, {
+                            resource: t(`Fields.${resource}.label`),
+                          })}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -123,7 +126,11 @@ export default function DataTableActions({
                       {isDeleting ? (
                         <Loader className="animate-spin" />
                       ) : (
-                        t(`Labels.delete`)
+                        <>
+                          {resource === "payment"
+                            ? t("Labels.void")
+                            : t(`Labels.delete`)}
+                        </>
                       )}
                     </AlertDialogAction>
                   </AlertDialogFooter>

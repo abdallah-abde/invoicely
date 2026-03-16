@@ -417,7 +417,7 @@ export default function InvoiceForm({
                 <p className="font-medium text-sm">
                   {t("Fields.createdby.label")}
                 </p>
-                <p className="bg-primary/50 rounded-sm text-primary-foreground flex items-center p-3 py-[7px] w-full text-sm select-none">
+                <p className="bg-primary/50 opacity-50 rounded-sm text-primary-foreground flex items-center p-3 py-[7px] w-full text-sm select-none">
                   {invoice?.createdBy?.name}
                 </p>
               </div>
@@ -478,7 +478,7 @@ export default function InvoiceForm({
                       currency: localizeArabicCurrencySymbol(isArabic),
                     })}
                   </p>
-                  <p className="bg-primary/50 rounded-sm text-primary-foreground flex items-center p-3 py-[7px] w-full text-sm select-none">
+                  <p className="bg-primary/50 opacity-50 rounded-sm text-primary-foreground flex items-center p-3 py-[7px] w-full text-sm select-none">
                     {invoice?.rest}
                   </p>
                 </div>
@@ -488,7 +488,7 @@ export default function InvoiceForm({
                       currency: localizeArabicCurrencySymbol(isArabic),
                     })}
                   </p>
-                  <p className="bg-primary/50 rounded-sm text-primary-foreground flex items-center p-3 py-[7px] w-full text-sm select-none">
+                  <p className="bg-primary/50 opacity-50 rounded-sm text-primary-foreground flex items-center p-3 py-[7px] w-full text-sm select-none">
                     {invoice?.paidAmount}
                   </p>
                 </div>
@@ -500,7 +500,7 @@ export default function InvoiceForm({
               <p className="font-medium text-sm">
                 {t("Fields.paymentscount.label")}
               </p>
-              <Badge className="bg-primary/50 p-4 py-[7px] text-sm select-none">
+              <Badge className="bg-primary/50 opacity-50 p-4 py-[7px] text-sm select-none">
                 {invoice?._count.Payments}
               </Badge>
             </div>

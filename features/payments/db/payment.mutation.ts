@@ -3,6 +3,7 @@ import {
   ALLOWED_INVOICES_TO_MAKE_PAYMENTS,
   AllowedInvoicesToMakePayments,
   PaymentInput,
+  PaymentStatus,
   RecordPaymentInput,
 } from "@/features/payments/payment.types";
 import { paymentFullInclude } from "./payment.includes";
@@ -11,7 +12,13 @@ import { DomainError } from "@/lib/errors/domain-error";
 import { InvoiceStatus } from "@/features/invoices/invoice.types";
 import { invoiceFullInclude } from "@/features/invoices/db/invoice.includes";
 import { getInvoiceById } from "@/features/invoices/db/invoice.query";
-import { parseLocalDateOnly, todayLocalDateOnly } from "@/lib/utils/date.utils";
+import {
+  getDateEndOfDay,
+  getDaysBetweenDates,
+  parseLocalDateOnly,
+  todayLocalDateOnly,
+} from "@/lib/utils/date.utils";
+import { generatePaymentReferenceNumber } from "@/features/invoices/lib/generate-payment-reference-number";
 
 export async function createPayment(data: PaymentInput) {
   const invoice = await getInvoiceById(data.invoiceId[0].value);
@@ -60,9 +67,10 @@ export async function createPayment(data: PaymentInput) {
       ? InvoiceStatus.PAID
       : InvoiceStatus.PARTIAL_PAID;
 
-  console.log("invoiceRest: ", invoiceRest);
-  console.log("updatedStatus: ", updatedStatus);
-  console.log("updatedStatus changed: ", invoice.status !== updatedStatus);
+  const { year, seq, referenceNo } = await generatePaymentReferenceNumber(
+    prisma,
+    new Date().getFullYear(),
+  );
 
   return prisma.$transaction(async (tx) => {
     if (invoice.status !== updatedStatus) {
@@ -81,6 +89,10 @@ export async function createPayment(data: PaymentInput) {
         method: data.method,
         date: data.date,
         amount: normalizeDecimal(data.amount),
+        seq,
+        year,
+        referenceNo,
+        status: PaymentStatus.ACTIVE,
       },
       include: paymentFullInclude,
     });
@@ -95,7 +107,7 @@ export async function recordPayment(
 ) {
   const existing = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    include: { Payments: true },
+    include: invoiceFullInclude,
   });
 
   if (!existing) throw new DomainError("validation.invoice-not-found");
@@ -118,6 +130,11 @@ export async function recordPayment(
   const issuedAt = existing.issuedAt ?? new Date();
   const dueAt = data.dueAt ? new Date(data.dueAt) : new Date();
 
+  const { year, seq, referenceNo } = await generatePaymentReferenceNumber(
+    prisma,
+    new Date().getFullYear(),
+  );
+
   return await prisma.$transaction(async (tx) => {
     const inv = await tx.invoice.update({
       where: { id: invoiceId },
@@ -132,13 +149,65 @@ export async function recordPayment(
     await tx.payment.create({
       data: {
         invoiceId,
-        amount,
-        method: data.method,
         notes: data.notes ?? "",
+        method: data.method,
         date: new Date(),
+        amount,
+        seq,
+        year,
+        referenceNo,
+        status: PaymentStatus.ACTIVE,
       },
     });
 
     return inv;
+  });
+}
+
+export async function voidPayment(id: string) {
+  console.log("updating");
+  const existing = await prisma.payment.findUnique({ where: { id } });
+
+  if (!existing) {
+    throw new DomainError("validation.payment-not-found");
+  }
+
+  if (getDaysBetweenDates(new Date(), existing.date) > 30) {
+    throw new DomainError("validation.cannot-void-payment-after-30-days");
+  }
+
+  const invoice = await getInvoiceById(existing.invoiceId);
+
+  if (!invoice) {
+    throw new DomainError("validation.invoice-not-found");
+  }
+
+  const invoiceTotal = invoice.total;
+  const paymentAmount = existing.amount;
+
+  let updatedStatus =
+    invoice.dueAt &&
+    getDateEndOfDay(invoice.dueAt) < getDateEndOfDay(new Date())
+      ? InvoiceStatus.OVERDUE
+      : Number(invoiceTotal) === Number(paymentAmount)
+        ? InvoiceStatus.SENT
+        : InvoiceStatus.PARTIAL_PAID;
+
+  return await prisma.$transaction(async (tx) => {
+    await tx.invoice.update({
+      where: { id: invoice.id },
+      data: {
+        status: updatedStatus,
+      },
+    });
+
+    return await tx.payment.update({
+      where: { id },
+      data: {
+        status: PaymentStatus.VOIDED,
+        voidedAt: new Date(),
+      },
+      include: paymentFullInclude,
+    });
   });
 }

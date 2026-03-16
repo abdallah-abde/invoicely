@@ -1,5 +1,5 @@
 import DataTableHeaderSort from "@/features/shared/components/table/data-table-header-sort";
-import { PaymentType } from "@/features/payments/payment.types";
+import { PaymentStatus, PaymentType } from "@/features/payments/payment.types";
 import { ColumnDef } from "@tanstack/react-table";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils/number.utils";
@@ -12,7 +12,9 @@ import {
 } from "@/features/shared/utils/table.utils";
 import { formatDates } from "@/lib/utils/date.utils";
 import { PaymentRowActions } from "@/features/payments/components/payment-row-actions";
-import { StatusBadge } from "@/features/shared/components/table/status-badge";
+import { InvoiceStatusBadge } from "@/features/shared/components/table/invoice-status-badge";
+import { PaymentStatusBadge } from "@/features/shared/components/table/payment-status-badge";
+import DropdownDownloadReceipt from "./dropdown-download-receipt";
 
 export function getPaymentColumns(): ColumnDef<PaymentType>[] {
   const columns: ColumnDef<PaymentType>[] = [
@@ -39,6 +41,24 @@ export function getPaymentColumns(): ColumnDef<PaymentType>[] {
         <div className="text-xs xs:text-sm">
           {row.original.invoice?.customer?.name ?? "---"}
         </div>
+      ),
+    },
+    {
+      accessorKey: "invoice.status",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="status" />;
+      },
+      cell: ({ row }) => (
+        <InvoiceStatusBadge status={row.original.invoice.status} />
+      ),
+    },
+    {
+      accessorKey: "referenceNo",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="referenceno" />;
+      },
+      cell: ({ row }) => (
+        <div className="text-xs xs:text-sm">{row.original.referenceNo}</div>
       ),
     },
     {
@@ -94,7 +114,7 @@ export function getPaymentColumns(): ColumnDef<PaymentType>[] {
             <Badge
               variant="secondary"
               className={cn(
-                "select-none",
+                "select-none p-1 px-2.5",
                 isArabic
                   ? "text-[11px] xs:text-[13px]"
                   : "text-xs xs:text-[13px]",
@@ -107,6 +127,17 @@ export function getPaymentColumns(): ColumnDef<PaymentType>[] {
       },
     },
     {
+      accessorKey: "status",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="paymentstatus" />;
+      },
+      cell: ({ row }) => {
+        if (row.original.status)
+          return <PaymentStatusBadge status={row.original.status} />;
+        return null;
+      },
+    },
+    {
       accessorKey: "notes",
       header: ({ column }) => {
         return <DataTableHeaderSort column={column} title="notes" justTitle />;
@@ -116,17 +147,21 @@ export function getPaymentColumns(): ColumnDef<PaymentType>[] {
         <div className="text-xs xs:text-sm">{row.original.notes}</div>
       ),
     },
-    {
-      accessorKey: "invoice.status",
-      header: ({ column }) => {
-        return <DataTableHeaderSort column={column} title="status" />;
-      },
-      cell: ({ row }) => <StatusBadge status={row.original.invoice.status} />,
-    },
+
     {
       id: "actions",
       enableHiding: false,
-      cell: ({ row }) => <PaymentRowActions payment={row.original} />,
+      cell: ({ row }) => {
+        const status = row.original.status;
+
+        return (
+          status === PaymentStatus.ACTIVE && (
+            <PaymentRowActions payment={row.original}>
+              <DropdownDownloadReceipt paymentId={row.original.id} />
+            </PaymentRowActions>
+          )
+        );
+      },
     },
   ];
 

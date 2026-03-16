@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { ValidationApiError } from "./api-error";
+import { ValidationApiError } from "@/lib/api/api-error";
 
 /** =======================
  * ERROR RESPONSES
@@ -26,11 +26,11 @@ export function badRequest(message: string) {
   );
 }
 
-export function notFound(message = "Resource not found") {
+export function notFound(message = "validation.resource-not-found") {
   return NextResponse.json({ error: "NOT_FOUND", message }, { status: 404 });
 }
 
-export function serverError(message = "Internal server error") {
+export function serverError(message = "validation.internal-server-error") {
   return NextResponse.json(
     {
       error: "SERVER_ERROR",

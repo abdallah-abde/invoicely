@@ -119,6 +119,7 @@
     "add-description": "إضافة دفعة جديدة",
     "edit": "تعديل دفعة",
     "edit-description": "عدل هذه الدفعة واحفظ التغييرات",
+    "download-receipt": "تحميل سند القبض",
     "messages": {
       "success": {
         "delete": "تم حذف الدفعة بنجاح.",
@@ -389,6 +390,14 @@
       "label": "قيمة الدفعة ({currency})",
       "placeholder": "أدخل قيمة الدفعة"
     },
+    "paymentstatus": {
+      "label": "حالة الدفعة",
+      "placeholder": "أدخل حالة الدفعة"
+    },
+    "referenceno": {
+      "label": "رقم الدفعة",
+      "placeholder": "أدخل رقم الدفعة"
+    },
     "issuedat": {
       "label": "تاريخ الفاتورة",
       "pick": "اختر تاريخ الفاتورة"
@@ -504,9 +513,13 @@
     "no-monthly-revenue": "لا يوجد معلومات عن الإيرادات الشهرية"
   },
   "Labels": {
+    "customer-name": "اسم العميل",
+    "invoice-date": "تاريخ الفاتورة",
+    "invoice-status": "حالة الفاتورة",
     "deleting": "جاري الحذف...",
     "edit": "تعديل",
     "delete": "حذف",
+    "void": "إلغاء الدفعة",
     "actions": "إجراءات",
     "record_payment": "تسجيل دفعة",
     "loading": "تحميل...",
@@ -523,9 +536,11 @@
     "draft": "مسودة",
     "canceled": "ملغاة",
     "partial_paid": "مدفوعة جزئياً",
+    "active": "فعالة",
+    "voided": "لاغية",
     "total": "إجمالي الفاتورة",
     "rest": "باقي الفاتورة",
-    "loading-total-rest": "تحميل إجمالي وباقي الفاتورة",
+    "loading-invoice-data": "تحميل معلومات الفاتورة",
     "credit_card": "بطاقة بنكية",
     "bank_transfer": "تحويل بنكي",
     "cash": "نقدي",
@@ -556,6 +571,7 @@
     "count": "العدد",
     "confirm-alert": "هل أنت متأكد تماماً؟",
     "confirm-alert-body": "هذا الإجراء لا يمكن الرجوع عنه. سيتم حذف {resource} نهائياً.",
+    "confirm-alert-void-body": "هذا الإجراء لا يمكن الرجوع عنه. سيتم إلغاء الدفعة.",
     "cancel": "إلغاء",
     "not-exist": "غير موجود"
   },
@@ -566,6 +582,8 @@
     "required": "هذا الحقل مطلوب",
     "email": "ايميل غير صالح",
     "default": "إدخال غير صحيح",
+    "internal-server-error": "خطأ في الخادم",
+    "resource-not-found": "لم يتم العثور على المصدر",
     "invoice-date-less-than-today": "تاريخ الفاتورة لا يمكن أن يكون في الماضي",
     "payment-date-grater-than-today": "تاريخ الدفعة لا يمكن أن يكون في المستقبل",
     "due-date-less-than-invoice-date": "تاريخ الاستحقاق يجب أن يكون مساوياً أو أكبر من تاريخ الفاتورة",
@@ -578,17 +596,24 @@
     "payments-not-allowed-for-this-invoice": "إنشاء الدفعات غير متاح لهذه الفاتورة",
     "payment-amount-required": "الفاتورة المدفوعة يجب أن تتضمن قيمة دفعة",
     "invoice-not-found": "الفاتورة غير موجودة",
+    "payment-not-found": "الدفعة غير موجودة",
+    "payments-not-found": "الدفعات غير موجودة",
     "paid-invoice-downgrade-not-allowed": "لا يمكن تخفيض حالة الفاتورة المدفوعة",
     "failed-to-get-working-invoice": "فشل في إحضار الفواتير النشطة",
+    "failed-to-get-overdue-invoices": "فشل في إحضار الفواتير المتأخرة المرشحة ",
+    "failed-to-get-canceled-invoices": "فشل في إحضار الفواتير الملغاة ",
     "failed-to-get-invoice": "فشل في إحضار الفاتورة",
+    "failed-to-get-invoices": "فشل في إحضار الفواتير",
     "failed-to-create-invoice": "فشل في إنشاء فاتورة",
     "failed-to-delete-invoice": "فشل في حذف الفاتورة",
     "failed-to-update-invoice": "فشل في تعديل الفاتورة",
+    "download-bill-not-allowed-for-this-invoice": "تحميل الفاتورة غير متاح لهذه الفاتورة",
     "failed-to-get-customers": "فشل في إحضار العملاء",
     "failed-to-create-customer": "فشل في إنشاء العميل",
     "failed-to-delete-customer": "فشل في حذف العميل",
     "failed-to-update-customer": "فشل في تعديل العميل",
     "customer-not-found-after-update": "العميل غير موجود بعد التعديل",
+    "customer-not-found": "العميل غير موجود",
     "failed-to-get-products": "فشل في إحضار المنتجات",
     "failed-to-get-product": "فشل في إحضار المنتج",
     "failed-to-create-product": "فشل في إنشاء المنتج",
@@ -601,6 +626,13 @@
     "products-cannot-be-updated": "منتجات هذه الفاتورة لا يمكن تعديلها",
     "failed-to-get-payments": "فشل في إحضاء الدفعات",
     "failed-to-create-payment": "فشل في إنشاء الدفعة",
-    "failed-to-record-payment": "فشل في تسجيل الدفعة"
+    "failed-to-record-payment": "فشل في تسجيل الدفعة",
+    "failed-to-delete-payment": "فشل في إلغاء الدفعة",
+    "cannot-void-payment-after-30-days": "لا تستطيع إلغاء الدفعة بعد 30 يوم من الإنشاء",
+    "failed-to-get-user": "فشل في إحضار المستخدم",
+    "failed-to-get-users": "فشل في إحضار المستخدمين",
+    "failed-to-delete-user": "فشل في حذف المستخدم",
+    "failed-to-update-user": "فشل في تعديل المستخدم",
+    "user-not-found": "المستخدم غير موجود"
   }
 }

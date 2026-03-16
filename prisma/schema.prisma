@@ -148,6 +148,8 @@ model Payment {
   updatedAt   DateTime       @updatedAt
   invoice     Invoice        @relation(fields: [invoiceId], references: [id])
   referenceNo String?
+  seq         Int?
+  year        Int?
   status      PaymentStatus?
   voidedAt    DateTime?
 }

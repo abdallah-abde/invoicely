@@ -1,4 +1,6 @@
+import { InvoiceStatus } from "@/features/invoices/invoice.types";
 import prisma from "@/lib/db/prisma";
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 import { getFromDate } from "@/lib/utils/date.utils";
 import { NextResponse } from "next/server";
 
@@ -12,7 +14,7 @@ export async function GET(req: Request) {
       SUM("total")     AS revenue
     FROM "Invoice"
     WHERE
-      "status" = 'PAID'
+      "status" = ${InvoiceStatus.PAID}
       AND "issuedAt" >= ${from}
     GROUP BY DATE("issuedAt")
     ORDER BY DATE("issuedAt") ASC
@@ -21,7 +23,7 @@ export async function GET(req: Request) {
   return NextResponse.json(
     result.map((row) => ({
       date: row.date, // YYYY-MM-DD
-      revenue: Number(row.revenue), // normalize bigint
+      revenue: normalizeDecimal(row.revenue),
     })),
   );
 }

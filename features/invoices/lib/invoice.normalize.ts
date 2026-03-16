@@ -9,46 +9,91 @@ export function mapInvoicesToDTO(
   invoices: InvoicePrismaPayload[],
 ): InvoiceType[] {
   const result = invoices.map((invoice) => {
-    const createdDate = invoice.createdAt;
+    // const createdDate = invoice.createdAt;
 
-    const issuedDate = invoice.issuedAt ?? undefined;
+    // const issuedDate = invoice.issuedAt ?? undefined;
 
-    const dueDate = invoice.dueAt ?? undefined;
+    // const dueDate = invoice.dueAt ?? undefined;
 
-    const { total, ...restOfInvoice } = invoice;
+    // const { total, ...restOfInvoice } = invoice;
 
-    const products = invoice.products.map((ip) => ({
-      ...(ip.product ?? {}),
-      quantity: normalizeDecimal(ip.quantity),
-      unitPrice: normalizeDecimal(ip.unitPrice),
-      totalPrice: normalizeDecimal(ip.totalPrice),
-      price: normalizeDecimal(ip.product.price),
-      id: ip.product ? ip.product.id : ip.id,
-    }));
+    // const products = invoice.products.map((ip) => ({
+    //   ...(ip.product ?? {}),
+    //   quantity: normalizeDecimal(ip.quantity),
+    //   unitPrice: normalizeDecimal(ip.unitPrice),
+    //   totalPrice: normalizeDecimal(ip.totalPrice),
+    //   price: normalizeDecimal(ip.product.price),
+    //   id: ip.product ? ip.product.id : ip.id,
+    // }));
 
-    const paidAmount = invoice.Payments.reduce((acc, payment) => {
-      return acc + normalizeDecimal(payment.amount);
-    }, 0);
+    // const paidAmount = invoice.Payments.reduce((acc, payment) => {
+    //   return acc + normalizeDecimal(payment.amount);
+    // }, 0);
 
-    return {
-      ...restOfInvoice,
+    // return {
+    //   ...restOfInvoice,
 
-      createdAt: createdDate,
-      issuedDateAsString: issuedDate?.toString() || "",
-      dueDateAsString: dueDate?.toString() || "",
+    //   createdAt: createdDate,
+    //   issuedDateAsString: issuedDate?.toString() || "",
+    //   dueDateAsString: dueDate?.toString() || "",
 
-      totalAsNumber: normalizeDecimal(total),
-      total: normalizeDecimal(total),
+    //   totalAsNumber: normalizeDecimal(total),
+    //   total: normalizeDecimal(total),
 
-      products,
+    //   products,
 
-      Payments: mapPaymentsToDTO(invoice.Payments),
+    //   Payments: mapPaymentsToDTO(invoice.Payments),
 
-      paidAmount,
+    //   paidAmount,
 
-      rest: normalizeDecimal(total) - paidAmount,
-    };
+    //   rest: normalizeDecimal(total) - paidAmount,
+    // };
+    return mapSingleInvoiceToDTO(invoice);
   });
 
   return result;
+}
+
+export function mapSingleInvoiceToDTO(
+  invoice: InvoicePrismaPayload,
+): InvoiceType {
+  // const createdDate = invoice.createdAt;
+
+  const issuedDate = invoice.issuedAt ?? undefined;
+
+  const dueDate = invoice.dueAt ?? undefined;
+
+  const { total, ...restOfInvoice } = invoice;
+
+  const products = invoice.products.map((ip) => ({
+    ...(ip.product ?? {}),
+    quantity: normalizeDecimal(ip.quantity),
+    unitPrice: normalizeDecimal(ip.unitPrice),
+    totalPrice: normalizeDecimal(ip.totalPrice),
+    price: normalizeDecimal(ip.product.price),
+    id: ip.product ? ip.product.id : ip.id,
+  }));
+
+  const paidAmount = invoice.Payments.reduce((acc, payment) => {
+    return acc + normalizeDecimal(payment.amount);
+  }, 0);
+
+  return {
+    ...restOfInvoice,
+
+    // createdAt: createdDate,
+    issuedDateAsString: issuedDate?.toString() || "",
+    dueDateAsString: dueDate?.toString() || "",
+
+    totalAsNumber: normalizeDecimal(total),
+    // total: normalizeDecimal(total),
+
+    products,
+
+    Payments: mapPaymentsToDTO(invoice.Payments),
+
+    paidAmount,
+
+    rest: normalizeDecimal(total) - paidAmount,
+  };
 }

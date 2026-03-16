@@ -8,16 +8,32 @@ export function mapPaymentsToDTO(
   payments: PaymentPrismaPayload[],
 ): PaymentType[] {
   const result = payments.map((payment) => {
-    const { amount, ...restOfPayment } = payment;
+    // const { amount, ...restOfPayment } = payment;
 
-    const paymentDate = payment.date;
+    // const paymentDate = payment.date;
 
-    return {
-      ...restOfPayment,
-      dateAsString: paymentDate.toString(),
-      amountAsNumber: normalizeDecimal(amount),
-    };
+    // return {
+    //   ...restOfPayment,
+    //   dateAsString: paymentDate.toString(),
+    //   amountAsNumber: normalizeDecimal(amount),
+    // };
+
+    return mapSinglePaymentToDTO(payment);
   });
 
   return result;
+}
+
+export function mapSinglePaymentToDTO(
+  payment: PaymentPrismaPayload,
+): PaymentType {
+  const { amount, ...restOfPayment } = payment;
+
+  const paymentDate = payment.date;
+
+  return {
+    ...restOfPayment,
+    dateAsString: paymentDate.toString(),
+    amountAsNumber: normalizeDecimal(amount),
+  };
 }

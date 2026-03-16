@@ -25,7 +25,7 @@ export function CustomersTable({ data }: { data: CustomerType[] }) {
     { id: "name", desc: false },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -62,7 +62,7 @@ export function CustomersTable({ data }: { data: CustomerType[] }) {
         />
         <DataTableColumnsVisibility table={table} />
       </div>
-      <div className="overflow-hidden rounded-md border">
+      <div className="w-full rounded-md border">
         <Table>
           <DataTableHeader table={table} />
           <DataTableBody table={table} columnsLength={columns.length} />

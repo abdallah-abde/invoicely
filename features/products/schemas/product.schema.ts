@@ -12,9 +12,8 @@ export const productSchema = z.object({
     .trim()
     .nonempty({ error: "required" })
     .min(2, { error: "min" }),
-  price: z
-    .string()
-    .trim()
-    .nonempty({ error: "required" })
+  price: z.coerce
+    .number()
+    .positive({ error: "required" })
     .min(1, { error: "min" }),
 });

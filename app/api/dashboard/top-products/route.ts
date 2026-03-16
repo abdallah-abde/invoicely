@@ -1,8 +1,9 @@
 import { cached } from "@/features/dashboard/cached";
 import { GC_TIME } from "@/features/dashboard/charts.constants";
+import { InvoiceStatus } from "@/features/invoices/invoice.types";
 import prisma from "@/lib/db/prisma";
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 import { getFromDate } from "@/lib/utils/date.utils";
-import { Item } from "@radix-ui/react-select";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
@@ -13,7 +14,9 @@ export async function GET(req: Request) {
     await cached(`top-products-${range}`, GC_TIME, async () => {
       const data = await prisma.invoiceProduct.groupBy({
         by: ["productId"],
-        where: { invoice: { status: "PAID", issuedAt: { gte: from } } },
+        where: {
+          invoice: { status: InvoiceStatus.PAID, issuedAt: { gte: from } },
+        },
         _sum: { quantity: true, totalPrice: true },
         orderBy: {
           _sum: {
@@ -35,8 +38,8 @@ export async function GET(req: Request) {
       return data.map((d) => ({
         productId: d.productId,
         name: productMap.get(d.productId)?.name ?? "Unknown",
-        quantity: Number(d._sum.quantity),
-        total: Number(d._sum.totalPrice),
+        quantity: normalizeDecimal(d._sum.quantity),
+        total: normalizeDecimal(d._sum.totalPrice),
         unit: productMap.get(d.productId)?.unit ?? "Unknown",
       }));
     }),

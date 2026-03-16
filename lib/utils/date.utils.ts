@@ -126,6 +126,18 @@ export function getDateBeginningOfDay(date: Date) {
   );
 }
 
+export function getDateEndOfDay(date: Date) {
+  return new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    23,
+    59,
+    59,
+    999,
+  );
+}
+
 export function getFromDate(range: string) {
   const now = new Date();
   let from = new Date();
@@ -192,4 +204,33 @@ export function parseLocalDateOnly(value: Date) {
 export function todayLocalDateOnly() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+export function getDaysBetweenDates(startDate: Date, endDate: Date): number {
+  // One day in milliseconds: 1000ms * 60s * 60m * 24h
+  const oneDay = 1000 * 60 * 60 * 24;
+
+  // Convert both dates to UTC to avoid issues with daylight saving time
+  const startUTC = Date.UTC(
+    startDate.getFullYear(),
+    startDate.getMonth(),
+    startDate.getDate(),
+  );
+  const endUTC = Date.UTC(
+    endDate.getFullYear(),
+    endDate.getMonth(),
+    endDate.getDate(),
+  );
+
+  // Calculate the difference in milliseconds
+  const differenceMs = Math.abs(endUTC - startUTC);
+
+  // Convert the difference to days and round to the nearest whole number
+  return Math.floor(differenceMs / oneDay);
+}
+
+export function addDaysToDate(date: Date, days: number): Date {
+  const newDate = new Date(date); // Create a copy to avoid modifying the original date
+  newDate.setDate(newDate.getDate() + days);
+  return newDate;
 }

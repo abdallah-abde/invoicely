@@ -1,4 +1,4 @@
-import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
+import { mapSingleInvoiceToDTO } from "@/features/invoices/lib/invoice.normalize";
 import { recordPayment } from "@/features/payments/db/payment.mutation";
 import { badRequest, notFound, serverError } from "@/lib/api/api-response";
 import { DomainError } from "@/lib/errors/domain-error";
@@ -19,7 +19,7 @@ export async function PUT(
       return notFound("validation.invoice-not-found");
     }
 
-    return NextResponse.json(mapInvoicesToDTO([invoice])[0], { status: 201 });
+    return NextResponse.json(mapSingleInvoiceToDTO(invoice), { status: 201 });
   } catch (err) {
     if (err instanceof DomainError) {
       return badRequest(err.code);

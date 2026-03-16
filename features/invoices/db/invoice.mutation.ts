@@ -2,12 +2,17 @@ import prisma from "@/lib/db/prisma";
 import { InvoiceInput, InvoiceStatus } from "@/features/invoices/invoice.types";
 import { generateInvoiceNumber } from "@/features/invoices/lib/generate-invoice-number";
 import { normalizeDecimal } from "@/lib/normalize/primitives";
-import { PaymentMethod } from "@/features/payments/payment.types";
+import {
+  PaymentMethod,
+  PaymentStatus,
+} from "@/features/payments/payment.types";
 import { DomainError } from "@/lib/errors/domain-error";
 import { getInvoiceEditPolicy } from "@/features/invoices/lib/get-invoice-edit-policy";
 import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
 import { getInvoiceById } from "@/features/invoices/db/invoice.query";
 import { parseLocalDateOnly, todayLocalDateOnly } from "@/lib/utils/date.utils";
+import { generatePaymentReferenceNumber } from "@/features/invoices/lib/generate-payment-reference-number";
+import { invoiceFullInclude } from "@/features/invoices/db/invoice.includes";
 
 export async function createInvoice(data: InvoiceInput) {
   const totalNumber = normalizeDecimal(data.total);
@@ -62,7 +67,16 @@ export async function createInvoice(data: InvoiceInput) {
     new Date().getFullYear(),
   );
 
-  // issued = new Date(2026, 1, 12, 12, 0, 0); // TODO: remove after testing
+  let paymentRefenrece: { year: number; seq: number; referenceNo: string };
+
+  if (paid > 0) {
+    paymentRefenrece = await generatePaymentReferenceNumber(
+      prisma,
+      new Date().getFullYear(),
+    );
+  }
+
+  // issued = new Date(2026, 2, 6, 12, 0, 0); // TODO: remove after testing
 
   return prisma.$transaction(async (tx) => {
     const inv = await tx.invoice.create({
@@ -78,6 +92,7 @@ export async function createInvoice(data: InvoiceInput) {
         notes: data.notes ?? "",
         createdById: data.createdById,
       },
+      include: invoiceFullInclude,
     });
 
     if (data.products.length) {
@@ -94,18 +109,24 @@ export async function createInvoice(data: InvoiceInput) {
 
     // create payment
     if (paid > 0) {
+      const { seq, year, referenceNo } = paymentRefenrece;
+
       await tx.payment.create({
         data: {
           invoiceId: inv.id,
-          amount: normalizedPaid,
-          date: issued ?? new Date(),
-          method: data.paymentMethod ?? PaymentMethod.CASH,
           notes: "Auto payment on invoice creation",
+          method: data.paymentMethod ?? PaymentMethod.CASH,
+          date: issued ?? new Date(),
+          amount: normalizedPaid,
+          seq,
+          year,
+          referenceNo,
+          status: PaymentStatus.ACTIVE,
         },
       });
     }
 
-    return inv.id;
+    return inv;
   });
 }
 
@@ -180,6 +201,15 @@ export async function updateInvoice(id: string, data: InvoiceInput) {
     throw new DomainError("validation.paid-invoice-downgrade-not-allowed");
   }
 
+  let paymentRefenrece: { year: number; seq: number; referenceNo: string };
+
+  if (paid > 0) {
+    paymentRefenrece = await generatePaymentReferenceNumber(
+      prisma,
+      new Date().getFullYear(),
+    );
+  }
+
   return prisma.$transaction(async (tx) => {
     const inv = await tx.invoice.update({
       where: { id },
@@ -189,6 +219,7 @@ export async function updateInvoice(id: string, data: InvoiceInput) {
         status: finalStatus,
         total: totalNumber,
       },
+      include: invoiceFullInclude,
     });
 
     if (data.products.length) {
@@ -207,18 +238,24 @@ export async function updateInvoice(id: string, data: InvoiceInput) {
 
     // create payment
     if (paid > 0) {
+      const { seq, year, referenceNo } = paymentRefenrece;
+
       await tx.payment.create({
         data: {
           invoiceId: inv.id,
-          amount: normalizedPaid,
-          date: issued ?? new Date(),
-          method: data.paymentMethod ?? PaymentMethod.CASH,
           notes: "Auto payment on invoice update",
+          method: data.paymentMethod ?? PaymentMethod.CASH,
+          date: issued ?? new Date(),
+          amount: normalizedPaid,
+          seq,
+          year,
+          referenceNo,
+          status: PaymentStatus.ACTIVE,
         },
       });
     }
 
-    return inv.id;
+    return inv;
   });
 }
 
@@ -244,10 +281,10 @@ export async function updateInvoiceNotes(id: string, data: { notes: string }) {
 }
 
 export async function deleteInvoice(id: string) {
-  const d = await prisma.invoice.delete({
+  const invoice = await prisma.invoice.delete({
     where: { id },
+    include: invoiceFullInclude,
   });
-  console.log(d);
 
-  return d;
+  return invoice;
 }

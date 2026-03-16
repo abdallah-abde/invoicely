@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import QRCode from "qrcode";
 
-import { InvoicePDFData } from "@/features/invoices/invoice.types";
 import {
   arNumbers,
   formatCurrencyWithoutSymbols,
@@ -17,15 +16,16 @@ import {
   extractNumbersWithIndex,
   replaceMissedupSymbols,
 } from "@/lib/utils/pdf.utils";
+import { ReceiptPDFData } from "../payment.types";
 
 const PAGE_TOP = 120;
 const PAGE_BOTTOM = 740;
 const PAGE_MARGIN = 50;
 
-export async function generateInvoicePDF(
-  invoice: InvoicePDFData,
+export async function generateReceiptPDF(
+  receipt: ReceiptPDFData,
 ): Promise<Buffer> {
-  const isArabic = invoice.lang === "ar";
+  const isArabic = receipt.lang === "ar";
 
   const fontRegular = path.join(
     process.cwd(),
@@ -71,7 +71,7 @@ export async function generateInvoicePDF(
       characterSpacing: 0.5,
       continued: true,
     })
-    .text(invoice.invoiceNumber, isArabic ? -5 : 50, doc.y, {
+    .text(receipt.invoice.invoiceNumber, isArabic ? -5 : 50, doc.y, {
       align: isArabic ? "right" : "left",
     })
     .fontSize(10)
@@ -83,30 +83,17 @@ export async function generateInvoicePDF(
     })
     .text(
       isArabic
-        ? formatArabicDate(arToLocaleDate.format(new Date(invoice.issueAt)))
-        : invoice.issueAt,
+        ? formatArabicDate(
+            arToLocaleDate.format(new Date(receipt.invoice.dueAt)),
+          )
+        : receipt.invoice.dueAt,
       isArabic ? -10 : 50,
       doc.y,
       {
         align: isArabic ? "right" : "left",
       },
     )
-    .text(isArabic ? `تاريخ الاستحقاق: ` : `Due At: `, {
-      align: isArabic ? "right" : "left",
-      features: isArabic ? ["rtla"] : [],
-      continued: true,
-    })
-    .text(
-      isArabic
-        ? formatArabicDate(arToLocaleDate.format(new Date(invoice.dueAt)))
-        : invoice.dueAt,
-      isArabic ? -22 : 50,
-      doc.y,
-      {
-        align: isArabic ? "right" : "left",
-      },
-    )
-    .moveDown(2);
+    .moveDown(3);
 
   doc
     .fontSize(11)
@@ -116,15 +103,15 @@ export async function generateInvoicePDF(
       features: isArabic ? ["rtla"] : [],
     })
     .fontSize(10)
-    .text(invoice.customer.name, {
+    .text(receipt.invoice.customer.name, {
       align: isArabic ? "right" : "left",
       features: isArabic ? ["rtla"] : [],
     })
-    .text(invoice.customer.address ?? "", {
+    .text(receipt.invoice.customer.address ?? "", {
       align: isArabic ? "right" : "left",
       features: isArabic ? ["rtla"] : [],
     })
-    .text(invoice.customer.email ?? "", {
+    .text(receipt.invoice.customer.email ?? "", {
       align: isArabic ? "right" : "left",
       features: isArabic ? ["rtla"] : [],
     })
@@ -256,7 +243,7 @@ export async function generateInvoicePDF(
       tb.addHeader();
     });
 
-  const tableBody = invoice.products.map(
+  const tableBody = receipt.invoice.products.map(
     ({ name, quantity, unitPrice, unit }) => {
       const total = quantity * unitPrice;
 
@@ -289,8 +276,8 @@ export async function generateInvoicePDF(
     .moveDown(1)
     .text(
       isArabic
-        ? `)ل.س.( ${toReversedArabicDigits(invoice.total)} الإجمالي: `
-        : `Total: ${enNumbers.format(invoice.total)} (SYP)`,
+        ? `)ل.س.( ${toReversedArabicDigits(receipt.invoice.total)} الإجمالي: `
+        : `Total: ${enNumbers.format(receipt.invoice.total)} (SYP)`,
       50,
       doc.y,
       {
@@ -304,7 +291,59 @@ export async function generateInvoicePDF(
     doc.addPage();
   }
 
-  const qrData = `Invoice:${invoice.invoiceNumber}|Total:${invoice.total}`;
+  doc
+    .moveTo(150, doc.y + 20)
+    .lineTo(450, doc.y + 20)
+    .stroke()
+    .moveDown(1);
+
+  doc
+    .fontSize(12)
+    .moveDown(1)
+    .text(isArabic ? `الرقم المرجعي #  ` : `Receipt # `, {
+      align: isArabic ? "right" : "left",
+      features: isArabic ? ["rtla"] : [],
+      stroke: true,
+      characterSpacing: 0.5,
+      continued: true,
+    })
+    .text(receipt.referenceNo, isArabic ? -40 : 50, doc.y, {
+      align: isArabic ? "right" : "left",
+    })
+    .fontSize(10)
+    .text(isArabic ? `تاريخ سند القبض: ` : `Receipt date: `, {
+      align: isArabic ? "right" : "left",
+      features: isArabic ? ["rtla"] : [],
+      continued: true,
+    })
+    .text(
+      isArabic
+        ? formatArabicDate(arToLocaleDate.format(new Date(receipt.receiptDate)))
+        : receipt.receiptDate,
+      isArabic ? -30 : 50,
+      doc.y,
+      {
+        align: isArabic ? "right" : "left",
+      },
+    );
+
+  doc
+    .moveDown(2)
+    .fontSize(11)
+    .text(
+      isArabic
+        ? `)ل.س.( ${toReversedArabicDigits(receipt.amount)} المسدد: المبلغ `
+        : `Paid amount: ${enNumbers.format(receipt.amount)} (SYP)`,
+      50,
+      doc.y,
+      {
+        align: isArabic ? "right" : "left",
+        stroke: true,
+      },
+    )
+    .moveDown(2);
+
+  const qrData = `Receipt:${receipt.referenceNo}|Amount:${receipt.amount}|Invoice:${receipt.invoice.invoiceNumber}|Total:${receipt.invoice.total}`;
 
   const qrBig = await QRCode.toDataURL(qrData);
 
@@ -322,7 +361,7 @@ export async function generateInvoicePDF(
 
   for (let i = range.start; i < range.start + range.count; i++) {
     doc.switchToPage(i);
-    await drawFooter(doc, i + 1, range.count, invoice, isArabic);
+    await drawFooter(doc, i + 1, range.count, receipt, isArabic);
   }
 
   doc.end();
@@ -343,7 +382,7 @@ function drawHeader(doc: typeof PDFDocument, isArabic: boolean) {
 
   doc
     .fontSize(20)
-    .text(isArabic ? "فاتورة" : "INVOICE", {
+    .text(isArabic ? "قبض سند" : "RECEIPT", {
       align: isArabic ? "left" : "right",
     })
     .fontSize(12);
@@ -353,11 +392,11 @@ async function drawFooter(
   doc: PDFKit.PDFDocument,
   pageNumber: number,
   totalPages: number,
-  invoice: InvoicePDFData,
+  receipt: ReceiptPDFData,
   isArabic: boolean,
 ) {
   const qrSmall = await QRCode.toDataURL(
-    `Invoice:${invoice.invoiceNumber}|Total:${invoice.total}`,
+    `Receipt:${receipt.referenceNo}|Amount:${receipt.amount}|Invoice:${receipt.invoice.invoiceNumber}|Total:${receipt.invoice.total}`,
   );
 
   doc.moveTo(50, 765).lineTo(545, 765).stroke();

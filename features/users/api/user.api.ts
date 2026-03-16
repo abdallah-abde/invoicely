@@ -1,34 +1,34 @@
-import { User } from "@/app/generated/prisma/client";
+import { UserProps } from "@/features/users/hooks/use-users";
 
-export async function fetchUsers(): Promise<User[]> {
+export async function fetchUsers(): Promise<UserProps[]> {
   const res = await fetch("/api/users");
   if (!res.ok) throw new Error("Failed to fetch users");
   return res.json();
 }
 
-export async function createUser(data: Partial<User>) {
-  const res = await fetch("/api/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+// export async function createUser(data: Partial<User>) {
+//   const res = await fetch("/api/users", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(data),
+//   });
 
-  if (!res.ok) throw new Error("Failed to create user");
-  return res.json();
-}
+//   if (!res.ok) throw new Error("Failed to create user");
+//   return res.json();
+// }
 
-export async function updateUser(id: string, data: Partial<User>) {
-  const res = await fetch(`/api/users/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+// export async function updateUser(id: string, data: Partial<User>) {
+//   const res = await fetch(`/api/users/${id}`, {
+//     method: "PUT",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(data),
+//   });
 
-  if (!res.ok) throw new Error("Failed to update user");
-  return res.json();
-}
+//   if (!res.ok) throw new Error("Failed to update user");
+//   return res.json();
+// }
 
-export async function deleteUser(id: string) {
-  const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to delete user");
-}
+// export async function deleteUser(id: string) {
+//   const res = await fetch(`/api/users/${id}`, { method: "DELETE" });
+//   if (!res.ok) throw new Error("Failed to delete user");
+// }

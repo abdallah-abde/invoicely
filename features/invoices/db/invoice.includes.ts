@@ -1,10 +1,15 @@
 import { Prisma } from "@/app/generated/prisma/client";
+import { PaymentStatus } from "@/features/payments/payment.types";
 
 export const invoiceFullInclude = {
   customer: true,
   createdBy: true,
 
   Payments: {
+    where: {
+      voidedAt: null,
+      status: PaymentStatus.ACTIVE,
+    },
     include: {
       invoice: {
         select: {
@@ -26,7 +31,15 @@ export const invoiceFullInclude = {
     },
   },
   _count: {
-    select: { products: true, Payments: true },
+    select: {
+      products: true,
+      Payments: {
+        where: {
+          voidedAt: null,
+          status: PaymentStatus.ACTIVE,
+        },
+      },
+    },
   },
 } satisfies Prisma.InvoiceInclude;
 

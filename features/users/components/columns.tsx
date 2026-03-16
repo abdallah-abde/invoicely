@@ -13,103 +13,107 @@ import { useTranslations } from "next-intl";
 import { useRole } from "@/hooks/use-role";
 import { caseInsensitiveSort } from "@/features/shared/utils/table.utils";
 
-export const columns: ColumnDef<UserProps>[] = [
-  {
-    accessorKey: "name",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="name" />;
-    },
-    sortingFn: caseInsensitiveSort,
-    enableHiding: false,
-    cell: ({ row }) => (
-      <div className="capitalize flex items-center gap-4">
-        <Avatar className="rounded-md size-6 xs:size-8">
-          <AvatarImage src={row.original.image} alt={row.original.name} />
-          <AvatarFallback className="rounded-md text-[10px] xs:text-xs">
-            {row.original.name.substring(0, 2).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <span className="text-xs xs:text-sm">{row.getValue("name")}</span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="email" />;
-    },
-    cell: ({ row }) => (
-      <div className="text-xs xs:text-sm">{row.getValue("email")}</div>
-    ),
-  },
-  {
-    accessorKey: "role",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="role" />;
-    },
-    sortingFn: caseInsensitiveSort,
-    enableHiding: false,
-    cell: ({ row }) => {
-      const t = useTranslations();
-
-      return (
-        <div className="text-xs xs:text-sm">
-          {t(`Labels.${row.original.role}-role`)}
+export function getUserColumns(): ColumnDef<UserProps>[] {
+  const columns: ColumnDef<UserProps>[] = [
+    {
+      accessorKey: "name",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="name" />;
+      },
+      sortingFn: caseInsensitiveSort,
+      enableHiding: false,
+      cell: ({ row }) => (
+        <div className="capitalize flex items-center gap-4 ms-2">
+          <Avatar className="rounded-md size-6 xs:size-8">
+            <AvatarImage src={row.original.image} alt={row.original.name} />
+            <AvatarFallback className="rounded-md text-[10px] xs:text-xs">
+              {row.original.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs xs:text-sm">{row.getValue("name")}</span>
         </div>
-      );
+      ),
     },
-  },
-  {
-    accessorKey: "emailVerified",
-    header: ({ column }) => {
-      return <DataTableHeaderSort column={column} title="emailverified" />;
+    {
+      accessorKey: "email",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="email" />;
+      },
+      cell: ({ row }) => (
+        <div className="text-xs xs:text-sm">{row.getValue("email")}</div>
+      ),
     },
-    cell: ({ row }) => {
-      const t = useTranslations();
+    {
+      accessorKey: "role",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="role" />;
+      },
+      sortingFn: caseInsensitiveSort,
+      enableHiding: false,
+      cell: ({ row }) => {
+        const t = useTranslations();
 
-      return (
-        <div className="capitalize">
-          {row.original.emailVerified ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <CircleCheck className="text-green-500 size-5 xs:size-6" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="font-semibold">{t("Labels.verified")}</p>
-              </TooltipContent>
-            </Tooltip>
-          ) : (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <CircleX className="text-destructive size-5 xs:size-6" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="font-semibold">{t("Labels.not-verified")}</p>
-              </TooltipContent>
-            </Tooltip>
-          )}
-        </div>
-      );
+        return (
+          <div className="text-xs xs:text-sm">
+            {t(`Labels.${row.original.role}-role`)}
+          </div>
+        );
+      },
     },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const { isRoleSuperAdmin } = useRole();
+    {
+      accessorKey: "emailVerified",
+      header: ({ column }) => {
+        return <DataTableHeaderSort column={column} title="emailverified" />;
+      },
+      cell: ({ row }) => {
+        const t = useTranslations();
 
-      return (
-        <CellActions
-          id={row.original.id}
-          name={row.original.name}
-          image={row.original.image}
-          role={row.original.role}
-          email={row.original.email}
-          emailVerified={row.original.emailVerified}
-          hasDeletePermission={row.original.hasDeletePermission}
-          showDelete={isRoleSuperAdmin}
-        />
-      );
+        return (
+          <div className="capitalize flex items-center justify-center">
+            {row.original.emailVerified ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CircleCheck className="text-primary size-5 xs:size-6" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-semibold">{t("Labels.verified")}</p>
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CircleX className="text-destructive size-5 xs:size-6" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-semibold">{t("Labels.not-verified")}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        );
+      },
     },
-  },
-];
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const { isRoleSuperAdmin } = useRole();
+
+        return (
+          <CellActions
+            id={row.original.id}
+            name={row.original.name}
+            image={row.original.image}
+            role={row.original.role}
+            email={row.original.email}
+            emailVerified={row.original.emailVerified}
+            hasDeletePermission={row.original.hasDeletePermission}
+            showDelete={isRoleSuperAdmin}
+          />
+        );
+      },
+    },
+  ];
+
+  return columns;
+}

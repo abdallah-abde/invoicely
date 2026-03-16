@@ -39,11 +39,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import MultipleSelector, { Option } from "@/components/ui/multiple-selector";
-import { Invoice, Payment } from "@/app/generated/prisma/client";
+import { Invoice, Payment, Prisma } from "@/app/generated/prisma/client";
 import { Badge } from "@/components/ui/badge";
 import { FormDateFieldPopOver } from "@/features/shared/components/form/form-date-field-popover";
 import { OperationMode } from "@/features/shared/shared.types";
 import { parseApiError } from "@/lib/api/parse-api-error";
+import { InvoiceInclude } from "@/app/generated/prisma/models";
+import { mapInvoicesToDTO } from "@/features/invoices/lib/invoice.normalize";
+import { InvoiceStatus, InvoiceType } from "@/features/invoices/invoice.types";
+import { formatDates } from "@/lib/utils/date.utils";
+import { InvoiceStatusBadge } from "@/features/shared/components/table/invoice-status-badge";
 
 export type SelectedItem = {
   invoice: Invoice;
@@ -60,10 +65,9 @@ export default function PaymentForm({
 }) {
   const isOperationCreate = mode === OperationMode.CREATE;
   const [checkingPermission, setCheckingPermission] = useState(false);
-  const { createPayment, updatePayment, isCreating, isUpdating } =
-    usePayments();
+  const { createPayment, isCreating } = usePayments();
 
-  const isSubmitting = checkingPermission || isCreating || isUpdating;
+  const isSubmitting = checkingPermission || isCreating;
 
   const t = useTranslations();
   const dir = useDirection();
@@ -113,10 +117,9 @@ export default function PaymentForm({
         await createPayment.mutateAsync(values);
         toast.success(t("payments.messages.success.add"));
       } else {
-        if (!payment) return;
-
-        await updatePayment.mutateAsync({ id: payment.id, data: values });
-        toast.success(t("payments.messages.success.edit"));
+        // if (!payment) return;
+        // await updatePayment.mutateAsync({ id: payment.id, data: values });
+        // toast.success(t("payments.messages.success.edit"));
       }
       setIsOpen(false);
       form.reset();
@@ -153,6 +156,9 @@ export default function PaymentForm({
   const [isTriggered, setIsTriggered] = useState(false);
   const [prevPayments, setPrevPayments] = useState<number | null>(null);
   const [invoiceTotal, setInvoiceTotal] = useState<number | null>(null);
+  const [customerName, setCustomerName] = useState<string | null>(null);
+  const [invoiceDate, setInvoiceDate] = useState<string | null>(null);
+  const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null);
   const [isNumbersLoading, setIsNumbersLoading] = useState(false);
 
   const invoiceId = form.watch("invoiceId");
@@ -162,12 +168,18 @@ export default function PaymentForm({
     if (!invoiceId) {
       setPrevPayments(null);
       setInvoiceTotal(null);
+      setCustomerName(null);
+      setInvoiceDate(null);
+      setInvoiceStatus(null);
       return;
     }
 
     setIsNumbersLoading(true);
     setPrevPayments(null);
     setInvoiceTotal(null);
+    setCustomerName(null);
+    setInvoiceDate(null);
+    setInvoiceStatus(null);
 
     (async () => {
       try {
@@ -181,8 +193,12 @@ export default function PaymentForm({
         if (!mounted) return;
 
         if (invoiceRes.ok) {
-          const invoiceData = (await invoiceRes.json()) as Invoice;
-          setInvoiceTotal(Number(invoiceData.total ?? 0));
+          const invoiceData = (await invoiceRes.json())[0];
+
+          setInvoiceTotal(invoiceData.totalAsNumber ?? 0);
+          setCustomerName(invoiceData.customer.name);
+          setInvoiceDate(invoiceData.issuedDateAsString ?? "");
+          setInvoiceStatus(invoiceData.status ?? "");
         }
 
         if (paymentsRes.ok) {
@@ -227,7 +243,9 @@ export default function PaymentForm({
     setIsNumbersLoading(true);
     setPrevPayments(null);
     setInvoiceTotal(null);
-    // setSelectedOptions(opts);
+    setCustomerName(null);
+    setInvoiceDate(null);
+    setInvoiceStatus(null);
 
     try {
       const [invoice, payments] = await Promise.all([
@@ -246,7 +264,10 @@ export default function PaymentForm({
           0,
         ),
       );
-      setInvoiceTotal(Number((invoiceData as Invoice).total));
+      setInvoiceTotal(invoiceData.totalAsNumber);
+      setCustomerName(invoiceData.customer.name);
+      setInvoiceDate(invoiceData.issuedDateAsString ?? "");
+      setInvoiceStatus(invoiceData.status ?? "");
     } catch (error) {
       console.error(error);
     } finally {
@@ -277,6 +298,7 @@ export default function PaymentForm({
                     hidePlaceholderWhenSelected
                     hideClearAllButton
                     disabled={isSubmitting}
+                    maxSelected={1}
                     onSearch={async (value) => {
                       return await handleSearch(value);
                     }}
@@ -300,87 +322,71 @@ export default function PaymentForm({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <CustomFormLabel label={t("Fields.notes.label")} />
-                <FormControl>
-                  <Textarea
-                    className="resize-none h-20"
-                    placeholder={t("Fields.notes.placeholder")}
-                    disabled={isSubmitting}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="method"
-            render={({ field }) => (
-              <FormItem>
-                <CustomFormLabel
-                  label={t("Fields.method.label")}
-                  isRequired={true}
-                />
-                <Select
-                  dir={dir}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={isSubmitting}
-                >
-                  <FormControl className="w-full">
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={t("Fields.method.placeholder")}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {methodList.map((item) => (
-                      <SelectItem key={item} value={item}>
-                        {t(`Labels.${item.toLowerCase()}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {!!prevPayments || !!invoiceTotal ? (
-            <div className="flex items-center justify-between text-sm border p-2 rounded-md">
-              <p className="text-center">
-                {t("Labels.total")}
-                <Badge
-                  variant="secondary"
-                  className="text-[15px] ms-1 bg-primary"
-                >
-                  {formatCurrency({
-                    isArabic,
-                    value: invoiceTotal ?? 0,
-                  })}
-                </Badge>
-              </p>
-              <p className="text-center">
-                {t("Labels.rest")}
-                <Badge variant="destructive" className="text-[15px] ms-1">
-                  {formatCurrency({
-                    isArabic,
-                    value: (invoiceTotal ?? 0) - (prevPayments ?? 0),
-                  })}
-                </Badge>
-              </p>
+          {!!prevPayments ||
+          !!invoiceTotal ||
+          !!customerName ||
+          !!invoiceDate ||
+          !!invoiceStatus ? (
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-sm border p-2 rounded-md">
+                <p className="text-center ">
+                  {t("Labels.total")}
+                  <Badge
+                    variant="secondary"
+                    className="text-[15px] ms-2 bg-primary"
+                  >
+                    {formatCurrency({
+                      isArabic,
+                      value: invoiceTotal ?? 0,
+                    })}
+                  </Badge>
+                </p>
+                <p className="text-center">
+                  {t("Labels.rest")}
+                  <Badge variant="destructive" className="text-[15px] ms-2">
+                    {formatCurrency({
+                      isArabic,
+                      value: (invoiceTotal ?? 0) - (prevPayments ?? 0),
+                    })}
+                  </Badge>
+                </p>
+              </div>
+              <div className="flex items-center justify-between text-sm border p-2 rounded-md">
+                <p className="text-center">
+                  {t("Labels.customer-name")}
+                  <Badge
+                    variant="secondary"
+                    className="text-[15px] ms-2 bg-primary"
+                  >
+                    {customerName}
+                  </Badge>
+                </p>
+
+                <p className="text-center">
+                  {t("Labels.invoice-date")}
+                  <Badge
+                    variant="secondary"
+                    className="text-[15px] ms-2 bg-primary"
+                  >
+                    {formatDates({
+                      isArabic,
+                      value: invoiceDate,
+                    })}
+                  </Badge>
+                </p>
+              </div>
+              <div className="flex items-center justify-between text-sm border p-2 rounded-md">
+                <p className="text-center flex items-center gap-2">
+                  {t("Labels.invoice-status")}
+                  <InvoiceStatusBadge status={invoiceStatus as InvoiceStatus} />
+                </p>
+              </div>
             </div>
           ) : isNumbersLoading ? (
             <div className="flex items-center gap-2">
               <Loader className="animate-spin" />
               <span className="animate-pulse">
-                {t("Labels.loading-total-rest")}
+                {t("Labels.loading-invoice-data")}
               </span>
             </div>
           ) : null}
@@ -428,6 +434,59 @@ export default function PaymentForm({
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="method"
+            render={({ field }) => (
+              <FormItem>
+                <CustomFormLabel
+                  label={t("Fields.method.label")}
+                  isRequired={true}
+                />
+                <Select
+                  dir={dir}
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={isSubmitting}
+                >
+                  <FormControl className="w-full">
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={t("Fields.method.placeholder")}
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {methodList.map((item) => (
+                      <SelectItem key={item} value={item}>
+                        {t(`Labels.${item.toLowerCase()}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="notes"
+            render={({ field }) => (
+              <FormItem>
+                <CustomFormLabel label={t("Fields.notes.label")} />
+                <FormControl>
+                  <Textarea
+                    className="resize-none h-20"
+                    placeholder={t("Fields.notes.placeholder")}
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <CustomFormSubmitButton
             isLoading={isSubmitting}
             label={t("Labels.save")}

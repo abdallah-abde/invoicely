@@ -42,6 +42,7 @@ export async function getOverdueCandidatesInvoices() {
         in: [InvoiceStatus.SENT, InvoiceStatus.PARTIAL_PAID],
       },
       dueAt: { lt: date },
+      // status: InvoiceStatus.OVERDUE,
     },
     include: invoiceFullInclude,
     orderBy: invoiceOrderBy,

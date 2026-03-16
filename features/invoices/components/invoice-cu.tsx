@@ -29,7 +29,7 @@ export default function InvoiceCU({
       setIsOpen={setIsOpen}
       mode={mode}
       label="invoices"
-      dialogMaxWidth="725px"
+      dialogMaxWidth="825px"
       mutationKey={["invoices", type]}
     >
       <InvoiceForm

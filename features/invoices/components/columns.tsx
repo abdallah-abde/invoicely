@@ -12,7 +12,7 @@ import { formatDates } from "@/lib/utils/date.utils";
 import { InvoiceRowActions } from "@/features/invoices/components/invoice-row-actions";
 import DropdownDownloadInvoice from "@/features/invoices/components/dropdown-download-invoice";
 import DropdownrecordPayment from "@/features/invoices/components/dropdown-record-payment";
-import { StatusBadge } from "@/features/shared/components/table/status-badge";
+import { InvoiceStatusBadge } from "@/features/shared/components/table/invoice-status-badge";
 
 export function getInvoiceColumns(options?: {
   withActions?: boolean;
@@ -69,7 +69,7 @@ export function getInvoiceColumns(options?: {
       header: ({ column }) => {
         return <DataTableHeaderSort column={column} title="status" />;
       },
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <InvoiceStatusBadge status={row.original.status} />,
     },
 
     {

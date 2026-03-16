@@ -13,21 +13,32 @@ import {
 } from "@tanstack/react-table";
 import { Table } from "@/components/ui/table";
 import { DataTablePagination } from "@/features/shared/components/table/data-table-pagination";
-import { columns } from "./columns";
+import { getUserColumns } from "@/features/users/components/columns";
 import DataTableSearchInput from "@/features/shared/components/table/data-table-search-input";
 import DataTableColumnsVisibility from "@/features/shared/components/table/data-table-columns-visibility";
 import DataTableHeader from "@/features/shared/components/table/data-table-header";
 import DataTableBody from "@/features/shared/components/table/data-table-body";
 import { UserProps } from "@/features/users/hooks/use-users";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useDirection } from "@/hooks/use-direction";
+import { useQuery } from "@tanstack/react-query";
+import { fetchUsers } from "@/features/users/api/user.api";
+import { GC_TIME } from "@/features/dashboard/charts.constants";
 
 export function UsersTable({ data }: { data: UserProps[] }) {
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+    initialData: data,
+    staleTime: GC_TIME,
+  });
+
+  const columns = React.useMemo(() => getUserColumns(), []);
+
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
   ]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -35,7 +46,7 @@ export function UsersTable({ data }: { data: UserProps[] }) {
   const [globalFilter, setGlobalFilter] = React.useState<string>("");
 
   const table = useReactTable({
-    data,
+    data: usersQuery.data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -54,8 +65,6 @@ export function UsersTable({ data }: { data: UserProps[] }) {
     },
   });
 
-  const dir = useDirection();
-
   return (
     <div className="w-full">
       <div className="flex flex-row items-start justify-between gap-2 py-4">
@@ -65,14 +74,11 @@ export function UsersTable({ data }: { data: UserProps[] }) {
         />
         <DataTableColumnsVisibility table={table} />
       </div>
-      <div className="rounded-md border">
-        <ScrollArea dir={dir}>
-          <Table>
-            <DataTableHeader table={table} />
-            <DataTableBody table={table} columnsLength={columns.length} />
-          </Table>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+      <div className="w-full rounded-md border">
+        <Table>
+          <DataTableHeader table={table} />
+          <DataTableBody table={table} columnsLength={columns.length} />
+        </Table>
       </div>
       <DataTablePagination table={table} />
     </div>

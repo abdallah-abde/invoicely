@@ -1,25 +1,26 @@
-import prisma from "@/lib/db/prisma";
+import { getPaymentsByInvoiceId } from "@/features/payments/db/payment.query";
+import { badRequest, notFound, serverError } from "@/lib/api/api-response";
+import { DomainError } from "@/lib/errors/domain-error";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ invoiceId: string }> }
+  _: Request,
+  { params }: { params: Promise<{ invoiceId: string }> },
 ) {
   try {
     const { invoiceId } = await params;
-    const payment = await prisma.payment.findMany({ where: { invoiceId } });
-    if (!payment) {
-      return NextResponse.json(
-        { error: "Payments not found" },
-        { status: 404 }
-      );
+
+    const payments = await getPaymentsByInvoiceId(invoiceId);
+
+    if (!payments) {
+      return notFound("validation.payments-not-found");
     }
-    return NextResponse.json(payment, { status: 200 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: "Error fetching payments" },
-      { status: 500 }
-    );
+    return NextResponse.json(payments, { status: 200 });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
+    return serverError("validation.failed-to-get-payments");
   }
 }

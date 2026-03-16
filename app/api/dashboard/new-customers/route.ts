@@ -1,6 +1,7 @@
 import { cached } from "@/features/dashboard/cached";
 import { GC_TIME } from "@/features/dashboard/charts.constants";
 import prisma from "@/lib/db/prisma";
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 import { getFromDate } from "@/lib/utils/date.utils";
 import { NextResponse } from "next/server";
 
@@ -21,7 +22,7 @@ export async function GET(req: Request) {
   `;
       return result.map((row) => ({
         date: row.date.toISOString().split("T")[0],
-        count: Number(row.count),
+        count: normalizeDecimal(row.count),
       }));
     }),
   );

@@ -3,21 +3,27 @@ import {
   updateProduct,
 } from "@/features/products/db/product.mutation";
 import { getProductById } from "@/features/products/db/product.query";
-import { mapProductsToDTO } from "@/features/products/lib/product.normalize";
+import { mapSingleProductToDTO } from "@/features/products/lib/product.normalize";
 import { productSchema } from "@/features/products/schemas/product.schema";
-import { notFound, serverError } from "@/lib/api/api-response";
+import { badRequest, notFound, serverError } from "@/lib/api/api-response";
+import { DomainError } from "@/lib/errors/domain-error";
 import { NextResponse } from "next/server";
 
 export async function DELETE(
-  request: Request,
+  _: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
+
     await deleteProduct(id);
 
-    return NextResponse.json({ success: true }, { status: 204 });
-  } catch (error) {
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
     return serverError("validation.failed-to-delete-product");
   }
 }
@@ -37,14 +43,18 @@ export async function PUT(
       return notFound("validation.product-not-found-after-update");
     }
 
-    return NextResponse.json(mapProductsToDTO([product])[0], { status: 200 });
-  } catch (error) {
+    return NextResponse.json(mapSingleProductToDTO(product), { status: 201 });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
     return serverError("validation.failed-to-update-product");
   }
 }
 
 export async function GET(
-  request: Request,
+  _: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -53,11 +63,15 @@ export async function GET(
     const product = await getProductById(id);
 
     if (!product) {
-      return serverError("validation.product-not-found");
+      return notFound("validation.product-not-found");
     }
-    return NextResponse.json(product, { status: 200 });
-  } catch (error) {
-    console.error(error);
+
+    return NextResponse.json(mapSingleProductToDTO(product), { status: 200 });
+  } catch (err) {
+    if (err instanceof DomainError) {
+      return badRequest(err.code);
+    }
+    console.error(err);
     return serverError("validation.failed-to-get-product");
   }
 }

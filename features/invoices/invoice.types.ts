@@ -8,7 +8,9 @@ import {
 import {
   PaymentMethod,
   PaymentPrismaPayload,
+  PaymentType,
 } from "@/features/payments/payment.types";
+import { ProductType } from "../products/product.types";
 
 export interface InvoiceType extends Omit<
   Omit<Omit<Invoice, "total">, "createdAt">,
@@ -32,6 +34,7 @@ export interface InvoiceType extends Omit<
       price: number;
     }
   >;
+  Payments: PaymentType[];
   paidAmount: number;
   rest: number;
 }
@@ -164,7 +167,7 @@ export type InvoiceFormValues = {
 };
 
 export type InvoiceFormProduct = {
-  product: Product;
+  product: ProductType;
   price: number;
   quantity: number;
   unit: string;

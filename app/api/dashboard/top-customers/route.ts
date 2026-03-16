@@ -1,6 +1,8 @@
 import { cached } from "@/features/dashboard/cached";
 import { GC_TIME } from "@/features/dashboard/charts.constants";
+import { InvoiceStatus } from "@/features/invoices/invoice.types";
 import prisma from "@/lib/db/prisma";
+import { normalizeDecimal } from "@/lib/normalize/primitives";
 import { getFromDate } from "@/lib/utils/date.utils";
 import { NextResponse } from "next/server";
 
@@ -13,7 +15,7 @@ export async function GET(req: Request) {
       const data = await prisma.invoice.groupBy({
         by: ["customerId"],
         where: {
-          status: "PAID",
+          status: InvoiceStatus.PAID,
           issuedAt: {
             gte: from,
           },
@@ -48,7 +50,7 @@ export async function GET(req: Request) {
       return data.map((item) => ({
         customerId: item.customerId,
         name: customerMap.get(item.customerId) ?? "Unknown",
-        total: item._sum.total?.toNumber() ?? 0,
+        total: normalizeDecimal(item._sum.total) ?? 0,
       }));
     }),
   );
