@@ -55,7 +55,7 @@ export default function ProductForm({
       name: product?.name || "",
       description: product?.description || "",
       unit: product?.unit || "",
-      price: product?.priceAsNumber.toString() || "",
+      price: product?.priceAsNumber || 0,
     },
   });
 
