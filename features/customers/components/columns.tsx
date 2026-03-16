@@ -11,6 +11,11 @@ import { CustomerRowActions } from "@/features/customers/components/customer-row
 
 export const columns: ColumnDef<CustomerType>[] = [
   {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <CustomerRowActions customer={row.original} />,
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="name" />;
@@ -40,7 +45,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         <div className="text-xs xs:text-sm">
           {row.original.phone.replace(
             /(\d{5})(\d{2})(\d{3})(\d{4})/,
-            "$1-$2-$3-$4"
+            "$1-$2-$3-$4",
           )}
         </div>
       );
@@ -89,7 +94,7 @@ export const columns: ColumnDef<CustomerType>[] = [
       const isArabic = useArabic();
 
       return (
-        <div>
+        <div className="w-full flex items-center justify-center">
           <Badge
             variant="secondary"
             className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
@@ -102,10 +107,5 @@ export const columns: ColumnDef<CustomerType>[] = [
         </div>
       );
     },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => <CustomerRowActions customer={row.original} />,
   },
 ];

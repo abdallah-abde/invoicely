@@ -11,6 +11,11 @@ import { ProductRowActions } from "@/features/products/components/product-row-ac
 
 export const columns: ColumnDef<ProductType>[] = [
   {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => <ProductRowActions product={row.original} />,
+  },
+  {
     accessorKey: "name",
     header: ({ column }) => {
       return <DataTableHeaderSort column={column} title="name" />;
@@ -75,7 +80,7 @@ export const columns: ColumnDef<ProductType>[] = [
       const isArabic = useArabic();
 
       return (
-        <div>
+        <div className="w-full flex items-center justify-center">
           <Badge
             variant="secondary"
             className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
@@ -88,10 +93,5 @@ export const columns: ColumnDef<ProductType>[] = [
         </div>
       );
     },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => <ProductRowActions product={row.original} />,
   },
 ];

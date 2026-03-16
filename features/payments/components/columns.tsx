@@ -19,6 +19,21 @@ import DropdownDownloadReceipt from "./dropdown-download-receipt";
 export function getPaymentColumns(): ColumnDef<PaymentType>[] {
   const columns: ColumnDef<PaymentType>[] = [
     {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const status = row.original.status;
+
+        return (
+          status === PaymentStatus.ACTIVE && (
+            <PaymentRowActions payment={row.original}>
+              <DropdownDownloadReceipt paymentId={row.original.id} />
+            </PaymentRowActions>
+          )
+        );
+      },
+    },
+    {
       accessorKey: "invoice.number",
       header: ({ column }) => {
         return <DataTableHeaderSort column={column} title="invoicenumber" />;
@@ -146,22 +161,6 @@ export function getPaymentColumns(): ColumnDef<PaymentType>[] {
       cell: ({ row }) => (
         <div className="text-xs xs:text-sm">{row.original.notes}</div>
       ),
-    },
-
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const status = row.original.status;
-
-        return (
-          status === PaymentStatus.ACTIVE && (
-            <PaymentRowActions payment={row.original}>
-              <DropdownDownloadReceipt paymentId={row.original.id} />
-            </PaymentRowActions>
-          )
-        );
-      },
     },
   ];
 

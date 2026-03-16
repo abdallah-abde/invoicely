@@ -60,7 +60,7 @@ export default function DataTableActions({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-6 xs:h-8 w-6 xs:w-8 p-0 me-2 cursor-pointer"
+          className="h-6 xs:h-8 w-6 xs:w-8 p-0 ms-2 cursor-pointer"
         >
           <span className="sr-only">Open menu</span>
           <MoreVertical />

@@ -16,6 +16,26 @@ import { caseInsensitiveSort } from "@/features/shared/utils/table.utils";
 export function getUserColumns(): ColumnDef<UserProps>[] {
   const columns: ColumnDef<UserProps>[] = [
     {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const { isRoleSuperAdmin } = useRole();
+
+        return (
+          <CellActions
+            id={row.original.id}
+            name={row.original.name}
+            image={row.original.image}
+            role={row.original.role}
+            email={row.original.email}
+            emailVerified={row.original.emailVerified}
+            hasDeletePermission={row.original.hasDeletePermission}
+            showDelete={isRoleSuperAdmin}
+          />
+        );
+      },
+    },
+    {
       accessorKey: "name",
       header: ({ column }) => {
         return <DataTableHeaderSort column={column} title="name" />;
@@ -90,26 +110,6 @@ export function getUserColumns(): ColumnDef<UserProps>[] {
               </Tooltip>
             )}
           </div>
-        );
-      },
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const { isRoleSuperAdmin } = useRole();
-
-        return (
-          <CellActions
-            id={row.original.id}
-            name={row.original.name}
-            image={row.original.image}
-            role={row.original.role}
-            email={row.original.email}
-            emailVerified={row.original.emailVerified}
-            hasDeletePermission={row.original.hasDeletePermission}
-            showDelete={isRoleSuperAdmin}
-          />
         );
       },
     },

@@ -196,7 +196,7 @@ export function getInvoiceColumns(options?: {
         const isArabic = useArabic();
 
         return (
-          <div>
+          <div className="w-full flex items-center justify-center">
             <Badge
               variant="secondary"
               className="select-none text-xs xs:text-[13px] size-6 xs:size-7"
@@ -227,7 +227,6 @@ export function getInvoiceColumns(options?: {
   }
 
   return [
-    ...baseColumns,
     {
       id: "actions",
       enableHiding: false,
@@ -248,5 +247,6 @@ export function getInvoiceColumns(options?: {
         );
       },
     },
+    ...baseColumns,
   ];
 }
